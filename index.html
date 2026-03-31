@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
+<html lang="de" crxemulator=""><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MNC HUB — Los Santos</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Rajdhani:wght@400;500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#080808;--s1:#111111;--s2:#181818;--s3:#252525;--s4:#2c2c2c;
@@ -209,7 +207,7 @@ tbody tr:hover{background:var(--s2);}
   .schip b{font-size:20px;}
 }
 </style>
-</head>
+<style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
 <body>
 
 <header class="hdr">
@@ -218,7 +216,7 @@ tbody tr:hover{background:var(--s2);}
     <div class="ltxt">
       <div class="jp">ミッド ナイト クラブ</div>
       <div class="mn">MNC HUB</div>
-      <div class="sb">LOS SANTOS CHAPTER</div>
+      <div class="sb">Retro Roleplay</div>
     </div>
   </div>
   <nav class="nav">
@@ -226,8 +224,8 @@ tbody tr:hover{background:var(--s2);}
     <button class="nb" onclick="showPage('member',this)">Mitglieder</button>
   </nav>
   <div class="hstats">
-    <div class="schip">Fraktionen <b id="hcf">0</b></div>
-    <div class="schip">Mitglieder <b id="hcm">0</b></div>
+    <div class="schip">Fraktionen <b id="hcf">33</b></div>
+    <div class="schip">Mitglieder <b id="hcm">20</b></div>
   </div>
 </header>
 
@@ -239,17 +237,380 @@ tbody tr:hover{background:var(--s2);}
     <button class="fbtn on" data-ff="all" onclick="setFF(this)">ALLE</button>
     <button class="abtn" onclick="openFM()">+ EINTRAG</button>
   </div>
-  <div class="fgrid" id="fgrid"></div>
+  <div class="fgrid" id="fgrid"><div class="fc mnc" onclick="openDet('mnc')">
+      <div class="cbar"><div style="background:#000000"></div><div style="background:#FFD209"></div><div style="background:#aaaaaa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">MNC (Wir)</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">PRIMÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#FFD209"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#FFD209</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Chrome</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#ffd200"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Yellow</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('mnc')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('mnc')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p1')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Angels of Death</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Schwarz Metallic</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Schwarz Metallic</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Golden Shower</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Bei Everon: Zerfledderte US-Flagge (Liberty)</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p1')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p1')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p2')">
+      <div class="cbar"><div style="background:#360081"></div><div style="background:#360081"></div><div style="background:#6633aa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Ballas</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#360081"></div><span class="clbl">PRIMÄR</span><span class="cval">#360081</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#360081"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#360081</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Anodized Purple</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Purple</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Black Carbon · Full Tune · Bremsen Stufe 2</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p2')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p2')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p3')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Bloodlines</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Graceful Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Graceful Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Candy Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Rot</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Big Worm · Reifenqualm Rot · Livery goldene Umrisslinierung · Innenraum Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p3')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p3')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p4')">
+      <div class="cbar"><div style="background:#2244cc"></div><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#2244cc">BlueLions</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PRIMÄR</span><span class="cval">Anodized Blue Chameleon</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p4')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p4')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p5')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Bloodmoon</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Torino Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Freiwillig</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Metallic Cabernet Red</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p5')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p5')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p6')">
+      <div class="cbar"><div style="background:#c9a84c"></div><div style="background:#c9a84c"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#c9a84c">BrucksGmbH</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PRIMÄR</span><span class="cval">Anodized Gold</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Anodized Gold</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p6')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p6')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p7')">
+      <div class="cbar"><div style="background:#000000"></div><div style="background:#000000"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Blue Hustlers</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">PRIMÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Ulti Maui Blue Poly</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Chrome · Reifenqualm #000EFF</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p7')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p7')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p8')">
+      <div class="cbar"><div style="background:#f0f0f0"></div><div style="background:#1a1a1a"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#f0f0f0">Cavelaz</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PRIMÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p8')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p8')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p9')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Cosa Nero</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p9')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p9')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p10')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Cosanero</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Kennzeichen Pounders Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p10')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p10')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p11')">
+      <div class="cbar"><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Epsilon</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p11')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p11')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p12')">
+      <div class="cbar"><div style="background:#2244cc"></div><div style="background:#aaaaaa"></div><div style="background:#6633aa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#2244cc">Fanx</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PRIMÄR</span><span class="cval">Epsilon Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Util Dark Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Purple</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blacklight</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p12')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p12')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p13')">
+      <div class="cbar"><div style="background:#22aa44"></div><div style="background:#22aa44"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#22aa44">Grove</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p13')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p13')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p14')">
+      <div class="cbar"><div style="background:#1D0000"></div><div style="background:#1D0000"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Hijos del Diablo</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1D0000"></div><span class="clbl">PRIMÄR</span><span class="cval">#1D0000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1D0000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#1D0000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matte Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Fenster Pures Schwarz · Full Tune</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p14')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p14')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p15')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">La Fenice</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Carbon Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Carbon Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Anodized Green Chameleon</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p15')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p15')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p16')">
+      <div class="cbar"><div style="background:#884422"></div><div style="background:#884422"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#884422">La Sangre Azul</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#884422"></div><span class="clbl">PRIMÄR</span><span class="cval">Chameleon Anodized Copper</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#884422"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Chameleon Anodized Copper</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Bright Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Electric Blue</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Track Geschmiedet 5 Atomic · Aufschrift "Atomic"</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p16')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p16')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p17')">
+      <div class="cbar"><div style="background:#666666"></div><div style="background:#666666"></div><div style="background:#c9a84c"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#666666">Locos</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">PRIMÄR</span><span class="cval">Matte Grey</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matte Grey</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Brushed Gold</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Golden Shower</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Brushed Gold</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p17')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p17')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p18')">
+      <div class="cbar"><div style="background:#100000"></div><div style="background:#100000"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Malvera</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#100000"></div><span class="clbl">PRIMÄR</span><span class="cval">#100000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#100000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#100000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Xenon Rot</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Metallic Black</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p18')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p18')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p19')">
+      <div class="cbar"><div style="background:#7B4906"></div><div style="background:#7B4906"></div><div style="background:#dd6600"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#7B4906">Niners</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#7B4906"></div><span class="clbl">PRIMÄR</span><span class="cval">#7B4906</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#7B4906"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#7B4906</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Orange</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Orange</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Under Street Mercie Concave Pure White</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p19')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p19')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p20')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Panthers</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Weißer Innenraum</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p20')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p20')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p21')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#131313"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Peckham</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Rot</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p21')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p21')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p22')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Retrocartel</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Dark Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p22')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p22')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p23')">
+      <div class="cbar"><div style="background:#aaaaaa"></div><div style="background:#aaaaaa"></div><div style="background:#dd4488"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#aaaaaa">Silent Rose</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd4488"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Hot Pink</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd4488"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Hot Pink</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz · Scheiben Schwarz · Full Tune</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p23')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p23')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p24')">
+      <div class="cbar"><div style="background:#f0f0f0"></div><div style="background:#f0f0f0"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#f0f0f0">Sin Nombre</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PRIMÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz · Scheiben getönt</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p24')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p24')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p25')">
+      <div class="cbar"><div style="background:#8a7040"></div><div style="background:#131313"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#8a7040">Sicario</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#8a7040"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Desert Tan Brown</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Orange</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Pure White · Scheiben Tönung Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p25')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p25')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p26')">
+      <div class="cbar"><div style="background:#1735B3"></div><div style="background:#1735B3"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Staya</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1735B3"></div><span class="clbl">PRIMÄR</span><span class="cval">#1735B3</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1735B3"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#1735B3</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p26')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p26')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p27')">
+      <div class="cbar"><div style="background:#DEFF01"></div><div style="background:#DEFF01"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#DEFF01">Surenos</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#DEFF01"></div><span class="clbl">PRIMÄR</span><span class="cval">#DEFF01</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#DEFF01"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#DEFF01</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p27')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p27')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p28')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Trust No One</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Frost White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Rauch #70FF00</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p28')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p28')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p29')">
+      <div class="cbar"><div style="background:#00FFAC"></div><div style="background:#00FFAC"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#00FFAC">Venza Syndicat</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#00FFAC"></div><span class="clbl">PRIMÄR</span><span class="cval">#00FFAC</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#00FFAC"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#00FFAC</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Reifenqualm #00FFAC · Int/Dash Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p29')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p29')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p30')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Zunesha</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Black</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Orange überall</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p30')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p30')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p31')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#c9a84c"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Avrupa Mafia</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Red Cabernet</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Red Cabernet</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Light Gold</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p31')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p31')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p32')">
+      <div class="cbar"><div style="background:#22aa44"></div><div style="background:#22aa44"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#22aa44">Adalet</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Sea Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Sea Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic White</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Scheiben Tönung Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p32')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p32')">LÖSCHEN</button>
+      </div>
+    </div></div>
 </div>
 
 <!-- MITGLIEDER -->
 <div class="page" id="page-member">
   <div class="stitle"><div><h2>Mitgliederliste</h2><small>Offizielle Club-Mitglieder · Vertraulich</small></div></div>
   <div class="msumm">
-    <div class="mstat"><div class="n" id="sa">0</div><div class="l">Aktiv</div></div>
+    <div class="mstat"><div class="n" id="sa">20</div><div class="l">Aktiv</div></div>
     <div class="mstat"><div class="n" id="sn">0</div><div class="l">Inaktiv</div></div>
     <div class="mstat"><div class="n" id="su">0</div><div class="l">Urlaub</div></div>
-    <div class="mstat"><div class="n" id="sg">0</div><div class="l">Gesamt</div></div>
+    <div class="mstat"><div class="n" id="sg">20</div><div class="l">Gesamt</div></div>
   </div>
   <div class="tb">
     <div class="srch"><input id="minp" type="text" placeholder="Mitglied suchen…" oninput="rmem()"></div>
@@ -261,7 +622,7 @@ tbody tr:hover{background:var(--s2);}
   <div class="twrap">
     <table>
       <thead><tr><th>#</th><th>Name</th><th>Rang</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
-      <tbody id="mtb"></tbody>
+      <tbody id="mtb"><tr><td class="numc">01</td><td class="namc">➤ Paco Akaza Himura</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m1')">✎</button> <button class="rabtn del" onclick="delMem('m1')">✕</button></td></tr><tr><td class="numc">02</td><td class="namc">➤ Enrico Tizman</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m2')">✎</button> <button class="rabtn del" onclick="delMem('m2')">✕</button></td></tr><tr><td class="numc">03</td><td class="namc">➤ Nico Smith</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m3')">✎</button> <button class="rabtn del" onclick="delMem('m3')">✕</button></td></tr><tr><td class="numc">04</td><td class="namc">➤ Chelli Ridley</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m4')">✎</button> <button class="rabtn del" onclick="delMem('m4')">✕</button></td></tr><tr><td class="numc">05</td><td class="namc">➤ Cesar Perez</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m5')">✎</button> <button class="rabtn del" onclick="delMem('m5')">✕</button></td></tr><tr><td class="numc">06</td><td class="namc">➤ Kevin Schmit</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m6')">✎</button> <button class="rabtn del" onclick="delMem('m6')">✕</button></td></tr><tr><td class="numc">07</td><td class="namc">➤ Jack Nostra</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m7')">✎</button> <button class="rabtn del" onclick="delMem('m7')">✕</button></td></tr><tr><td class="numc">08</td><td class="namc">➤ Nick Bronx</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m8')">✎</button> <button class="rabtn del" onclick="delMem('m8')">✕</button></td></tr><tr><td class="numc">09</td><td class="namc">➤ David Koslow</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m9')">✎</button> <button class="rabtn del" onclick="delMem('m9')">✕</button></td></tr><tr><td class="numc">10</td><td class="namc">➤ Emilio Freespin</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m10')">✎</button> <button class="rabtn del" onclick="delMem('m10')">✕</button></td></tr><tr><td class="numc">11</td><td class="namc">➤ Florian Gremory</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m11')">✎</button> <button class="rabtn del" onclick="delMem('m11')">✕</button></td></tr><tr><td class="numc">12</td><td class="namc">➤ Loki Onkl</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m12')">✎</button> <button class="rabtn del" onclick="delMem('m12')">✕</button></td></tr><tr><td class="numc">13</td><td class="namc">➤ Lucio Salamanca</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m13')">✎</button> <button class="rabtn del" onclick="delMem('m13')">✕</button></td></tr><tr><td class="numc">14</td><td class="namc">➤ Pietro Onkel von Balgarew</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m14')">✎</button> <button class="rabtn del" onclick="delMem('m14')">✕</button></td></tr><tr><td class="numc">15</td><td class="namc">➤ Vito Morelli</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m15')">✎</button> <button class="rabtn del" onclick="delMem('m15')">✕</button></td></tr><tr><td class="numc">16</td><td class="namc">➤ Ben Baba</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m16')">✎</button> <button class="rabtn del" onclick="delMem('m16')">✕</button></td></tr><tr><td class="numc">17</td><td class="namc">➤ Levin Baba</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m17')">✎</button> <button class="rabtn del" onclick="delMem('m17')">✕</button></td></tr><tr><td class="numc">18</td><td class="namc">➤ Haro Petrovic</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m18')">✎</button> <button class="rabtn del" onclick="delMem('m18')">✕</button></td></tr><tr><td class="numc">19</td><td class="namc">➤ Marcel Zafferano</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m19')">✎</button> <button class="rabtn del" onclick="delMem('m19')">✕</button></td></tr><tr><td class="numc">20</td><td class="namc">➤ Cougar</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m20')">✎</button> <button class="rabtn del" onclick="delMem('m20')">✕</button></td></tr></tbody>
     </table>
   </div>
   <div class="expbox">
@@ -277,16 +638,36 @@ tbody tr:hover{background:var(--s2);}
 <!-- DETAIL MODAL -->
 <div class="ov" id="detov">
   <div class="detm">
-    <div class="detbar" id="detbar"></div>
+    <div class="detbar" id="detbar"><div style="flex:1;background:#000000"></div><div style="flex:1;background:#FFD209"></div><div style="flex:1;background:#aaaaaa"></div></div>
     <div class="dethead">
       <div>
-        <div class="detname" id="detname">—</div>
+        <div class="detname" id="detname" style="color: var(--white);">MNC (Wir)</div>
         <div class="detsub">Lackierung · Vollständige Details</div>
       </div>
       <button class="xbtn" onclick="closeDet()">✕</button>
     </div>
     <div class="detbody">
-      <div class="detrows" id="detrows"></div>
+      <div class="detrows" id="detrows">
+    <div class="detrow">
+      <div class="detdot" style="background:#000000"></div>
+      <div class="detlbl">Primärfarbe</div>
+      <div class="detval">#000000</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#FFD209"></div>
+      <div class="detlbl">Sekundärfarbe</div>
+      <div class="detval">#FFD209</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#aaaaaa"></div>
+      <div class="detlbl">Perleffekt</div>
+      <div class="detval">Chrome</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#ffd200"></div>
+      <div class="detlbl">Scheinwerfer</div>
+      <div class="detval">Yellow</div>
+    </div></div>
       <div id="detdiv" class="detdivider" style="display:none"></div>
       <div id="hintswrap" style="display:none">
         <div class="hlbl">Hinweise / Sonstiges</div>
@@ -294,7 +675,11 @@ tbody tr:hover{background:var(--s2);}
       </div>
       <div class="vwrap" style="margin-top:24px">
         <div class="vlbl">Discord / Docs Vorlage</div>
-        <div class="vtxt" id="detvtxt"></div>
+        <div class="vtxt" id="detvtxt">FRAKTION: "MNC (Wir)"
+Primär: #000000
+Sekundär: #FFD209
+Perleffekt: Chrome
+Scheinwerfer: Yellow</div>
         <button class="cpybtn" id="detcpy" onclick="copyDet()">KOPIEREN</button>
       </div>
     </div>
@@ -746,5 +1131,6 @@ function toast(msg,type){
 document.querySelectorAll('.ov,.fov,.cpov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
 init();
 </script>
-</body>
-</html>
+
+
+</body></html>
