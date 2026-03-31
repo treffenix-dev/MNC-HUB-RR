@@ -207,7 +207,7 @@ tbody tr:hover{background:var(--s2);}
   .schip b{font-size:20px;}
 }
 </style>
-<style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
+<style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
 <body>
 
 <header class="hdr">
@@ -687,14 +687,14 @@ Scheinwerfer: Yellow</div>
 </div>
 
 <!-- FRAKTION FORM -->
-<div class="fov" id="fmov">
+<div class="fov open" id="fmov">
   <div class="fmod">
     <div class="fmh">
       <div class="fmtitle" id="fmtitle">NEUE FRAKTION</div>
       <button class="xbtn" onclick="closeFM()">✕</button>
     </div>
     <div class="fmb">
-      <div class="pvbar"><div id="pv1"></div><div id="pv2"></div><div id="pv3"></div></div>
+      <div class="pvbar"><div id="pv1" style="background: rgb(26, 26, 26);"></div><div id="pv2" style="background: rgb(26, 26, 26);"></div><div id="pv3" style="background: rgb(26, 26, 26);"></div></div>
       <div class="fgr">
         <div class="fg fful">
           <label class="flbl">Fraktionsname *</label>
@@ -703,35 +703,41 @@ Scheinwerfer: Yellow</div>
         <div class="fg">
           <label class="flbl">Primärfarbe</label>
           <div class="cirow">
-            <button type="button" class="cswatch" id="fpSw" onclick="openCp('fp','fpSw')" title="Farbe wählen"></button>
+            <button type="button" class="cswatch" id="fpSw" onclick="openCp('fp','fpSw')" title="Farbe wählen" style="background: var(--s3);"></button>
             <input class="fi" id="fp" type="text" placeholder="#000000 oder Farbname" oninput="syncSw('fp','fpSw');upPv()">
           </div>
         </div>
         <div class="fg">
           <label class="flbl">Sekundärfarbe</label>
           <div class="cirow">
-            <button type="button" class="cswatch" id="fsSw" onclick="openCp('fs','fsSw')" title="Farbe wählen"></button>
+            <button type="button" class="cswatch" id="fsSw" onclick="openCp('fs','fsSw')" title="Farbe wählen" style="background: var(--s3);"></button>
             <input class="fi" id="fs" type="text" placeholder="#000000 oder Farbname" oninput="syncSw('fs','fsSw');upPv()">
           </div>
         </div>
         <div class="fg">
           <label class="flbl">Perleffekt</label>
           <div class="cirow">
-            <button type="button" class="cswatch" id="fpeSw" onclick="openCp('fpe','fpeSw')" title="Farbe wählen"></button>
+            <button type="button" class="cswatch" id="fpeSw" onclick="openCp('fpe','fpeSw')" title="Farbe wählen" style="background: var(--s3);"></button>
             <input class="fi" id="fpe" type="text" placeholder="z.B. Pure White, Chrome" oninput="syncSw('fpe','fpeSw');upPv()">
           </div>
         </div>
         <div class="fg">
-          <label class="flbl">Scheinwerfer</label>
+          <label class="flbl">Reifenqualm</label>
           <div class="cirow">
-            <button type="button" class="cswatch" id="fschSw" onclick="openCp('fsch','fschSw')" title="Farbe wählen"></button>
+            <button type="button" class="cswatch" id="fschSw" onclick="openCp('fsch','fschSw')" title="Farbe wählen" style="background: var(--s3);"></button>
             <input class="fi" id="fsch" type="text" placeholder="z.B. Golden Shower, Blue" oninput="syncSw('fsch','fschSw')">
           </div>
-        </div>
+        <div class="fg">
+          <label class="flbl">Scheinwerfer</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fschSw" onclick="openCp('fsch','fschSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fsch" type="text" placeholder="z.B. Golden Shower, Blue" oninput="syncSw('fsch','fschSw')">
+          </div>
+        </div></div>
         <div class="fg">
           <label class="flbl">Unterboden</label>
           <div class="cirow">
-            <button type="button" class="cswatch" id="fubSw" onclick="openCp('fub','fubSw')" title="Farbe wählen"></button>
+            <button type="button" class="cswatch" id="fubSw" onclick="openCp('fub','fubSw')" title="Farbe wählen" style="background: var(--s3);"></button>
             <input class="fi" id="fub" type="text" placeholder="z.B. Schwarz, Lime Green" oninput="syncSw('fub','fubSw')">
           </div>
         </div>
@@ -786,8 +792,8 @@ Scheinwerfer: Yellow</div>
     </div>
     <div class="cpmb">
       <input type="color" class="cpBig" id="cpColInput" oninput="onCpCol()">
-      <div class="cpPreview" id="cpPreview"></div>
-      <div class="cpLabel" id="cpLabel">Hex oder Farbname eingeben</div>
+      <div class="cpPreview" id="cpPreview" style="background: rgb(241, 9, 9);"></div>
+      <div class="cpLabel" id="cpLabel">#f10909</div>
       <input class="fi" id="cpTxt" type="text" placeholder="#000000 oder Farbname" oninput="onCpTxt()" style="width:100%;font-family:'Share Tech Mono';font-size:15px;">
     </div>
     <div class="cpmf">
