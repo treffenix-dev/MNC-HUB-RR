@@ -15,20 +15,20 @@
 body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
 
 /* ── HEADER ─────────────────────────────────────────────────────────── */
-.hdr{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.98);border-bottom:2px solid var(--border2);backdrop-filter:blur(16px);padding:0 36px;display:flex;align-items:center;justify-content:space-between;height:74px;gap:20px;}
-.logo{display:flex;align-items:center;gap:16px;flex-shrink:0;}
-.lbox{width:54px;height:54px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono';font-size:14px;font-weight:700;color:var(--gold);position:relative;flex-shrink:0;letter-spacing:1px;}
-.lbox::before{content:'';position:absolute;inset:5px;border:1px solid var(--gold3);}
-.ltxt .jp{font-family:'Share Tech Mono';font-size:11px;color:var(--gold3);letter-spacing:3px;}
-.ltxt .mn{font-family:'Bebas Neue';font-size:30px;letter-spacing:4px;line-height:1;color:var(--white);}
-.ltxt .sb{font-family:'Share Tech Mono';font-size:10px;color:var(--g2);letter-spacing:2px;margin-top:2px;}
+.hdr{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.98);border-bottom:2px solid var(--border2);backdrop-filter:blur(16px);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:116px;gap:24px;}
+.logo{display:flex;align-items:center;gap:22px;flex-shrink:0;}
+.lbox{width:88px;height:88px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono';font-size:22px;font-weight:700;color:var(--gold);position:relative;flex-shrink:0;letter-spacing:1px;}
+.lbox::before{content:'';position:absolute;inset:7px;border:1px solid var(--gold3);}
+.ltxt .jp{font-family:'Share Tech Mono';font-size:15px;color:var(--gold3);letter-spacing:4px;}
+.ltxt .mn{font-family:'Bebas Neue';font-size:58px;letter-spacing:6px;line-height:1;color:var(--white);}
+.ltxt .sb{font-family:'Share Tech Mono';font-size:13px;letter-spacing:3px;margin-top:4px;background:linear-gradient(90deg,#e040a0,#ff6030,#ffb830,#c060e0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;}
 .nav{display:flex;gap:4px;}
-.nb{padding:10px 28px;background:none;border:none;cursor:pointer;font-family:'Rajdhani';font-size:16px;font-weight:700;color:var(--g2);letter-spacing:2px;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .18s;}
+.nb{padding:10px 32px;background:none;border:none;cursor:pointer;font-family:'Rajdhani';font-size:18px;font-weight:700;color:var(--g2);letter-spacing:2px;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .18s;}
 .nb:hover{color:var(--white);}
 .nb.on{color:var(--gold2);border-bottom-color:var(--gold);}
 .hstats{display:flex;gap:12px;flex-shrink:0;}
-.schip{padding:10px 20px;border:1px solid var(--border2);background:var(--s2);font-family:'Rajdhani';font-size:15px;font-weight:600;color:var(--white);letter-spacing:1px;display:flex;align-items:center;gap:10px;white-space:nowrap;}
-.schip b{color:var(--gold2);font-size:26px;font-family:'Bebas Neue';letter-spacing:1px;line-height:1;}
+.schip{padding:12px 24px;border:1px solid var(--border2);background:var(--s2);font-family:'Rajdhani';font-size:16px;font-weight:600;color:var(--white);letter-spacing:1px;display:flex;align-items:center;gap:10px;white-space:nowrap;}
+.schip b{color:var(--gold2);font-size:32px;font-family:'Bebas Neue';letter-spacing:1px;line-height:1;}
 
 /* ── PAGES ──────────────────────────────────────────────────────────── */
 .page{display:none;padding:36px;max-width:1600px;margin:0 auto;}
@@ -52,27 +52,32 @@ body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;f
 .abtn{padding:13px 26px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:15px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
 .abtn:hover{filter:brightness(1.12);transform:translateY(-1px);}
 
-/* ── FRAK GRID ──────────────────────────────────────────────────────── */
-.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px;align-items:start;}
-.fc{background:var(--s1);border:1px solid var(--border);cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;flex-direction:column;}
-.fc:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 34px rgba(0,0,0,.65);}
-.fc.mnc{border-color:var(--gold3);}
-.fc.mnc::after{content:'★ WIR';position:absolute;top:12px;right:14px;font-family:'Share Tech Mono';font-size:10px;color:var(--gold);letter-spacing:2px;}
-.cbar{height:6px;display:flex;flex-shrink:0;}
-.cbar div{flex:1;}
-.fcb{padding:16px 18px 12px;flex:1;}
-.fcname{font-family:'Bebas Neue';font-size:28px;letter-spacing:2px;margin-bottom:12px;line-height:1;}
-.fccols{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
-.ccrow{display:flex;align-items:center;gap:12px;}
-.cdot{flex-shrink:0;border:1px solid rgba(255,255,255,.22);}
-.clbl{font-family:'Share Tech Mono';font-size:11px;color:var(--g2);letter-spacing:.5px;width:92px;flex-shrink:0;text-transform:uppercase;}
-.cval{font-size:15px;font-weight:600;color:var(--white);}
-.fcext{border-top:1px solid var(--border);padding:10px 18px;font-size:14px;font-weight:600;color:var(--white);line-height:1.65;}
-.fcext .elbl{font-family:'Share Tech Mono';font-size:10px;color:var(--gold3);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;}
-.fcact{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--s2);flex-shrink:0;}
-.actbtn{flex:1;padding:9px;background:none;border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
+/* ── FRAK LIST ──────────────────────────────────────────────────────── */
+.fgrid{display:flex;flex-direction:column;gap:0;}
+.fc{background:var(--s1);border:1px solid var(--border);border-bottom:none;cursor:pointer;transition:background .15s,border-color .15s;position:relative;overflow:hidden;display:flex;flex-direction:row;align-items:stretch;min-height:72px;}
+.fc:last-child{border-bottom:1px solid var(--border);}
+.fc:hover{background:var(--s2);border-color:var(--border2);}
+.fc.mnc{border-left:3px solid var(--gold);}
+.fc.mnc .fcname::after{content:'★';font-family:'Share Tech Mono';font-size:9px;color:rgba(255,255,255,.6);letter-spacing:2px;margin-left:8px;vertical-align:middle;}
+/* Farbblock links */
+.cblock{width:90px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;position:relative;}
+.cblock-main{position:absolute;inset:0;opacity:.9;}
+.cblock-txt{position:relative;z-index:1;font-family:'Bebas Neue';font-size:15px;letter-spacing:1.5px;line-height:1.2;text-align:center;word-break:break-word;text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 20px rgba(0,0,0,.6);}
+/* Farbchips */
+.fcb{padding:0;flex:1;display:flex;align-items:center;gap:0;min-width:0;border-left:1px solid rgba(255,255,255,.06);}
+.fcname{font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;line-height:1;padding:0 18px;min-width:200px;flex-shrink:0;}
+.fccols{display:flex;flex-direction:row;gap:10px;flex:1;padding:8px 12px;flex-wrap:wrap;align-items:center;}
+.ccrow{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cdot{flex-shrink:0;border:none;}
+.clbl{font-family:'Share Tech Mono';font-size:9px;color:var(--g3);letter-spacing:.3px;flex-shrink:0;text-transform:uppercase;text-align:center;}
+.cval{display:none;}
+.fcext{padding:8px 12px;font-size:11px;font-weight:600;color:var(--g2);line-height:1.4;border-left:1px solid var(--border);flex-shrink:0;max-width:200px;display:flex;flex-direction:column;justify-content:center;}
+.fcext .elbl{font-family:'Share Tech Mono';font-size:9px;color:var(--gold3);letter-spacing:1px;margin-bottom:3px;text-transform:uppercase;}
+.fcact{display:flex;gap:6px;padding:8px 10px;border-left:1px solid var(--border);background:transparent;flex-shrink:0;align-items:center;}
+.actbtn{padding:7px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
 .actbtn:hover{border-color:var(--gold3);color:var(--gold2);background:var(--s3);}
-.actbtn.del:hover{border-color:var(--red);color:var(--red);}
+.actbtn.del{border-color:rgba(224,80,64,.35);color:var(--red);}
+.actbtn.del:hover{border-color:var(--red);color:#fff;background:var(--red);}
 
 /* ── DETAIL MODAL ───────────────────────────────────────────────────── */
 .ov{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
@@ -176,9 +181,25 @@ tbody tr:hover{background:var(--s2);}
 .surl{color:#f0a020;}
 .rabtn{padding:6px 12px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
 .rabtn:hover{border-color:var(--gold3);color:var(--gold2);}
-.rabtn.del:hover{border-color:var(--red);color:var(--red);}
+.rabtn.del{border-color:rgba(224,80,64,.35);color:var(--red);}
+.rabtn.del:hover{border-color:var(--red);color:#fff;background:var(--red);}
 .expbox{background:var(--s1);border:1px solid var(--border);padding:28px;margin-top:30px;}
 .exptitle{font-family:'Bebas Neue';font-size:26px;letter-spacing:3px;color:var(--gold2);margin-bottom:16px;}
+
+/* ── CONFIRM MODAL ──────────────────────────────────────────────────── */
+.cfov{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.cfov.open{display:flex;}
+.cfmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:420px;border-top:3px solid var(--red);}
+.cfhead{padding:28px 32px 10px;display:flex;align-items:center;gap:14px;}
+.cficon{width:44px;height:44px;background:rgba(224,80,64,.12);border:1px solid var(--red);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:20px;flex-shrink:0;}
+.cftitle{font-family:'Bebas Neue';font-size:28px;letter-spacing:3px;color:var(--white);}
+.cfbody{padding:8px 32px 24px;font-family:'Rajdhani';font-size:16px;font-weight:500;color:var(--g2);line-height:1.6;}
+.cfname{color:var(--white);font-weight:700;}
+.cff{padding:0 32px 28px;display:flex;gap:12px;justify-content:flex-end;}
+.cfcancel{padding:13px 28px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .18s;}
+.cfcancel:hover{border-color:var(--g2);color:var(--white);}
+.cfconfirm{padding:13px 28px;background:var(--red);border:1px solid var(--red);color:#fff;font-family:'Rajdhani';font-size:15px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
+.cfconfirm:hover{background:#c03030;border-color:#c03030;filter:brightness(1.1);}
 
 /* ── TOAST ──────────────────────────────────────────────────────────── */
 .tc{position:fixed;bottom:26px;right:26px;z-index:999;display:flex;flex-direction:column;gap:8px;}
@@ -194,9 +215,9 @@ tbody tr:hover{background:var(--s2);}
 ::-webkit-scrollbar-thumb{background:var(--border2);}
 ::-webkit-scrollbar-thumb:hover{background:var(--gold3);}
 @media(max-width:700px){
-  .hdr{padding:0 16px;height:64px;}
-  .lbox{width:46px;height:46px;}
-  .ltxt .mn{font-size:23px;}
+  .hdr{padding:0 16px;height:72px;}
+  .lbox{width:52px;height:52px;}
+  .ltxt .mn{font-size:30px;}
   .nb{padding:8px 16px;font-size:14px;}
   .page{padding:18px;}
   .fgr{grid-template-columns:1fr;}
@@ -204,7 +225,7 @@ tbody tr:hover{background:var(--s2);}
   .detname{font-size:34px;}
   .hstats{gap:6px;}
   .schip{padding:8px 12px;font-size:13px;}
-  .schip b{font-size:20px;}
+  .schip b{font-size:22px;}
 }
 </style>
 <style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
@@ -738,6 +759,13 @@ Scheinwerfer: Yellow</div>
             <input class="fi" id="fub" type="text" placeholder="z.B. Schwarz, Lime Green" oninput="syncSw('fub','fubSw')">
           </div>
         </div>
+        <div class="fg">
+          <label class="flbl">Reifenqualm</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="frqSw" onclick="openCp('frq','frqSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="frq" type="text" placeholder="z.B. #FF0000, Lime Green" oninput="syncSw('frq','frqSw')">
+          </div>
+        </div>
         <div class="fg fful">
           <label class="flbl">Hinweise / Sonstiges <span>(inkl. Felgen, Livery, Tönung, etc.)</span></label>
           <textarea class="fta" id="fhi" placeholder="z.B. Felgen: Schwarz · Livery · Reifenqualm #FF0000 · Full Tune · Innenraum Schwarz"></textarea>
@@ -800,6 +828,21 @@ Scheinwerfer: Yellow</div>
   </div>
 </div>
 
+<!-- CONFIRM MODAL -->
+<div class="cfov" id="cfov">
+  <div class="cfmod">
+    <div class="cfhead">
+      <div class="cficon">✕</div>
+      <div class="cftitle">EINTRAG LÖSCHEN</div>
+    </div>
+    <div class="cfbody">Soll <span class="cfname" id="cfname">dieser Eintrag</span> wirklich permanent gelöscht werden?</div>
+    <div class="cff">
+      <button class="cfcancel" onclick="closeCF()">ABBRECHEN</button>
+      <button class="cfconfirm" id="cfconfirm">LÖSCHEN</button>
+    </div>
+  </div>
+</div>
+
 <div class="tc" id="tc"></div>
 
 <script>
@@ -807,39 +850,43 @@ const FK='mnc_f5',MK='mnc_m4';
 let fraks=[],mems=[],eFid=null,eMid=null,mf='all';
 
 const PF=[
-  {id:'mnc',name:'MNC (Wir)',prim:'#000000',sek:'#FFD209',pearl:'Chrome',schein:'Yellow',unterboden:'',hints:'',mnc:true},
-  {id:'p1',name:'Angels of Death',prim:'Schwarz Metallic',sek:'Schwarz Metallic',pearl:'Pure White',schein:'Golden Shower',unterboden:'',hints:'Bei Everon: Zerfledderte US-Flagge (Liberty)',mnc:false},
-  {id:'p2',name:'Ballas',prim:'#360081',sek:'#360081',pearl:'Anodized Purple',schein:'Purple',unterboden:'',hints:'Felgen: Black Carbon · Full Tune · Bremsen Stufe 2',mnc:false},
-  {id:'p3',name:'Bloodlines',prim:'Metallic Graceful Red',sek:'Metallic Graceful Red',pearl:'Metallic Candy Red',schein:'Rot',unterboden:'',hints:'Felgen: Big Worm · Reifenqualm Rot · Livery goldene Umrisslinierung · Innenraum Schwarz',mnc:false},
-  {id:'p4',name:'BlueLions',prim:'Anodized Blue Chameleon',sek:'',pearl:'',schein:'Blue',unterboden:'',hints:'',mnc:false},
-  {id:'p5',name:'Bloodmoon',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Metallic Torino Red',schein:'Freiwillig',unterboden:'',hints:'Metallic Cabernet Red',mnc:false},
-  {id:'p6',name:'BrucksGmbH',prim:'Anodized Gold',sek:'Anodized Gold',pearl:'',schein:'',unterboden:'',hints:'',mnc:false},
-  {id:'p7',name:'Blue Hustlers',prim:'#000000',sek:'#000000',pearl:'Ulti Maui Blue Poly',schein:'Blue',unterboden:'',hints:'Felgen: Chrome · Reifenqualm #000EFF',mnc:false},
-  {id:'p8',name:'Cavelaz',prim:'Pure White',sek:'',pearl:'Matt Lime Green',schein:'Lime Green',unterboden:'',hints:'Felgen: Schwarz',mnc:false},
-  {id:'p9',name:'Cosa Nero',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'',schein:'Weiß',unterboden:'',hints:'Felgen: Weiß',mnc:false},
-  {id:'p10',name:'Cosanero',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Pure White',schein:'Weiß',unterboden:'',hints:'Felgen: Weiß · Kennzeichen Pounders Schwarz',mnc:false},
-  {id:'p11',name:'Epsilon',prim:'',sek:'',pearl:'Pure White',schein:'Weiß',unterboden:'',hints:'',mnc:false},
-  {id:'p12',name:'Fanx',prim:'Epsilon Blue',sek:'Util Dark Silver',pearl:'Matt Purple',schein:'Blacklight',unterboden:'',hints:'Felgen: Weiß',mnc:false},
-  {id:'p13',name:'Grove',prim:'Metallic Green',sek:'Metallic Green',pearl:'Pure White',schein:'Lime Green',unterboden:'',hints:'',mnc:false},
-  {id:'p14',name:'Hijos del Diablo',prim:'#1D0000',sek:'#1D0000',pearl:'Matte Lime Green',schein:'Lime Green',unterboden:'',hints:'Fenster Pures Schwarz · Full Tune',mnc:false},
-  {id:'p15',name:'La Fenice',prim:'Carbon Black',sek:'Carbon Black',pearl:'Anodized Green Chameleon',schein:'Weiß',unterboden:'',hints:'',mnc:false},
-  {id:'p16',name:'La Sangre Azul',prim:'Chameleon Anodized Copper',sek:'Chameleon Anodized Copper',pearl:'Metallic Bright Blue',schein:'Electric Blue',unterboden:'',hints:'Felgen: Track Geschmiedet 5 Atomic · Aufschrift "Atomic"',mnc:false},
-  {id:'p17',name:'Locos',prim:'Matte Grey',sek:'Matte Grey',pearl:'Brushed Gold',schein:'Golden Shower',unterboden:'',hints:'Felgen: Brushed Gold',mnc:false},
-  {id:'p18',name:'Malvera',prim:'#100000',sek:'#100000',pearl:'Pure White',schein:'Xenon Rot',unterboden:'',hints:'Felgen: Metallic Black',mnc:false},
-  {id:'p19',name:'Niners',prim:'#7B4906',sek:'#7B4906',pearl:'Orange',schein:'Orange',unterboden:'',hints:'Felgen: Under Street Mercie Concave Pure White',mnc:false},
-  {id:'p20',name:'Panthers',prim:'Matt Red',sek:'Matt Red',pearl:'Matt Red',schein:'Weiß',unterboden:'',hints:'Weißer Innenraum',mnc:false},
-  {id:'p21',name:'Peckham',prim:'Metallic Black',sek:'Metallic Black',pearl:'Metallic Black',schein:'Rot',unterboden:'',hints:'',mnc:false},
-  {id:'p22',name:'Retrocartel',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Metallic Dark Blue',schein:'Weiß',unterboden:'',hints:'',mnc:false},
-  {id:'p23',name:'Silent Rose',prim:'Metallic Silver',sek:'Metallic Silver',pearl:'Hot Pink',schein:'Hot Pink',unterboden:'',hints:'Felgen: Schwarz · Scheiben Schwarz · Full Tune',mnc:false},
-  {id:'p24',name:'Sin Nombre',prim:'Pure White',sek:'Pure White',pearl:'',schein:'Weiß',unterboden:'',hints:'Felgen: Schwarz · Scheiben getönt',mnc:false},
-  {id:'p25',name:'Sicario',prim:'Matt Desert Tan Brown',sek:'Matt Black',pearl:'',schein:'Orange',unterboden:'',hints:'Felgen: Pure White · Scheiben Tönung Schwarz',mnc:false},
-  {id:'p26',name:'Staya',prim:'#1735B3',sek:'#1735B3',pearl:'Metallic Lime Green',schein:'Blue',unterboden:'',hints:'',mnc:false},
-  {id:'p27',name:'Surenos',prim:'#DEFF01',sek:'#DEFF01',pearl:'',schein:'Blue',unterboden:'',hints:'',mnc:false},
-  {id:'p28',name:'Trust No One',prim:'Matt Black',sek:'Matt Black',pearl:'Metallic Frost White',schein:'Lime Green',unterboden:'',hints:'Felgen: Weiß · Rauch #70FF00',mnc:false},
-  {id:'p29',name:'Venza Syndicat',prim:'#00FFAC',sek:'#00FFAC',pearl:'Pure White',schein:'Weiß',unterboden:'',hints:'Felgen: Weiß · Reifenqualm #00FFAC · Int/Dash Weiß',mnc:false},
-  {id:'p30',name:'Zunesha',prim:'Black',sek:'',pearl:'',schein:'',unterboden:'',hints:'Orange überall',mnc:false},
-  {id:'p31',name:'Avrupa Mafia',prim:'Red Cabernet',sek:'Red Cabernet',pearl:'Light Gold',schein:'',unterboden:'',hints:'Felgen: Schwarz',mnc:false},
-  {id:'p32',name:'Adalet',prim:'Metallic Sea Green',sek:'Metallic Sea Green',pearl:'Metallic White',schein:'',unterboden:'',hints:'Scheiben Tönung Schwarz',mnc:false},
+  {id:'mnc',name:'MNC (Wir)',prim:'#000000',sek:'#FFD209',pearl:'Chrome',schein:'Yellow',unterboden:'#F3FF00',hints:'',mnc:true},
+  {id:'p1',name:'AZUL SECARIO',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric Blue',unterboden:'#0053FF',hints:'',mnc:false},
+  {id:'p2',name:'Accra',prim:'Metallic Black',sek:'',pearl:'Metallic Straw Beige',schein:'Golden Shower',unterboden:'#986000',hints:'',mnc:false},
+  {id:'p3',name:'Angels of Death',prim:'Schwarz Metallic',sek:'Schwarz Metallic',pearl:'Pure White',schein:'Golden Shower',unterboden:'#FF9300',hints:'',mnc:false},
+  {id:'p4',name:'Ballas',prim:'#360081',sek:'#360081',pearl:'Andozid Purple',schein:'Purple',unterboden:'Purple',hints:'',mnc:false},
+  {id:'p5',name:'Bloodmoon',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Metallic Torino Red',schein:'Freiwillig',unterboden:'Freiwillig',hints:'',mnc:false},
+  {id:'p6',name:'BrucksGmbH',prim:'Andozided Gold',sek:'Andozided Gold',pearl:'',schein:'',unterboden:'#fff400',hints:'',mnc:false},
+  {id:'p7',name:'Bloodlines',prim:'Metallic Black',sek:'Metallic Black',pearl:'Metallic Torino Red',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p8',name:'Blue Hustlers',prim:'#000000',sek:'#000000',pearl:'Ulti Maui Blue Poly',schein:'Blue',unterboden:'#0011FF',hints:'',mnc:false},
+  {id:'p9',name:'Cavelaz',prim:'Pure White',sek:'',pearl:'Matt Lime Green',schein:'Lime Green',unterboden:'#2F9335',hints:'',mnc:false},
+  {id:'p10',name:'Cosa Nero',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Pure White',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p11',name:'Epsilon',prim:'#899EB0',sek:'#899EB0',pearl:'keinen',schein:'Xenon',unterboden:'keinen',hints:'',mnc:false},
+  {id:'p12',name:'Falcone',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Blue',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p13',name:'Fanx',prim:'Epsilon Blue',sek:'Util Dark Silver',pearl:'Matt Purple',schein:'Blacklight',unterboden:'#1100A3',hints:'',mnc:false},
+  {id:'p14',name:'Grove',prim:'Metallic Green',sek:'Metallic Green',pearl:'Pure White',schein:'Lime Green',unterboden:'#003D05',hints:'',mnc:false},
+  {id:'p15',name:'Hustlerz',prim:'Metallic Black',sek:'Metallic Black',pearl:'Matte Orange',schein:'Orange',unterboden:'#702A00',hints:'',mnc:false},
+  {id:'p16',name:'immortale',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Matt Schwarz',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p17',name:'Imperia',prim:'Matte Light Grey',sek:'',pearl:'Torino Red',schein:'',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p18',name:'La Fenice',prim:'Carbon Black',sek:'Carbon Black',pearl:'Anodized Green (Chameleon)',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p19',name:'La Marea',prim:'#262B49',sek:'#262B49',pearl:'Frost White',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p20',name:'La Mano Rosa',prim:'Metallic Steel Grey',sek:'',pearl:'Light Gold',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p21',name:'locos',prim:'Matte Grey',sek:'Matte Grey',pearl:'Brushed Gold',schein:'Golden Shower',unterboden:'#1D1100',hints:'',mnc:false},
+  {id:'p22',name:'La Ombra Dorata',prim:'#051C15',sek:'#051C15',pearl:'Chamellion Green Turquise Flip',schein:'Golden Shower',unterboden:'#8D5300',hints:'',mnc:false},
+  {id:'p23',name:'laverde',prim:'#A3935F',sek:'#A3935F',pearl:'Schwarz',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p24',name:'LA SANGRE AZUL',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric Blue',unterboden:'#0053FF',hints:'',mnc:false},
+  {id:'p25',name:'Malvera',prim:'#100000',sek:'#100000',pearl:'Pure White',schein:'Xenon Rot',unterboden:'#FF0000',hints:'',mnc:false},
+  {id:'p26',name:'MG-13',prim:'#004EA3',sek:'',pearl:'Pure White',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p27',name:'Malibu',prim:'Pure White',sek:'Matte Purple',pearl:'',schein:'Purple',unterboden:'#3700FF',hints:'',mnc:false},
+  {id:'p28',name:'Nameless',prim:'Pure White',sek:'Pure White',pearl:'',schein:'Hot Pink',unterboden:'#FE00FA',hints:'',mnc:false},
+  {id:'p29',name:'Nemesis',prim:'#262626',sek:'#262626',pearl:'Metallic Sun Bleeched Sand',schein:'Mint',unterboden:'#00FF88',hints:'',mnc:false},
+  {id:'p30',name:'Niners',prim:'#7B4906',sek:'#7B4906',pearl:'Orange',schein:'Orange',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p31',name:'Peckham',prim:'Metallic Black',sek:'Metallic Black',pearl:'Metallic Black',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p32',name:'Parkside Locos',prim:'Schwarz Metallic',sek:'Schwarz Metallic',pearl:'Candy Red',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p33',name:'PizzaBäcker',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Blau',schein:'Rot',unterboden:'Rot',hints:'Full Tune · Scheiben Schwarz',mnc:false},
+  {id:'p34',name:'Panthers',prim:'Worm White',sek:'Worm White',pearl:'Metallic Torino Red',schein:'Red',unterboden:'Red',hints:'',mnc:false},
+  {id:'p35',name:'Red Neighbar Hood',prim:'Metallic Schwarz',sek:'#FF0000',pearl:'Metallic Rot',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p36',name:'Reckless',prim:'#D9A4C7',sek:'Schwartz Metallic',pearl:'Frost Weiß',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
 ];
 
 const PM=[
@@ -922,15 +969,16 @@ function buildV(f){
   if(f.sek)       s+=`Sekundär: ${f.sek}\n`;
   if(f.pearl)     s+=`Perleffekt: ${f.pearl}\n`;
   if(f.schein)    s+=`Scheinwerfer: ${f.schein}\n`;
-  if(f.unterboden)s+=`Unterboden: ${f.unterboden}\n`;
-  if(f.hints)     s+=`Sonstiges: ${f.hints}`;
+  if(f.unterboden)  s+=`Unterboden: ${f.unterboden}\n`;
+  if(f.reifenqualm) s+=`Reifenqualm: ${f.reifenqualm}\n`;
+  if(f.hints)       s+=`Sonstiges: ${f.hints}`;
   return s.trim();
 }
 
 // INIT
 function init(){
   fraks=JSON.parse(localStorage.getItem(FK)||'null')||JSON.parse(JSON.stringify(PF));
-  fraks=fraks.map(f=>{if(f.unterboden===undefined)f.unterboden='';return f;});
+  fraks=fraks.map(f=>{if(f.unterboden===undefined)f.unterboden='';if(f.reifenqualm===undefined)f.reifenqualm='';return f;});
   mems=JSON.parse(localStorage.getItem(MK)||'null')||JSON.parse(JSON.stringify(PM));
   rfrak();rmem();hs();
 }
@@ -951,17 +999,29 @@ function setMF(btn,f){document.querySelectorAll('[data-mf]').forEach(b=>b.classL
 function rfrak(){
   const q=(document.getElementById('finp').value||'').toLowerCase();
   let list=fraks.filter(f=>f.name.toLowerCase().includes(q));
-  list.sort((a,b)=>(b.mnc?1:0)-(a.mnc?1:0));
+  list.sort((a,b)=>{
+    if(a.mnc&&!b.mnc)return -1;
+    if(!a.mnc&&b.mnc)return 1;
+    return a.name.localeCompare(b.name,'de',{sensitivity:'base'});
+  });
   const g=document.getElementById('fgrid');
   if(!list.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';return;}
   g.innerHTML=list.map(f=>{
-    const bar=[f.prim,f.sek,f.pearl].map(c=>`<div style="background:${toHex(c)||'#1a1a1a'}"></div>`).join('');
-    const cf=[['PRIMÄR',f.prim],['SEKUNDÄR',f.sek],['PERLEFFEKT',f.pearl],['SCHEINWERFER',f.schein],['UNTERBODEN',f.unterboden]].filter(([,v])=>v&&v.trim());
-    const cr=cf.map(([l,v])=>`<div class="ccrow">${dot(v)}<span class="clbl">${l}</span><span class="cval">${v}</span></div>`).join('');
+    const primHex = toHex(f.prim)||'#1a1a1a';
+    const cf=[['PRIMÄR',f.prim],['SEK',f.sek],['PEARL',f.pearl],['SCHEIN',f.schein],['UNTER',f.unterboden],['QUALM',f.reifenqualm]].filter(([,v])=>v&&v.trim());
+    const cr=cf.map(([l,v])=>{
+      const h=toHex(v)||'#2a2a2a';
+      return`<div class="ccrow"><div class="cdot" style="width:34px;height:34px;background:${h};border:2px solid rgba(255,255,255,.12);border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div><span class="clbl">${l}</span></div>`;
+    }).join('');
     const hi=f.hints?`<div class="fcext"><div class="elbl">HINWEISE</div>${f.hints}</div>`:'';
     const nc=nameColor(f.prim);
+    const bright=isBright(primHex);
+    const txtCol=bright?'rgba(0,0,0,.85)':'rgba(255,255,255,.95)';
     return`<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${f.id}')">
-      <div class="cbar">${bar}</div>
+      <div class="cblock">
+        <div class="cblock-main" style="background:${primHex}"></div>
+        <div class="cblock-txt" style="color:${txtCol}">${f.name}</div>
+      </div>
       <div class="fcb">
         <div class="fcname" style="color:${nc}">${f.name}</div>
         <div class="fccols">${cr}</div>
@@ -981,7 +1041,7 @@ function openDet(id){
   document.getElementById('detbar').innerHTML=[f.prim,f.sek,f.pearl].map(c=>`<div style="flex:1;background:${toHex(c)||'#1a1a1a'}"></div>`).join('');
   const ne=document.getElementById('detname');
   ne.textContent=f.name;ne.style.color=nameColor(f.prim);
-  const flds=[['Primärfarbe',f.prim],['Sekundärfarbe',f.sek],['Perleffekt',f.pearl],['Scheinwerfer',f.schein],['Unterboden',f.unterboden]].filter(([,v])=>v&&v.trim());
+  const flds=[['Primärfarbe',f.prim],['Sekundärfarbe',f.sek],['Perleffekt',f.pearl],['Scheinwerfer',f.schein],['Unterboden',f.unterboden],['Reifenqualm',f.reifenqualm]].filter(([,v])=>v&&v.trim());
   document.getElementById('detrows').innerHTML=flds.map(([l,v])=>`
     <div class="detrow">
       <div class="detdot" style="background:${toHex(v)||'#2a2a2a'}"></div>
@@ -1006,8 +1066,8 @@ function copyDet(){
 function openFM(id){
   eFid=id||null;
   document.getElementById('fmtitle').textContent=id?'BEARBEITEN':'NEUE FRAKTION';
-  ['fn','fp','fs','fpe','fsch','fub','fhi'].forEach(i=>document.getElementById(i).value='');
-  ['fpSw','fsSw','fpeSw','fschSw','fubSw'].forEach(i=>document.getElementById(i).style.background='var(--s3)');
+  ['fn','fp','fs','fpe','fsch','fub','frq','fhi'].forEach(i=>document.getElementById(i).value='');
+  ['fpSw','fsSw','fpeSw','fschSw','fubSw','frqSw'].forEach(i=>document.getElementById(i).style.background='var(--s3)');
   if(id){
     const f=fraks.find(x=>x.id===id);
     if(f){
@@ -1017,8 +1077,9 @@ function openFM(id){
       document.getElementById('fpe').value=f.pearl||'';
       document.getElementById('fsch').value=f.schein||'';
       document.getElementById('fub').value=f.unterboden||'';
+      document.getElementById('frq').value=f.reifenqualm||'';
       document.getElementById('fhi').value=f.hints||'';
-      [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw']].forEach(([ti,bi])=>syncSw(ti,bi));
+      [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw'],['frq','frqSw']].forEach(([ti,bi])=>syncSw(ti,bi));
     }
   }
   upPv();document.getElementById('fmov').classList.add('open');
@@ -1035,14 +1096,26 @@ function saveFrak(){
     pearl:document.getElementById('fpe').value.trim(),
     schein:document.getElementById('fsch').value.trim(),
     unterboden:document.getElementById('fub').value.trim(),
+    reifenqualm:document.getElementById('frq').value.trim(),
     hints:document.getElementById('fhi').value.trim(),
     mnc:eFid?(fraks.find(f=>f.id===eFid)||{}).mnc||false:false};
   if(eFid){fraks=fraks.map(f=>f.id===eFid?d:f);toast('Aktualisiert');}
   else{fraks.push(d);toast('Gespeichert');}
   save();closeFM();rfrak();
 }
-function delFrak(id){if(!confirm('Eintrag wirklich löschen?'))return;fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');}
-
+function delFrak(id){
+  const f=fraks.find(x=>x.id===id);if(!f)return;
+  document.getElementById('cfname').textContent='"'+f.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfov').classList.add('open');
+}
+function delMem(id){
+  const m=mems.find(x=>x.id===id);if(!m)return;
+  document.getElementById('cfname').textContent='"'+m.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfov').classList.add('open');
+}
+function closeCF(){document.getElementById('cfov').classList.remove('open');}
 // COLOR PICKER
 let cpTid=null,cpBid=null;
 function openCp(textId,btnId){
@@ -1112,7 +1185,6 @@ function saveMem(){
   if(eMid){mems=mems.map(m=>m.id===eMid?d:m);toast('Aktualisiert');}else{mems.push(d);toast('Mitglied hinzugefügt');}
   save();closeMM();rmem();
 }
-function delMem(id){if(!confirm('Mitglied löschen?'))return;mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');}
 
 function expText(){
   let t='MID NIGHT CLUB — LOS SANTOS\nOFFIZIELLE MITGLIEDERLISTE\n'+'─'.repeat(40)+'\n\n';
@@ -1131,7 +1203,7 @@ function toast(msg,type){
   document.getElementById('tc').appendChild(t);setTimeout(()=>t.remove(),2700);
 }
 
-document.querySelectorAll('.ov,.fov,.cpov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+document.querySelectorAll('.ov,.fov,.cpov,.cfov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
 init();
 </script>
 
