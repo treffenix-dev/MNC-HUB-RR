@@ -1,0 +1,1385 @@
+<html lang="de" crxemulator=""><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MNC HUB — Los Santos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Rajdhani:wght@400;500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080808;--s1:#111111;--s2:#181818;--s3:#252525;--s4:#2c2c2c;
+  --border:#333333;--border2:#505050;
+  --gold:#d4a843;--gold2:#f0c96a;--gold3:#8a6428;
+  --white:#f4f1ea;--g1:#d0ccc4;--g2:#b0aca6;--g3:#787470;
+  --red:#e05040;--green:#3dcc70;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.98);border-bottom:2px solid var(--border2);backdrop-filter:blur(16px);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:116px;gap:24px;}
+.logo{display:flex;align-items:center;gap:22px;flex-shrink:0;}
+.lbox{width:88px;height:88px;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono';font-size:22px;font-weight:700;color:var(--gold);position:relative;flex-shrink:0;letter-spacing:1px;}
+.lbox::before{content:'';position:absolute;inset:7px;border:1px solid var(--gold3);}
+.ltxt .jp{font-family:'Share Tech Mono';font-size:15px;color:var(--gold3);letter-spacing:4px;}
+.ltxt .mn{font-family:'Bebas Neue';font-size:58px;letter-spacing:6px;line-height:1;color:var(--white);}
+.ltxt .sb{font-family:'Share Tech Mono';font-size:13px;letter-spacing:3px;margin-top:4px;background:linear-gradient(90deg,#e040a0,#ff6030,#ffb830,#c060e0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;}
+.nav{display:flex;gap:4px;}
+.nb{padding:10px 32px;background:none;border:none;cursor:pointer;font-family:'Rajdhani';font-size:18px;font-weight:700;color:var(--g2);letter-spacing:2px;text-transform:uppercase;border-bottom:3px solid transparent;transition:all .18s;}
+.nb:hover{color:var(--white);}
+.nb.on{color:var(--gold2);border-bottom-color:var(--gold);}
+.hstats{display:flex;gap:12px;flex-shrink:0;}
+.schip{padding:12px 24px;border:1px solid var(--border2);background:var(--s2);font-family:'Rajdhani';font-size:16px;font-weight:600;color:var(--white);letter-spacing:1px;display:flex;align-items:center;gap:10px;white-space:nowrap;}
+.schip b{color:var(--gold2);font-size:32px;font-family:'Bebas Neue';letter-spacing:1px;line-height:1;}
+
+/* ── PAGES ──────────────────────────────────────────────────────────── */
+.page{display:none;padding:36px;max-width:1600px;margin:0 auto;}
+.page.on{display:block;}
+
+/* ── SECTION TITLE ──────────────────────────────────────────────────── */
+.stitle{display:flex;align-items:center;gap:16px;margin-bottom:28px;}
+.stitle::before{content:'';width:4px;height:40px;background:var(--gold);flex-shrink:0;}
+.stitle h2{font-family:'Bebas Neue';font-size:42px;letter-spacing:5px;color:var(--white);line-height:1;}
+.stitle small{font-family:'Rajdhani';font-size:16px;font-weight:500;color:var(--g2);letter-spacing:1px;display:block;margin-top:4px;}
+
+/* ── TOOLBAR ────────────────────────────────────────────────────────── */
+.tb{display:flex;gap:12px;margin-bottom:26px;flex-wrap:wrap;align-items:center;}
+.srch{position:relative;flex:1;min-width:220px;}
+.srch::before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--g3);font-size:22px;pointer-events:none;}
+.srch input{width:100%;padding:13px 14px 13px 44px;background:var(--s2);border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:16px;font-weight:500;outline:none;transition:border .18s;}
+.srch input::placeholder{color:var(--g3);}
+.srch input:focus{border-color:var(--gold);}
+.fbtn{padding:13px 24px;background:var(--s2);border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .18s;white-space:nowrap;}
+.fbtn:hover,.fbtn.on{background:var(--s3);border-color:var(--gold);color:var(--gold2);}
+.abtn{padding:13px 26px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:15px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
+.abtn:hover{filter:brightness(1.12);transform:translateY(-1px);}
+
+/* ── FRAK LIST ──────────────────────────────────────────────────────── */
+.fgrid{display:flex;flex-direction:column;gap:0;}
+.fc{background:var(--s1);border:1px solid var(--border);border-bottom:none;cursor:pointer;transition:background .15s,border-color .15s;position:relative;overflow:hidden;display:flex;flex-direction:row;align-items:stretch;min-height:72px;}
+.fc:last-child{border-bottom:1px solid var(--border);}
+.fc:hover{background:var(--s2);border-color:var(--border2);}
+.fc.mnc{border-left:3px solid var(--gold);}
+.fc.mnc .fcname::after{content:'★';font-family:'Share Tech Mono';font-size:9px;color:rgba(255,255,255,.6);letter-spacing:2px;margin-left:8px;vertical-align:middle;}
+/* Farbblock links */
+.cblock{width:90px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;position:relative;}
+.cblock-main{position:absolute;inset:0;opacity:.9;}
+.cblock-txt{position:relative;z-index:1;font-family:'Bebas Neue';font-size:15px;letter-spacing:1.5px;line-height:1.2;text-align:center;word-break:break-word;text-shadow:0 1px 6px rgba(0,0,0,.8),0 0 20px rgba(0,0,0,.6);}
+/* Farbchips */
+.fcb{padding:0;flex:1;display:flex;align-items:center;gap:0;min-width:0;border-left:1px solid rgba(255,255,255,.06);}
+.fcname{font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;line-height:1;padding:0 18px;min-width:200px;flex-shrink:0;}
+.fccols{display:flex;flex-direction:row;gap:10px;flex:1;padding:8px 12px;flex-wrap:wrap;align-items:center;}
+.ccrow{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.cdot{flex-shrink:0;border:none;}
+.clbl{font-family:'Share Tech Mono';font-size:11px;color:#ffffff;letter-spacing:.6px;flex-shrink:0;text-transform:uppercase;text-align:center;font-weight:700;}
+.cval{display:none;}
+.fcext{padding:8px 12px;font-size:11px;font-weight:600;color:#ffffff;line-height:1.4;border-left:1px solid var(--border);flex-shrink:0;max-width:200px;display:flex;flex-direction:column;justify-content:center;}
+.fcext .elbl{font-family:'Share Tech Mono';font-size:9px;color:var(--gold3);letter-spacing:1px;margin-bottom:3px;text-transform:uppercase;}
+.fcact{display:flex;gap:6px;padding:8px 10px;border-left:1px solid var(--border);background:transparent;flex-shrink:0;align-items:center;}
+.actbtn{padding:7px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+.actbtn:hover{border-color:var(--gold3);color:var(--gold2);background:var(--s3);}
+.actbtn.del{border-color:rgba(224,80,64,.35);color:var(--red);}
+.actbtn.del:hover{border-color:var(--red);color:#fff;background:var(--red);}
+
+/* ── DETAIL MODAL ───────────────────────────────────────────────────── */
+.ov{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
+.ov.open{display:flex;}
+.detm{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:700px;max-height:90vh;overflow-y:auto;}
+.detbar{height:12px;display:flex;}
+.detbar div{flex:1;}
+.dethead{padding:26px 32px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);}
+.detname{font-family:'Bebas Neue';font-size:50px;letter-spacing:4px;line-height:1;}
+.detsub{font-family:'Share Tech Mono';font-size:12px;color:rgba(255,255,255,.75);letter-spacing:2px;margin-top:6px;text-transform:uppercase;}
+.xbtn{background:none;border:1px solid var(--border2);width:40px;height:40px;cursor:pointer;color:var(--g2);font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;margin-left:14px;}
+.xbtn:hover{border-color:var(--red);color:var(--red);}
+.detbody{padding:28px 32px;}
+.detrows{display:flex;flex-direction:column;}
+.detrow{display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);}
+.detrow:last-child{border-bottom:none;}
+.detdot{width:28px;height:28px;border:1px solid rgba(255,255,255,.22);flex-shrink:0;margin-right:20px;}
+.detlbl{font-family:'Share Tech Mono';font-size:12px;color:#ffffff;letter-spacing:1.5px;text-transform:uppercase;width:160px;flex-shrink:0;}
+.detval{font-size:22px;font-weight:700;color:var(--white);}
+.detdivider{height:1px;background:var(--border);margin:24px 0;}
+.hlbl{font-family:'Share Tech Mono';font-size:14px;color:var(--white);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+.hbox{background:var(--s2);border:1px solid var(--border2);padding:22px 26px;font-size:20px;font-weight:600;color:var(--white);line-height:2;}
+.vwrap{background:var(--s2);border:1px solid var(--border);padding:20px 22px;margin-top:22px;position:relative;}
+.vlbl{font-family:'Share Tech Mono';font-size:13px;color:var(--white);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;opacity:.7;}
+.vtxt{font-family:'Share Tech Mono';font-size:14px;color:var(--white);line-height:2;white-space:pre;}
+.cpybtn{position:absolute;top:16px;right:16px;padding:8px 18px;background:var(--s3);border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:14px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
+.cpybtn:hover{border-color:var(--gold3);color:var(--gold2);}
+.cpybtn.ok{border-color:var(--green);color:var(--green);}
+
+/* ── FORM MODAL ─────────────────────────────────────────────────────── */
+.fov{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
+.fov.open{display:flex;}
+.fmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:800px;max-height:92vh;overflow-y:auto;}
+.fmh{padding:24px 32px 20px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.fmtitle{font-family:'Bebas Neue';font-size:32px;letter-spacing:4px;color:var(--gold2);}
+.fmb{padding:28px 32px;}
+.fmf{padding:18px 32px 24px;border-top:1px solid var(--border);display:flex;gap:14px;justify-content:flex-end;}
+.pvbar{height:8px;display:flex;margin-bottom:26px;border:1px solid var(--border);}
+.pvbar div{flex:1;transition:background .2s;}
+.fgr{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.fful{grid-column:1/-1;}
+.fg{display:flex;flex-direction:column;gap:9px;}
+.flbl{font-family:'Share Tech Mono';font-size:12px;color:var(--white);letter-spacing:2px;text-transform:uppercase;opacity:.8;}
+.flbl span{opacity:.5;font-size:10px;}
+.fi,.fsel,.fta{padding:14px 16px;background:var(--s2);border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:16px;font-weight:500;outline:none;transition:border .18s;-webkit-appearance:none;width:100%;}
+.fta{resize:vertical;min-height:90px;font-size:15px;font-family:'Rajdhani';}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--gold);}
+.fsel option{background:var(--s3);color:var(--white);}
+.cirow{display:flex;gap:10px;align-items:stretch;}
+.cswatch{width:54px;height:50px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;transition:border-color .18s,background .2s;background:var(--s3);}
+.cswatch:hover{border-color:var(--gold3);}
+.cirow .fi{flex:1;}
+.bpri{padding:14px 38px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:16px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
+.bpri:hover{filter:brightness(1.1);}
+.bsec{padding:14px 24px;background:none;border:1px solid var(--border2);color:var(--white);font-family:'Rajdhani';font-size:16px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .18s;}
+.bsec:hover{border-color:var(--g2);}
+
+/* ── COLOR PICKER ───────────────────────────────────────────────────── */
+.cpov{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.cpov.open{display:flex;}
+.cpmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:400px;}
+.cpmh{padding:22px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.cpmtitle{font-family:'Bebas Neue';font-size:26px;letter-spacing:3px;color:var(--gold2);}
+.cpmb{padding:28px;display:flex;flex-direction:column;gap:16px;align-items:center;}
+.cpBig{width:100%;height:100px;border:2px solid var(--border2);cursor:pointer;background:var(--s2);}
+.cpBig::-webkit-color-swatch-wrapper{padding:0;}
+.cpBig::-webkit-color-swatch{border:none;}
+.cpPreview{width:100%;height:50px;border:1px solid var(--border2);transition:background .15s;}
+.cpLabel{font-family:'Share Tech Mono';font-size:13px;color:var(--g2);letter-spacing:1px;text-align:center;}
+.cpmf{padding:14px 28px 22px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;}
+
+/* ── MEMBER TABLE ───────────────────────────────────────────────────── */
+.msumm{display:flex;gap:14px;margin-bottom:26px;flex-wrap:wrap;}
+.mstat{background:var(--s2);border:1px solid var(--border);padding:16px 28px;min-width:120px;}
+.mstat .n{font-family:'Bebas Neue';font-size:42px;color:var(--gold2);line-height:1;}
+.mstat .l{font-family:'Share Tech Mono';font-size:11px;color:var(--g2);letter-spacing:2px;margin-top:3px;text-transform:uppercase;}
+.twrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--s2);border-bottom:2px solid var(--gold3);}
+th{padding:14px 18px;font-family:'Share Tech Mono';font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;text-align:left;white-space:nowrap;}
+td{padding:14px 18px;border-bottom:1px solid var(--border);font-size:15px;font-weight:500;vertical-align:middle;color:var(--white);}
+tbody tr:hover{background:var(--s2);}
+.numc{font-family:'Share Tech Mono';font-size:12px;color:var(--g3);width:52px;}
+.namc{font-weight:700;color:var(--white);font-size:16px;}
+.rb{display:inline-block;padding:4px 12px;font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;border:1px solid;white-space:nowrap;}
+.rh{border-color:var(--gold);color:var(--gold2);background:rgba(212,168,67,.1);}
+.rs{border-color:#7070ee;color:#a0a0ff;background:rgba(100,100,220,.08);}
+.rt{border-color:#4488cc;color:#88bbee;background:rgba(60,110,180,.08);}
+.rk{border-color:#4499aa;color:#66ccdd;background:rgba(60,130,150,.08);}
+.rsp{border-color:#44bb66;color:#77ee99;background:rgba(60,160,90,.08);}
+.ru{border-color:var(--border2);color:var(--g1);}
+.rd{border-color:var(--g3);color:var(--g2);}
+.rn{border-color:var(--g3);color:var(--g3);}
+.sb2{display:inline-flex;align-items:center;gap:6px;font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;}
+.sd{width:7px;height:7px;border-radius:50%;}
+.sakt .sd{background:var(--green);box-shadow:0 0 7px var(--green);}
+.sakt{color:var(--green);}
+.sina .sd{background:var(--g3);}
+.sina{color:var(--g2);}
+.surl .sd{background:#f0a020;}
+.surl{color:#f0a020;}
+.rabtn{padding:6px 12px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
+.rabtn:hover{border-color:var(--gold3);color:var(--gold2);}
+.rabtn.del{border-color:rgba(224,80,64,.35);color:var(--red);}
+.rabtn.del:hover{border-color:var(--red);color:#fff;background:var(--red);}
+.expbox{background:var(--s1);border:1px solid var(--border);padding:28px;margin-top:30px;}
+.exptitle{font-family:'Bebas Neue';font-size:26px;letter-spacing:3px;color:var(--gold2);margin-bottom:16px;}
+
+/* ── CONFIRM MODAL ──────────────────────────────────────────────────── */
+.cfov{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;}
+.cfov.open{display:flex;}
+.cfmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:420px;border-top:3px solid var(--red);}
+.cfhead{padding:28px 32px 10px;display:flex;align-items:center;gap:14px;}
+.cficon{width:44px;height:44px;background:rgba(224,80,64,.12);border:1px solid var(--red);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:20px;flex-shrink:0;}
+.cftitle{font-family:'Bebas Neue';font-size:28px;letter-spacing:3px;color:var(--white);}
+.cfbody{padding:8px 32px 24px;font-family:'Rajdhani';font-size:16px;font-weight:500;color:var(--g2);line-height:1.6;}
+.cfname{color:var(--white);font-weight:700;}
+.cff{padding:0 32px 28px;display:flex;gap:12px;justify-content:flex-end;}
+.cfcancel{padding:13px 28px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .18s;}
+.cfcancel:hover{border-color:var(--g2);color:var(--white);}
+.cfconfirm{padding:13px 28px;background:var(--red);border:1px solid var(--red);color:#fff;font-family:'Rajdhani';font-size:15px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
+.cfconfirm:hover{background:#c03030;border-color:#c03030;filter:brightness(1.1);}
+
+/* ── TOAST ──────────────────────────────────────────────────────────── */
+.tc{position:fixed;bottom:26px;right:26px;z-index:999;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:14px 22px;background:var(--s3);border-left:4px solid var(--green);font-family:'Rajdhani';font-size:15px;font-weight:600;color:var(--white);letter-spacing:.4px;animation:si .25s ease,fo .3s ease 2.1s forwards;max-width:300px;}
+.toast.w{border-left-color:var(--gold);}
+@keyframes si{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+@keyframes fo{to{opacity:0;transform:translateX(30px)}}
+.empty{text-align:center;padding:80px 20px;color:var(--g3);}
+.empty .big{font-family:'Bebas Neue';font-size:52px;letter-spacing:4px;}
+.empty p{font-size:16px;margin-top:10px;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);}
+::-webkit-scrollbar-thumb:hover{background:var(--gold3);}
+@media(max-width:700px){
+  .hdr{padding:0 16px;height:72px;}
+  .lbox{width:52px;height:52px;}
+  .ltxt .mn{font-size:30px;}
+  .nb{padding:8px 16px;font-size:14px;}
+  .page{padding:18px;}
+  .fgr{grid-template-columns:1fr;}
+  .detm,.fmod{max-width:100%;}
+  .detname{font-size:34px;}
+  .hstats{gap:6px;}
+  .schip{padding:8px 12px;font-size:13px;}
+  .schip b{font-size:22px;}
+}
+/* ── ROLLEN ─────────────────────────────────────────────────────────── */
+body.role-viewer .adm{display:none!important;}
+body.role-viewer .own{display:none!important;}
+body.role-admin  .own{display:none!important;}
+
+/* ── LOGIN BUTTON (Header) ──────────────────────────────────────────── */
+.loginbtn{padding:10px 24px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:14px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;flex-shrink:0;transition:all .18s;}
+.loginbtn:hover{filter:brightness(1.12);}
+.userbadge{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ubname{font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;color:var(--white);}
+.ubrole{font-family:'Share Tech Mono';font-size:10px;letter-spacing:2px;padding:3px 9px;text-transform:uppercase;}
+.ubrole.rv{color:var(--g2);border:1px solid var(--border2);}
+.ubrole.ra{color:var(--gold2);border:1px solid var(--gold3);}
+.ubrole.ro{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#000;font-weight:700;}
+.logoutbtn{padding:6px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+.logoutbtn:hover{border-color:var(--red);color:var(--red);}
+
+/* ── LOGIN MODAL ────────────────────────────────────────────────────── */
+.lgov{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;}
+.lgov.open{display:flex;}
+.lgbox{background:var(--s1);border:1px solid var(--border2);border-top:3px solid var(--gold);width:100%;max-width:420px;}
+.lghd{padding:28px 32px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.lgtitle{font-family:'Bebas Neue';font-size:30px;letter-spacing:4px;color:var(--gold2);}
+.lgbd{padding:24px 32px;}
+.lglbl{font-family:'Share Tech Mono';font-size:11px;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;margin-top:16px;}
+.lglbl:first-child{margin-top:0;}
+.lgerr{font-family:'Rajdhani';font-size:14px;color:var(--red);text-align:center;margin:10px 0 0;font-weight:600;min-height:18px;}
+.lgft{padding:16px 32px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.guestlink{background:none;border:none;color:var(--g2);font-family:'Rajdhani';font-size:13px;font-weight:600;cursor:pointer;letter-spacing:1px;text-decoration:underline;text-transform:uppercase;transition:color .15s;align-self:center;}
+.guestlink:hover{color:var(--white);}
+
+/* ── ADMIN PANEL ────────────────────────────────────────────────────── */
+.apov{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
+.apov.open{display:flex;}
+.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
+.aphd{padding:22px 30px 16px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.aptitle{font-family:'Bebas Neue';font-size:26px;letter-spacing:4px;color:var(--gold2);}
+.apbd{padding:22px 30px;}
+.apsec{margin-bottom:24px;}
+.apsh{font-family:'Share Tech Mono';font-size:11px;color:var(--gold3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.adminrow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--s2);border:1px solid var(--border);margin-bottom:6px;gap:12px;}
+.adn{font-family:'Rajdhani';font-size:16px;font-weight:700;color:var(--white);}
+.adp{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);margin-top:2px;}
+.addinline{display:flex;gap:8px;flex-wrap:wrap;}
+.addinline .fi{flex:1;min-width:100px;}
+
+</style>
+<style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
+<body>
+
+<!-- LOGIN MODAL -->
+<div class="lgov" id="lgov">
+  <div class="lgbox">
+    <div class="lghd">
+      <div class="lgtitle">LOGIN</div>
+      <button class="xbtn" onclick="closeLg()">✕</button>
+    </div>
+    <div class="lgbd">
+      <label class="lglbl">Benutzername</label>
+      <input class="fi" id="lgu" type="text" placeholder="z.B. owner" autocomplete="username">
+      <label class="lglbl">Passwort</label>
+      <input class="fi" id="lgp" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLg()">
+      <div class="lgerr" id="lgerr"></div>
+    </div>
+    <div class="lgft">
+      <button class="bpri" style="width:100%" onclick="doLg()">EINLOGGEN</button>
+      <button class="guestlink" onclick="closeLg()">Schließen · weiter als Gast</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="apov" id="apov">
+  <div class="apmod">
+    <div class="aphd">
+      <div class="aptitle">ADMIN VERWALTUNG</div>
+      <button class="xbtn" onclick="closeAP()">✕</button>
+    </div>
+    <div class="apbd">
+      <div class="apsec">
+        <div class="apsh">Aktive Admins</div>
+        <div id="adminlist"><div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px">Keine Admins eingetragen.</div></div>
+      </div>
+      <div class="apsec">
+        <div class="apsh">Neuen Admin hinzufügen</div>
+        <div class="addinline">
+          <input class="fi" id="apn" type="text" placeholder="Benutzername" style="flex:2">
+          <input class="fi" id="app" type="text" placeholder="Passwort" style="flex:2">
+          <button class="abtn" onclick="addAdmin()" style="padding:13px 16px">+ ADD</button>
+        </div>
+      </div>
+      <div class="apsec">
+        <div class="apsh">Owner-Passwort ändern</div>
+        <div class="addinline">
+          <input class="fi" id="opw" type="text" placeholder="Neues Passwort (min. 4 Zeichen)" style="flex:1">
+          <button class="abtn" onclick="changeOwnerPw()" style="padding:13px 16px">ÄNDERN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<header class="hdr">
+  <div class="logo">
+    
+    <div class="ltxt">
+      <div class="jp">ミッド ナイト クラブ</div>
+      <div class="mn">MNC HUB</div>
+      <div class="sb">Retro Roleplay</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nb on" onclick="showPage('frak',this)">Lackierungen</button>
+    <button class="nb" onclick="showPage('member',this)">Mitglieder</button>
+  </nav>
+  <div class="hstats">
+    <div class="schip">Fraktionen <b id="hcf">33</b></div>
+    <div class="schip">Mitglieder <b id="hcm">20</b></div>
+  </div>
+  <!-- Gast: Login-Button sichtbar -->  
+  <button class="loginbtn" id="showLgBtn" onclick="openLg()">🔒 LOGIN</button>
+  <!-- Eingeloggt: User-Badge sichtbar -->
+  <div class="userbadge" id="ubadge" style="display:none">
+    <div>
+      <div class="ubname" id="ubname">—</div>
+      <span class="ubrole rv" id="ubrole">GAST</span>
+    </div>
+    <button class="abtn own" onclick="openAP()" style="padding:8px 14px;font-size:12px">⚙ ADMINS</button>
+    <button class="logoutbtn" onclick="doLogout()">✕ Logout</button>
+  </div>
+</header>
+
+<!-- LACKIERUNGEN -->
+<div class="page on" id="page-frak">
+  <div class="stitle"><div><h2>Fraktionslackierungen</h2><small>Fahrzeugkonfigurationen aller Aktiven Fraktionen</small></div></div>
+  <div class="tb">
+    <div class="srch"><input id="finp" type="text" placeholder="Fraktion suchen…" oninput="rfrak()"></div>
+    <button class="fbtn on" data-ff="all" onclick="setFF(this)">ALLE</button>
+    <button class="abtn adm" onclick="openFM()">+ EINTRAG</button>
+  </div>
+  <div class="fgrid" id="fgrid"><div class="fc mnc" onclick="openDet('mnc')">
+      <div class="cbar"><div style="background:#000000"></div><div style="background:#FFD209"></div><div style="background:#aaaaaa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">MNC (Wir)</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">PRIMÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#FFD209"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#FFD209</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Chrome</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#ffd200"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Yellow</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('mnc')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('mnc')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p1')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Angels of Death</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Schwarz Metallic</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Schwarz Metallic</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Golden Shower</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Bei Everon: Zerfledderte US-Flagge (Liberty)</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p1')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p1')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p2')">
+      <div class="cbar"><div style="background:#360081"></div><div style="background:#360081"></div><div style="background:#6633aa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Ballas</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#360081"></div><span class="clbl">PRIMÄR</span><span class="cval">#360081</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#360081"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#360081</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Anodized Purple</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Purple</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Black Carbon · Full Tune · Bremsen Stufe 2</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p2')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p2')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p3')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Bloodlines</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Graceful Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Graceful Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Candy Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Rot</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Big Worm · Reifenqualm Rot · Livery goldene Umrisslinierung · Innenraum Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p3')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p3')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p4')">
+      <div class="cbar"><div style="background:#2244cc"></div><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#2244cc">BlueLions</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PRIMÄR</span><span class="cval">Anodized Blue Chameleon</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p4')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p4')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p5')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Bloodmoon</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Torino Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Freiwillig</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Metallic Cabernet Red</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p5')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p5')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p6')">
+      <div class="cbar"><div style="background:#c9a84c"></div><div style="background:#c9a84c"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#c9a84c">BrucksGmbH</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PRIMÄR</span><span class="cval">Anodized Gold</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Anodized Gold</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p6')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p6')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p7')">
+      <div class="cbar"><div style="background:#000000"></div><div style="background:#000000"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Blue Hustlers</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">PRIMÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#000000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#000000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Ulti Maui Blue Poly</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Chrome · Reifenqualm #000EFF</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p7')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p7')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p8')">
+      <div class="cbar"><div style="background:#f0f0f0"></div><div style="background:#1a1a1a"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#f0f0f0">Cavelaz</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PRIMÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p8')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p8')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p9')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Cosa Nero</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p9')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p9')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p10')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Cosanero</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Kennzeichen Pounders Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p10')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p10')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p11')">
+      <div class="cbar"><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Epsilon</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p11')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p11')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p12')">
+      <div class="cbar"><div style="background:#2244cc"></div><div style="background:#aaaaaa"></div><div style="background:#6633aa"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#2244cc">Fanx</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PRIMÄR</span><span class="cval">Epsilon Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Util Dark Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#6633aa"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Purple</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blacklight</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p12')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p12')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p13')">
+      <div class="cbar"><div style="background:#22aa44"></div><div style="background:#22aa44"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#22aa44">Grove</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p13')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p13')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p14')">
+      <div class="cbar"><div style="background:#1D0000"></div><div style="background:#1D0000"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Hijos del Diablo</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1D0000"></div><span class="clbl">PRIMÄR</span><span class="cval">#1D0000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1D0000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#1D0000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matte Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Fenster Pures Schwarz · Full Tune</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p14')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p14')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p15')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">La Fenice</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Carbon Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Carbon Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Anodized Green Chameleon</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p15')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p15')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p16')">
+      <div class="cbar"><div style="background:#884422"></div><div style="background:#884422"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#884422">La Sangre Azul</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#884422"></div><span class="clbl">PRIMÄR</span><span class="cval">Chameleon Anodized Copper</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#884422"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Chameleon Anodized Copper</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Bright Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Electric Blue</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Track Geschmiedet 5 Atomic · Aufschrift "Atomic"</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p16')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p16')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p17')">
+      <div class="cbar"><div style="background:#666666"></div><div style="background:#666666"></div><div style="background:#c9a84c"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#666666">Locos</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">PRIMÄR</span><span class="cval">Matte Grey</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#666666"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matte Grey</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Brushed Gold</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Golden Shower</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Brushed Gold</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p17')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p17')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p18')">
+      <div class="cbar"><div style="background:#100000"></div><div style="background:#100000"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Malvera</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#100000"></div><span class="clbl">PRIMÄR</span><span class="cval">#100000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#100000"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#100000</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Xenon Rot</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Metallic Black</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p18')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p18')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p19')">
+      <div class="cbar"><div style="background:#7B4906"></div><div style="background:#7B4906"></div><div style="background:#dd6600"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#7B4906">Niners</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#7B4906"></div><span class="clbl">PRIMÄR</span><span class="cval">#7B4906</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#7B4906"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#7B4906</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Orange</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Orange</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Under Street Mercie Concave Pure White</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p19')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p19')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p20')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#cc2222"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Panthers</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Matt Red</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Weißer Innenraum</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p20')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p20')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p21')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#131313"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Peckham</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Rot</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p21')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p21')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p22')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#2244cc"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Retrocartel</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Schwarz</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Dark Blue</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p22')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p22')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p23')">
+      <div class="cbar"><div style="background:#aaaaaa"></div><div style="background:#aaaaaa"></div><div style="background:#dd4488"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#aaaaaa">Silent Rose</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#aaaaaa"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Silver</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd4488"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Hot Pink</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd4488"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Hot Pink</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz · Scheiben Schwarz · Full Tune</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p23')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p23')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p24')">
+      <div class="cbar"><div style="background:#f0f0f0"></div><div style="background:#f0f0f0"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#f0f0f0">Sin Nombre</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PRIMÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz · Scheiben getönt</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p24')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p24')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p25')">
+      <div class="cbar"><div style="background:#8a7040"></div><div style="background:#131313"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#8a7040">Sicario</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#8a7040"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Desert Tan Brown</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#dd6600"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Orange</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Pure White · Scheiben Tönung Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p25')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p25')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p26')">
+      <div class="cbar"><div style="background:#1735B3"></div><div style="background:#1735B3"></div><div style="background:#22aa44"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Staya</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1735B3"></div><span class="clbl">PRIMÄR</span><span class="cval">#1735B3</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#1735B3"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#1735B3</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Lime Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p26')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p26')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p27')">
+      <div class="cbar"><div style="background:#DEFF01"></div><div style="background:#DEFF01"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#DEFF01">Surenos</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#DEFF01"></div><span class="clbl">PRIMÄR</span><span class="cval">#DEFF01</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#DEFF01"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#DEFF01</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#2244cc"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Blue</span></div></div>
+        
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p27')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p27')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p28')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#131313"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Trust No One</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Matt Black</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic Frost White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Lime Green</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Rauch #70FF00</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p28')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p28')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p29')">
+      <div class="cbar"><div style="background:#00FFAC"></div><div style="background:#00FFAC"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#00FFAC">Venza Syndicat</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#00FFAC"></div><span class="clbl">PRIMÄR</span><span class="cval">#00FFAC</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#00FFAC"></div><span class="clbl">SEKUNDÄR</span><span class="cval">#00FFAC</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Pure White</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">SCHEINWERFER</span><span class="cval">Weiß</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Weiß · Reifenqualm #00FFAC · Int/Dash Weiß</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p29')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p29')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p30')">
+      <div class="cbar"><div style="background:#131313"></div><div style="background:#1a1a1a"></div><div style="background:#1a1a1a"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:var(--white)">Zunesha</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#131313"></div><span class="clbl">PRIMÄR</span><span class="cval">Black</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Orange überall</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p30')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p30')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p31')">
+      <div class="cbar"><div style="background:#cc2222"></div><div style="background:#cc2222"></div><div style="background:#c9a84c"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#cc2222">Avrupa Mafia</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">PRIMÄR</span><span class="cval">Red Cabernet</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#cc2222"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Red Cabernet</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#c9a84c"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Light Gold</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Felgen: Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p31')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p31')">LÖSCHEN</button>
+      </div>
+    </div><div class="fc" onclick="openDet('p32')">
+      <div class="cbar"><div style="background:#22aa44"></div><div style="background:#22aa44"></div><div style="background:#f0f0f0"></div></div>
+      <div class="fcb">
+        <div class="fcname" style="color:#22aa44">Adalet</div>
+        <div class="fccols"><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">PRIMÄR</span><span class="cval">Metallic Sea Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#22aa44"></div><span class="clbl">SEKUNDÄR</span><span class="cval">Metallic Sea Green</span></div><div class="ccrow"><div class="cdot" style="width:18px;height:18px;background:#f0f0f0"></div><span class="clbl">PERLEFFEKT</span><span class="cval">Metallic White</span></div></div>
+        <div class="fcext"><div class="elbl">HINWEISE</div>Scheiben Tönung Schwarz</div>
+      </div>
+      <div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('p32')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('p32')">LÖSCHEN</button>
+      </div>
+    </div></div>
+</div>
+
+<!-- MITGLIEDER -->
+<div class="page" id="page-member">
+  <div class="stitle"><div><h2>Mitgliederliste</h2><small>Offizielle Club-Mitglieder · Vertraulich</small></div></div>
+  <div class="msumm">
+    <div class="mstat"><div class="n" id="sa">20</div><div class="l">Aktiv</div></div>
+    <div class="mstat"><div class="n" id="sn">0</div><div class="l">Inaktiv</div></div>
+    <div class="mstat"><div class="n" id="su">0</div><div class="l">Urlaub</div></div>
+    <div class="mstat"><div class="n" id="sg">20</div><div class="l">Gesamt</div></div>
+  </div>
+  <div class="tb">
+    <div class="srch"><input id="minp" type="text" placeholder="Mitglied suchen…" oninput="rmem()"></div>
+    <button class="fbtn on" data-mf="all" onclick="setMF(this,'all')">ALLE</button>
+    <button class="fbtn" data-mf="AKTIV" onclick="setMF(this,'AKTIV')">AKTIV</button>
+    <button class="fbtn" data-mf="INAKTIV" onclick="setMF(this,'INAKTIV')">INAKTIV</button>
+    <button class="abtn adm" onclick="openMM()">+ MITGLIED</button>
+  </div>
+  <div class="twrap">
+    <table>
+      <thead><tr><th>#</th><th>Name</th><th>Rang</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
+      <tbody id="mtb"><tr><td class="numc">01</td><td class="namc">➤ Paco Akaza Himura</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m1')">✎</button> <button class="rabtn del" onclick="delMem('m1')">✕</button></td></tr><tr><td class="numc">02</td><td class="namc">➤ Enrico Tizman</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m2')">✎</button> <button class="rabtn del" onclick="delMem('m2')">✕</button></td></tr><tr><td class="numc">03</td><td class="namc">➤ Nico Smith</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m3')">✎</button> <button class="rabtn del" onclick="delMem('m3')">✕</button></td></tr><tr><td class="numc">04</td><td class="namc">➤ Chelli Ridley</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m4')">✎</button> <button class="rabtn del" onclick="delMem('m4')">✕</button></td></tr><tr><td class="numc">05</td><td class="namc">➤ Cesar Perez</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m5')">✎</button> <button class="rabtn del" onclick="delMem('m5')">✕</button></td></tr><tr><td class="numc">06</td><td class="namc">➤ Kevin Schmit</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m6')">✎</button> <button class="rabtn del" onclick="delMem('m6')">✕</button></td></tr><tr><td class="numc">07</td><td class="namc">➤ Jack Nostra</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m7')">✎</button> <button class="rabtn del" onclick="delMem('m7')">✕</button></td></tr><tr><td class="numc">08</td><td class="namc">➤ Nick Bronx</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m8')">✎</button> <button class="rabtn del" onclick="delMem('m8')">✕</button></td></tr><tr><td class="numc">09</td><td class="namc">➤ David Koslow</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m9')">✎</button> <button class="rabtn del" onclick="delMem('m9')">✕</button></td></tr><tr><td class="numc">10</td><td class="namc">➤ Emilio Freespin</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m10')">✎</button> <button class="rabtn del" onclick="delMem('m10')">✕</button></td></tr><tr><td class="numc">11</td><td class="namc">➤ Florian Gremory</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m11')">✎</button> <button class="rabtn del" onclick="delMem('m11')">✕</button></td></tr><tr><td class="numc">12</td><td class="namc">➤ Loki Onkl</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m12')">✎</button> <button class="rabtn del" onclick="delMem('m12')">✕</button></td></tr><tr><td class="numc">13</td><td class="namc">➤ Lucio Salamanca</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m13')">✎</button> <button class="rabtn del" onclick="delMem('m13')">✕</button></td></tr><tr><td class="numc">14</td><td class="namc">➤ Pietro Onkel von Balgarew</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m14')">✎</button> <button class="rabtn del" onclick="delMem('m14')">✕</button></td></tr><tr><td class="numc">15</td><td class="namc">➤ Vito Morelli</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m15')">✎</button> <button class="rabtn del" onclick="delMem('m15')">✕</button></td></tr><tr><td class="numc">16</td><td class="namc">➤ Ben Baba</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m16')">✎</button> <button class="rabtn del" onclick="delMem('m16')">✕</button></td></tr><tr><td class="numc">17</td><td class="namc">➤ Levin Baba</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m17')">✎</button> <button class="rabtn del" onclick="delMem('m17')">✕</button></td></tr><tr><td class="numc">18</td><td class="namc">➤ Haro Petrovic</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m18')">✎</button> <button class="rabtn del" onclick="delMem('m18')">✕</button></td></tr><tr><td class="numc">19</td><td class="namc">➤ Marcel Zafferano</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m19')">✎</button> <button class="rabtn del" onclick="delMem('m19')">✕</button></td></tr><tr><td class="numc">20</td><td class="namc">➤ Cougar</td><td><span class="rb rn">—</span></td><td><span class="sb2 sakt"><span class="sd"></span>AKTIV</span></td><td style="color:var(--g2);font-size:14px"></td><td style="text-align:right;white-space:nowrap"><button class="rabtn" onclick="openMM('m20')">✎</button> <button class="rabtn del" onclick="delMem('m20')">✕</button></td></tr></tbody>
+    </table>
+  </div>
+  <div class="expbox">
+    <div class="exptitle">Export</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="abtn" onclick="expText()">LISTE KOPIEREN</button>
+      <button class="bsec" onclick="expJSON()">JSON BACKUP</button>
+    </div>
+    <div id="expprev"></div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="ov" id="detov">
+  <div class="detm">
+    <div class="detbar" id="detbar"><div style="flex:1;background:#000000"></div><div style="flex:1;background:#FFD209"></div><div style="flex:1;background:#aaaaaa"></div></div>
+    <div class="dethead">
+      <div>
+        <div class="detname" id="detname" style="color: var(--white);">MNC (Wir)</div>
+        <div class="detsub">Lackierung · Vollständige Details</div>
+      </div>
+      <button class="xbtn" onclick="closeDet()">✕</button>
+    </div>
+    <div class="detbody">
+      <div class="detrows" id="detrows">
+    <div class="detrow">
+      <div class="detdot" style="background:#000000"></div>
+      <div class="detlbl">Primärfarbe</div>
+      <div class="detval">#000000</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#FFD209"></div>
+      <div class="detlbl">Sekundärfarbe</div>
+      <div class="detval">#FFD209</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#aaaaaa"></div>
+      <div class="detlbl">Perleffekt</div>
+      <div class="detval">Chrome</div>
+    </div>
+    <div class="detrow">
+      <div class="detdot" style="background:#ffd200"></div>
+      <div class="detlbl">Scheinwerfer</div>
+      <div class="detval">Yellow</div>
+    </div></div>
+      <div id="detdiv" class="detdivider" style="display:none"></div>
+      <div id="hintswrap" style="display:none">
+        <div class="hlbl">Hinweise / Sonstiges</div>
+        <div class="hbox" id="hintbox"></div>
+      </div>
+      <div class="vwrap" style="margin-top:24px">
+        <div class="vlbl">Discord / Docs Vorlage</div>
+        <div class="vtxt" id="detvtxt">FRAKTION: "MNC (Wir)"
+Primär: #000000
+Sekundär: #FFD209
+Perleffekt: Chrome
+Scheinwerfer: Yellow</div>
+        <button class="cpybtn" id="detcpy" onclick="copyDet()">KOPIEREN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FRAKTION FORM -->
+<div class="fov" id="fmov">
+  <div class="fmod">
+    <div class="fmh">
+      <div class="fmtitle" id="fmtitle">NEUE FRAKTION</div>
+      <button class="xbtn" onclick="closeFM()">✕</button>
+    </div>
+    <div class="fmb">
+      <div class="pvbar"><div id="pv1" style="background: rgb(26, 26, 26);"></div><div id="pv2" style="background: rgb(26, 26, 26);"></div><div id="pv3" style="background: rgb(26, 26, 26);"></div></div>
+      <div class="fgr">
+        <div class="fg fful">
+          <label class="flbl">Fraktionsname *</label>
+          <input class="fi" id="fn" type="text" placeholder="z.B. Ballas" oninput="upPv()">
+        </div>
+        <div class="fg">
+          <label class="flbl">Primärfarbe</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fpSw" onclick="openCp('fp','fpSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fp" type="text" placeholder="#000000 oder Farbname" oninput="syncSw('fp','fpSw');upPv()">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="flbl">Sekundärfarbe</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fsSw" onclick="openCp('fs','fsSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fs" type="text" placeholder="#000000 oder Farbname" oninput="syncSw('fs','fsSw');upPv()">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="flbl">Perleffekt</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fpeSw" onclick="openCp('fpe','fpeSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fpe" type="text" placeholder="z.B. Pure White, Chrome" oninput="syncSw('fpe','fpeSw');upPv()">
+          </div>
+        </div>
+        <div class="fg">
+          
+          
+        <div class="fg">
+          <label class="flbl">Scheinwerfer</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fschSw" onclick="openCp('fsch','fschSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fsch" type="text" placeholder="z.B. Golden Shower, Blue" oninput="syncSw('fsch','fschSw')">
+          </div>
+        </div></div>
+        <div class="fg">
+          <label class="flbl">Unterboden</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="fubSw" onclick="openCp('fub','fubSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="fub" type="text" placeholder="z.B. Schwarz, Lime Green" oninput="syncSw('fub','fubSw')">
+          </div>
+        </div>
+        <div class="fg">
+          <label class="flbl">Reifenqualm</label>
+          <div class="cirow">
+            <button type="button" class="cswatch" id="frqSw" onclick="openCp('frq','frqSw')" title="Farbe wählen" style="background: var(--s3);"></button>
+            <input class="fi" id="frq" type="text" placeholder="z.B. #FF0000, Lime Green" oninput="syncSw('frq','frqSw')">
+          </div>
+        </div>
+        <div class="fg fful">
+          <label class="flbl">Hinweise / Sonstiges <span>(inkl. Felgen, Livery, Tönung, etc.)</span></label>
+          <textarea class="fta" id="fhi" placeholder="z.B. Felgen: Schwarz · Livery · Reifenqualm #FF0000 · Full Tune · Innenraum Schwarz"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="fmf">
+      <button class="bsec" onclick="closeFM()">ABBRECHEN</button>
+      <button class="bpri" onclick="saveFrak()">SPEICHERN</button>
+    </div>
+  </div>
+</div>
+
+<!-- MITGLIED FORM -->
+<div class="fov" id="mmov">
+  <div class="fmod">
+    <div class="fmh">
+      <div class="fmtitle" id="mmtitle">NEUES MITGLIED</div>
+      <button class="xbtn" onclick="closeMM()">✕</button>
+    </div>
+    <div class="fmb">
+      <div class="fgr">
+        <div class="fg fful"><label class="flbl">Name *</label><input class="fi" id="mn" type="text" placeholder="Vor- und Nachname"></div>
+        <div class="fg">
+          <label class="flbl">Rang</label>
+          <select class="fsel" id="mr">
+            <option value="">— Kein Rang —</option>
+            <option>Hashiriya 1段</option><option>Hashiriya 2段</option><option>Hashiriya 3段</option>
+            <option>Saikō-Kan</option><option>Takai Member</option><option>Kai Member</option>
+            <option>Supīdā First Class</option><option>Supīdā Second Class</option><option>Supīdā Wrench Class</option>
+            <option>Unten-sha First Class</option><option>Unten-sha Second Class</option><option>Unten-sha Third Class</option>
+            <option>Crashtest Dummy</option>
+          </select>
+        </div>
+        <div class="fg"><label class="flbl">Status</label><select class="fsel" id="mst"><option value="AKTIV">Aktiv</option><option value="INAKTIV">Inaktiv</option><option value="URLAUB">Urlaub</option></select></div>
+        <div class="fg fful"><label class="flbl">Notiz</label><input class="fi" id="mno" type="text" placeholder="Optional"></div>
+      </div>
+    </div>
+    <div class="fmf"><button class="bsec" onclick="closeMM()">ABBRECHEN</button><button class="bpri" onclick="saveMem()">SPEICHERN</button></div>
+  </div>
+</div>
+
+<!-- COLOR PICKER MODAL -->
+<div class="cpov" id="cpov">
+  <div class="cpmod">
+    <div class="cpmh">
+      <div class="cpmtitle">FARBE WÄHLEN</div>
+      <button class="xbtn" onclick="closeCp()">✕</button>
+    </div>
+    <div class="cpmb">
+      <input type="color" class="cpBig" id="cpColInput" oninput="onCpCol()">
+      <div class="cpPreview" id="cpPreview" style="background: rgb(241, 9, 9);"></div>
+      <div class="cpLabel" id="cpLabel">#f10909</div>
+      <input class="fi" id="cpTxt" type="text" placeholder="#000000 oder Farbname" oninput="onCpTxt()" style="width:100%;font-family:'Share Tech Mono';font-size:15px;">
+    </div>
+    <div class="cpmf">
+      <button class="bsec" onclick="closeCp()">ABBRECHEN</button>
+      <button class="bpri" onclick="applyCp()">ÜBERNEHMEN</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="cfov" id="cfov">
+  <div class="cfmod">
+    <div class="cfhead">
+      <div class="cficon">✕</div>
+      <div class="cftitle">EINTRAG LÖSCHEN</div>
+    </div>
+    <div class="cfbody">Soll <span class="cfname" id="cfname">dieser Eintrag</span> wirklich permanent gelöscht werden?</div>
+    <div class="cff">
+      <button class="cfcancel" onclick="closeCF()">ABBRECHEN</button>
+      <button class="cfconfirm" id="cfconfirm">LÖSCHEN</button>
+    </div>
+  </div>
+</div>
+
+<div class="tc" id="tc"></div>
+
+<script>
+const FK='mnc_f5',MK='mnc_m4',RK='mnc_roles';
+let fraks=[],mems=[],eFid=null,eMid=null,mf='all';
+let curRole='viewer',curUser='Gast';
+
+/* ── ROLLEN-DATEN ────────────────────────────────────────── */
+function getRD(){try{return JSON.parse(localStorage.getItem(RK))||{op:'MNC2025!',adm:[]};}catch{return{op:'MNC2025!',adm:[]};}}
+function saveRD(d){localStorage.setItem(RK,JSON.stringify(d));}
+function applyRole(role,user){
+  curRole=role;curUser=user;
+  document.body.classList.remove('role-viewer','role-admin','role-owner');
+  document.body.classList.add('role-'+role);
+  const isGuest=role==='viewer';
+  document.getElementById('showLgBtn').style.display=isGuest?'':'none';
+  document.getElementById('ubadge').style.display=isGuest?'none':'flex';
+  if(!isGuest){
+    document.getElementById('ubname').textContent=user;
+    const r=document.getElementById('ubrole');
+    r.textContent=role==='owner'?'OWNER':'ADMIN';
+    r.className='ubrole '+(role==='owner'?'ro':'ra');
+  }
+  rfrak();rmem();
+}
+
+/* ── LOGIN ───────────────────────────────────────────────── */
+function openLg(){document.getElementById('lgerr').textContent='';document.getElementById('lgov').classList.add('open');}
+function closeLg(){document.getElementById('lgov').classList.remove('open');}
+function doLg(){
+  const u=(document.getElementById('lgu').value||'').trim();
+  const p=document.getElementById('lgp').value||'';
+  if(!u||!p){document.getElementById('lgerr').textContent='Felder ausfüllen.';return;}
+  const d=getRD();
+  if(u.toLowerCase()==='owner'&&p===d.op){applyRole('owner','Owner');closeLg();document.getElementById('lgu').value='';document.getElementById('lgp').value='';return;}
+  const a=d.adm.find(x=>x.n.toLowerCase()===u.toLowerCase()&&x.p===p);
+  if(a){applyRole('admin',a.n);closeLg();document.getElementById('lgu').value='';document.getElementById('lgp').value='';return;}
+  document.getElementById('lgerr').textContent='Falscher Benutzername oder Passwort.';
+}
+function doLogout(){applyRole('viewer','Gast');}
+
+/* ── ADMIN PANEL ─────────────────────────────────────────── */
+function openAP(){renderAL();document.getElementById('apov').classList.add('open');}
+function closeAP(){document.getElementById('apov').classList.remove('open');}
+function renderAL(){
+  const d=getRD();
+  document.getElementById('adminlist').innerHTML=d.adm.length
+    ?d.adm.map((a,i)=>`<div class="adminrow"><div><div class="adn">${a.n}</div><div class="adp">Passwort: ${a.p}</div></div><button class="rabtn del" onclick="rmAdmin(${i})">✕ ENTFERNEN</button></div>`).join('')
+    :'<div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px;padding:8px 0">Keine Admins eingetragen.</div>';
+}
+function addAdmin(){
+  const n=(document.getElementById('apn').value||'').trim();
+  const p=(document.getElementById('app').value||'').trim();
+  if(!n||!p){toast('Name und Passwort erforderlich','w');return;}
+  if(n.toLowerCase()==='owner'){toast('"owner" ist reserviert','w');return;}
+  const d=getRD();
+  if(d.adm.find(x=>x.n.toLowerCase()===n.toLowerCase())){toast('Admin existiert bereits','w');return;}
+  d.adm.push({n,p});saveRD(d);
+  document.getElementById('apn').value='';document.getElementById('app').value='';
+  renderAL();toast('Admin hinzugefügt');
+}
+function rmAdmin(i){const d=getRD();d.adm.splice(i,1);saveRD(d);renderAL();toast('Admin entfernt','w');}
+function changeOwnerPw(){
+  const p=(document.getElementById('opw').value||'').trim();
+  if(p.length<4){toast('Passwort mind. 4 Zeichen','w');return;}
+  const d=getRD();d.op=p;saveRD(d);
+  document.getElementById('opw').value='';toast('Owner-Passwort geändert');
+}
+
+const PF=[
+  {id:'mnc',name:'MNC (Wir)',prim:'#000000',sek:'#FFD209',pearl:'Chrome',schein:'Yellow',unterboden:'#F3FF00',hints:'',mnc:true},
+  {id:'p1',name:'AZUL SECARIO',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric Blue',unterboden:'#0053FF',hints:'',mnc:false},
+  {id:'p2',name:'Accra',prim:'Metallic Black',sek:'',pearl:'Metallic Straw Beige',schein:'Golden Shower',unterboden:'#986000',hints:'',mnc:false},
+  {id:'p3',name:'Angels of Death',prim:'Schwarz Metallic',sek:'Schwarz Metallic',pearl:'Pure White',schein:'Golden Shower',unterboden:'#FF9300',hints:'',mnc:false},
+  {id:'p4',name:'Ballas',prim:'#360081',sek:'#360081',pearl:'Andozid Purple',schein:'Purple',unterboden:'Purple',hints:'',mnc:false},
+  {id:'p5',name:'Bloodmoon',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Metallic Torino Red',schein:'Freiwillig',unterboden:'Freiwillig',hints:'',mnc:false},
+  {id:'p6',name:'BrucksGmbH',prim:'Andozided Gold',sek:'Andozided Gold',pearl:'',schein:'',unterboden:'#fff400',hints:'',mnc:false},
+  {id:'p7',name:'Bloodlines',prim:'Metallic Black',sek:'Metallic Black',pearl:'Metallic Torino Red',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p8',name:'Blue Hustlers',prim:'#000000',sek:'#000000',pearl:'Ulti Maui Blue Poly',schein:'Blue',unterboden:'#0011FF',hints:'',mnc:false},
+  {id:'p9',name:'Cavelaz',prim:'Pure White',sek:'',pearl:'Matt Lime Green',schein:'Lime Green',unterboden:'#2F9335',hints:'',mnc:false},
+  {id:'p10',name:'Cosa Nero',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Pure White',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p11',name:'Epsilon',prim:'#899EB0',sek:'#899EB0',pearl:'keinen',schein:'Xenon',unterboden:'keinen',hints:'',mnc:false},
+  {id:'p12',name:'Falcone',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Blue',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p13',name:'Fanx',prim:'Epsilon Blue',sek:'Util Dark Silver',pearl:'Matt Purple',schein:'Blacklight',unterboden:'#1100A3',hints:'',mnc:false},
+  {id:'p14',name:'Grove',prim:'Metallic Green',sek:'Metallic Green',pearl:'Pure White',schein:'Lime Green',unterboden:'#003D05',hints:'',mnc:false},
+  {id:'p15',name:'Hustlerz',prim:'Metallic Black',sek:'Metallic Black',pearl:'Matte Orange',schein:'Orange',unterboden:'#702A00',hints:'',mnc:false},
+  {id:'p16',name:'immortale',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Matt Schwarz',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p17',name:'Imperia',prim:'Matte Light Grey',sek:'',pearl:'Torino Red',schein:'',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p18',name:'La Fenice',prim:'Carbon Black',sek:'Carbon Black',pearl:'Anodized Green (Chameleon)',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p19',name:'La Marea',prim:'#262B49',sek:'#262B49',pearl:'Frost White',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p20',name:'La Mano Rosa',prim:'Metallic Steel Grey',sek:'',pearl:'Light Gold',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p21',name:'locos',prim:'Matte Grey',sek:'Matte Grey',pearl:'Brushed Gold',schein:'Golden Shower',unterboden:'#1D1100',hints:'',mnc:false},
+  {id:'p22',name:'La Ombra Dorata',prim:'#051C15',sek:'#051C15',pearl:'Chamellion Green Turquise Flip',schein:'Golden Shower',unterboden:'#8D5300',hints:'',mnc:false},
+  {id:'p23',name:'laverde',prim:'#A3935F',sek:'#A3935F',pearl:'Schwarz',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p24',name:'LA SANGRE AZUL',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric Blue',unterboden:'#0053FF',hints:'',mnc:false},
+  {id:'p25',name:'Malvera',prim:'#100000',sek:'#100000',pearl:'Pure White',schein:'Xenon Rot',unterboden:'#FF0000',hints:'',mnc:false},
+  {id:'p26',name:'MG-13',prim:'#004EA3',sek:'',pearl:'Pure White',schein:'',unterboden:'',hints:'',mnc:false},
+  {id:'p27',name:'Malibu',prim:'Pure White',sek:'Matte Purple',pearl:'',schein:'Purple',unterboden:'#3700FF',hints:'',mnc:false},
+  {id:'p28',name:'Nameless',prim:'Pure White',sek:'Pure White',pearl:'',schein:'Hot Pink',unterboden:'#FE00FA',hints:'',mnc:false},
+  {id:'p29',name:'Nemesis',prim:'#262626',sek:'#262626',pearl:'Metallic Sun Bleeched Sand',schein:'Mint',unterboden:'#00FF88',hints:'',mnc:false},
+  {id:'p30',name:'Niners',prim:'#7B4906',sek:'#7B4906',pearl:'Orange',schein:'Orange',unterboden:'Weiß',hints:'',mnc:false},
+  {id:'p31',name:'Peckham',prim:'Metallic Black',sek:'Metallic Black',pearl:'Metallic Black',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p32',name:'Parkside Locos',prim:'Schwarz Metallic',sek:'Schwarz Metallic',pearl:'Candy Red',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p33',name:'PizzaBäcker',prim:'Matt Schwarz',sek:'Matt Schwarz',pearl:'Blau',schein:'Rot',unterboden:'Rot',hints:'Full Tune · Scheiben Schwarz',mnc:false},
+  {id:'p34',name:'Panthers',prim:'Worm White',sek:'Worm White',pearl:'Metallic Torino Red',schein:'Red',unterboden:'Red',hints:'',mnc:false},
+  {id:'p35',name:'Red Neighbar Hood',prim:'Metallic Schwarz',sek:'#FF0000',pearl:'Metallic Rot',schein:'Rot',unterboden:'Rot',hints:'',mnc:false},
+  {id:'p36',name:'Reckless',prim:'#D9A4C7',sek:'Schwartz Metallic',pearl:'Frost Weiß',schein:'Weiß',unterboden:'Weiß',hints:'',mnc:false},
+];
+
+const PM=[
+  {id:'m1',name:'Paco Akaza Himura',rang:'',status:'AKTIV',note:''},
+  {id:'m2',name:'Enrico Tizman',rang:'',status:'AKTIV',note:''},
+  {id:'m3',name:'Nico Smith',rang:'',status:'AKTIV',note:''},
+  {id:'m4',name:'Chelli Ridley',rang:'',status:'AKTIV',note:''},
+  {id:'m5',name:'Cesar Perez',rang:'',status:'AKTIV',note:''},
+  {id:'m6',name:'Kevin Schmit',rang:'',status:'AKTIV',note:''},
+  {id:'m7',name:'Jack Nostra',rang:'',status:'AKTIV',note:''},
+  {id:'m8',name:'Nick Bronx',rang:'',status:'AKTIV',note:''},
+  {id:'m9',name:'David Koslow',rang:'',status:'AKTIV',note:''},
+  {id:'m10',name:'Emilio Freespin',rang:'',status:'AKTIV',note:''},
+  {id:'m11',name:'Florian Gremory',rang:'',status:'AKTIV',note:''},
+  {id:'m12',name:'Loki Onkl',rang:'',status:'AKTIV',note:''},
+  {id:'m13',name:'Lucio Salamanca',rang:'',status:'AKTIV',note:''},
+  {id:'m14',name:'Pietro Onkel von Balgarew',rang:'',status:'AKTIV',note:''},
+  {id:'m15',name:'Vito Morelli',rang:'',status:'AKTIV',note:''},
+  {id:'m16',name:'Ben Baba',rang:'',status:'AKTIV',note:''},
+  {id:'m17',name:'Levin Baba',rang:'',status:'AKTIV',note:''},
+  {id:'m18',name:'Haro Petrovic',rang:'',status:'AKTIV',note:''},
+  {id:'m19',name:'Marcel Zafferano',rang:'',status:'AKTIV',note:''},
+  {id:'m20',name:'Cougar',rang:'',status:'AKTIV',note:''},
+];
+
+// COLOR UTILS
+function toHex(v){
+  if(!v||v==='-'||!v.trim())return null;
+  v=v.trim();
+  if(v.startsWith('#')&&(v.length===4||v.length===7))return v;
+  const m={
+    'schwarz':'#131313','black':'#131313','matt schwarz':'#1c1c1c','matt black':'#1c1c1c',
+    'carbon black':'#1e1e1e','metallic black':'#242424','weiß':'#f0f0f0','white':'#f0f0f0',
+    'pure white':'#f5f5f5','rot':'#cc2222','red':'#cc2222','red cabernet':'#7a1020',
+    'blue':'#2244cc','blau':'#2244cc','green':'#22aa44','grün':'#22aa44',
+    'metallic green':'#1a8a3a','lime green':'#3dcc44','matte lime green':'#3dcc44',
+    'matt lime green':'#3dcc44','orange':'#dd6600','gold':'#c9a84c','anodized gold':'#b8902a',
+    'yellow':'#ffd200','gelb':'#ffd200','pink':'#dd4488','hot pink':'#e040a0',
+    'purple':'#6633aa','anodized purple':'#7733bb','electric blue':'#0066ff',
+    'golden shower':'#c9a84c','chrome':'#aaaaaa','silver':'#aaaaaa','silber':'#aaaaaa',
+    'brushed gold':'#b8963c','matte grey':'#666666','matt grey':'#666666','grey':'#666666',
+    'gray':'#666666','metallic silver':'#999999','metallic torino red':'#aa2222',
+    'metallic candy red':'#cc1111','metallic graceful red':'#bb2233',
+    'metallic dark blue':'#112266','metallic lime green':'#33cc44',
+    'metallic bright blue':'#2255dd','metallic white':'#e8e8e8','light gold':'#c9a84c',
+    'metallic sea green':'#1a7a5a','anodized green chameleon':'#228844',
+    'anodized blue chameleon':'#3355dd','chameleon anodized copper':'#884422',
+    'metallic frost white':'#e8e8f0','ulti maui blue poly':'#0044cc',
+    'matt red':'#cc2222','epsilon blue':'#1133aa','util dark silver':'#444444',
+    'matt purple':'#552288','blacklight':'#8800ff','matt desert tan brown':'#8a7040',
+    'xenon rot':'#dd1111','freiwillig':'#666666','anodized green':'#228833',
+  };
+  const k=v.toLowerCase();
+  for(const[n,h] of Object.entries(m)) if(k.includes(n)) return h;
+  return '#555555';
+}
+
+function isBright(hex){
+  if(!hex||hex==='#555555')return false;
+  const h=hex.replace('#','');
+  if(h.length<6)return false;
+  const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);
+  return(0.299*r+0.587*g+0.114*b)>60;
+}
+
+function nameColor(prim){
+  // MNC special: sek is gold
+  const h=toHex(prim);
+  return(h&&isBright(h))?h:'var(--white)';
+}
+
+function dot(v,sz){
+  const h=toHex(v);sz=sz||18;
+  return`<div class="cdot" style="width:${sz}px;height:${sz}px;background:${h||'#2a2a2a'}"></div>`;
+}
+
+function buildV(f){
+  let s=`FRAKTION: "${f.name}"\n`;
+  if(f.prim)      s+=`Primär: ${f.prim}\n`;
+  if(f.sek)       s+=`Sekundär: ${f.sek}\n`;
+  if(f.pearl)     s+=`Perleffekt: ${f.pearl}\n`;
+  if(f.schein)    s+=`Scheinwerfer: ${f.schein}\n`;
+  if(f.unterboden)  s+=`Unterboden: ${f.unterboden}\n`;
+  if(f.reifenqualm) s+=`Reifenqualm: ${f.reifenqualm}\n`;
+  if(f.hints)       s+=`Sonstiges: ${f.hints}`;
+  return s.trim();
+}
+
+// INIT
+function init(){
+  if(!localStorage.getItem(RK))saveRD({op:'MNC2025!',adm:[]});
+  fraks=JSON.parse(localStorage.getItem(FK)||'null')||JSON.parse(JSON.stringify(PF));
+  fraks=fraks.map(f=>{if(f.unterboden===undefined)f.unterboden='';if(f.reifenqualm===undefined)f.reifenqualm='';return f;});
+  mems=JSON.parse(localStorage.getItem(MK)||'null')||JSON.parse(JSON.stringify(PM));
+  rfrak();rmem();hs();
+}
+function save(){localStorage.setItem(FK,JSON.stringify(fraks));localStorage.setItem(MK,JSON.stringify(mems));hs();}
+function hs(){document.getElementById('hcf').textContent=fraks.length;document.getElementById('hcm').textContent=mems.length;}
+
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');btn.classList.add('on');
+  if(id==='member')rmem();
+}
+
+// FRAK GRID
+function setFF(btn){document.querySelectorAll('[data-ff]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');rfrak();}
+function setMF(btn,f){document.querySelectorAll('[data-mf]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');mf=f;rmem();}
+
+function rfrak(){
+  const q=(document.getElementById('finp').value||'').toLowerCase();
+  let list=fraks.filter(f=>f.name.toLowerCase().includes(q));
+  list.sort((a,b)=>{
+    if(a.mnc&&!b.mnc)return -1;
+    if(!a.mnc&&b.mnc)return 1;
+    return a.name.localeCompare(b.name,'de',{sensitivity:'base'});
+  });
+  const g=document.getElementById('fgrid');
+  if(!list.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';return;}
+  g.innerHTML=list.map(f=>{
+    const primHex = toHex(f.prim)||'#1a1a1a';
+    const cf=[['PRIMÄR',f.prim],['SEK',f.sek],['PEARL',f.pearl],['SCHEIN',f.schein],['UNTER',f.unterboden],['QUALM',f.reifenqualm]].filter(([,v])=>v&&v.trim());
+    const cr=cf.map(([l,v])=>{
+      const h=toHex(v)||'#2a2a2a';
+      return`<div class="ccrow"><div class="cdot" style="width:34px;height:34px;background:${h};border:2px solid rgba(255,255,255,.12);border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div><span class="clbl">${l}</span></div>`;
+    }).join('');
+    const hi=f.hints?`<div class="fcext"><div class="elbl">HINWEISE</div>${f.hints}</div>`:'';
+    const nc=nameColor(f.prim);
+    const bright=isBright(primHex);
+    const txtCol=bright?'rgba(0,0,0,.85)':'rgba(255,255,255,.95)';
+    return`<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${f.id}')">
+      <div class="cblock">
+        <div class="cblock-main" style="background:${primHex}"></div>
+        <div class="cblock-txt" style="color:${txtCol}">${f.name}</div>
+      </div>
+      <div class="fcb">
+        <div class="fcname" style="color:${nc}">${f.name}</div>
+        <div class="fccols">${cr}</div>
+        ${hi}
+      </div>
+      ${curRole!=='viewer'?`<div class="fcact">
+        <button class="actbtn" onclick="event.stopPropagation();openFM('${f.id}')">BEARBEITEN</button>
+        <button class="actbtn del" onclick="event.stopPropagation();delFrak('${f.id}')">LÖSCHEN</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// DETAIL
+function openDet(id){
+  const f=fraks.find(x=>x.id===id);if(!f)return;
+  document.getElementById('detbar').innerHTML=[f.prim,f.sek,f.pearl].map(c=>`<div style="flex:1;background:${toHex(c)||'#1a1a1a'}"></div>`).join('');
+  const ne=document.getElementById('detname');
+  ne.textContent=f.name;ne.style.color=nameColor(f.prim);
+  const flds=[['Primärfarbe',f.prim],['Sekundärfarbe',f.sek],['Perleffekt',f.pearl],['Scheinwerfer',f.schein],['Unterboden',f.unterboden],['Reifenqualm',f.reifenqualm]].filter(([,v])=>v&&v.trim());
+  document.getElementById('detrows').innerHTML=flds.map(([l,v])=>`
+    <div class="detrow">
+      <div class="detdot" style="background:${toHex(v)||'#2a2a2a'}"></div>
+      <div class="detlbl">${l}</div>
+      <div class="detval">${v}</div>
+    </div>`).join('');
+  const hw=document.getElementById('hintswrap'),dd=document.getElementById('detdiv');
+  if(f.hints&&f.hints.trim()){hw.style.display='block';dd.style.display='block';document.getElementById('hintbox').textContent=f.hints;}
+  else{hw.style.display='none';dd.style.display='none';}
+  document.getElementById('detvtxt').textContent=buildV(f);
+  document.getElementById('detov').classList.add('open');
+}
+function closeDet(){document.getElementById('detov').classList.remove('open');}
+function copyDet(){
+  navigator.clipboard.writeText(document.getElementById('detvtxt').textContent).then(()=>{
+    const b=document.getElementById('detcpy');b.textContent='KOPIERT ✓';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='KOPIEREN';b.classList.remove('ok');},2200);
+  });
+}
+
+// FORM
+function openFM(id){
+  eFid=id||null;
+  document.getElementById('fmtitle').textContent=id?'BEARBEITEN':'NEUE FRAKTION';
+  ['fn','fp','fs','fpe','fsch','fub','frq','fhi'].forEach(i=>document.getElementById(i).value='');
+  ['fpSw','fsSw','fpeSw','fschSw','fubSw','frqSw'].forEach(i=>document.getElementById(i).style.background='var(--s3)');
+  if(id){
+    const f=fraks.find(x=>x.id===id);
+    if(f){
+      document.getElementById('fn').value=f.name;
+      document.getElementById('fp').value=f.prim||'';
+      document.getElementById('fs').value=f.sek||'';
+      document.getElementById('fpe').value=f.pearl||'';
+      document.getElementById('fsch').value=f.schein||'';
+      document.getElementById('fub').value=f.unterboden||'';
+      document.getElementById('frq').value=f.reifenqualm||'';
+      document.getElementById('fhi').value=f.hints||'';
+      [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw'],['frq','frqSw']].forEach(([ti,bi])=>syncSw(ti,bi));
+    }
+  }
+  upPv();document.getElementById('fmov').classList.add('open');
+}
+function closeFM(){document.getElementById('fmov').classList.remove('open');}
+function syncSw(textId,btnId){const h=toHex(document.getElementById(textId).value);document.getElementById(btnId).style.background=h||'var(--s3)';}
+function upPv(){[['fp','pv1'],['fs','pv2'],['fpe','pv3']].forEach(([f,p])=>{const h=toHex(document.getElementById(f).value);document.getElementById(p).style.background=h||'#1a1a1a';});}
+function saveFrak(){
+  const name=document.getElementById('fn').value.trim();
+  if(!name){toast('Name erforderlich','w');return;}
+  const d={id:eFid||'f'+Date.now(),name,
+    prim:document.getElementById('fp').value.trim(),
+    sek:document.getElementById('fs').value.trim(),
+    pearl:document.getElementById('fpe').value.trim(),
+    schein:document.getElementById('fsch').value.trim(),
+    unterboden:document.getElementById('fub').value.trim(),
+    reifenqualm:document.getElementById('frq').value.trim(),
+    hints:document.getElementById('fhi').value.trim(),
+    mnc:eFid?(fraks.find(f=>f.id===eFid)||{}).mnc||false:false};
+  if(eFid){fraks=fraks.map(f=>f.id===eFid?d:f);toast('Aktualisiert');}
+  else{fraks.push(d);toast('Gespeichert');}
+  save();closeFM();rfrak();
+}
+function delFrak(id){
+  const f=fraks.find(x=>x.id===id);if(!f)return;
+  document.getElementById('cfname').textContent='"'+f.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfov').classList.add('open');
+}
+function delMem(id){
+  const m=mems.find(x=>x.id===id);if(!m)return;
+  document.getElementById('cfname').textContent='"'+m.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfov').classList.add('open');
+}
+function closeCF(){document.getElementById('cfov').classList.remove('open');}
+// COLOR PICKER
+let cpTid=null,cpBid=null;
+function openCp(textId,btnId){
+  cpTid=textId;cpBid=btnId;
+  const cur=toHex(document.getElementById(textId).value)||'#333333';
+  document.getElementById('cpColInput').value=cur;
+  document.getElementById('cpTxt').value=document.getElementById(textId).value||'';
+  document.getElementById('cpPreview').style.background=cur;
+  document.getElementById('cpLabel').textContent=document.getElementById(textId).value||'Noch keine Farbe';
+  document.getElementById('cpov').classList.add('open');
+}
+function closeCp(){document.getElementById('cpov').classList.remove('open');}
+function onCpCol(){
+  const h=document.getElementById('cpColInput').value;
+  document.getElementById('cpTxt').value=h;
+  document.getElementById('cpPreview').style.background=h;
+  document.getElementById('cpLabel').textContent=h;
+}
+function onCpTxt(){
+  const val=document.getElementById('cpTxt').value;
+  const h=toHex(val);
+  if(h){document.getElementById('cpColInput').value=h;document.getElementById('cpPreview').style.background=h;}
+  document.getElementById('cpLabel').textContent=val||'Noch keine Farbe';
+}
+function applyCp(){
+  if(!cpTid)return;
+  const val=document.getElementById('cpTxt').value;
+  document.getElementById(cpTid).value=val;
+  const h=toHex(val);
+  if(cpBid)document.getElementById(cpBid).style.background=h||'var(--s3)';
+  upPv();closeCp();
+}
+
+// MEMBERS
+const RC={'Hashiriya 1段':'rh','Hashiriya 2段':'rh','Hashiriya 3段':'rh','Saikō-Kan':'rs','Takai Member':'rt','Kai Member':'rk','Supīdā First Class':'rsp','Supīdā Second Class':'rsp','Supīdā Wrench Class':'rsp','Unten-sha First Class':'ru','Unten-sha Second Class':'ru','Unten-sha Third Class':'ru','Crashtest Dummy':'rd'};
+function rmem(){
+  const q=(document.getElementById('minp').value||'').toLowerCase();
+  let list=mems.filter(m=>m.name.toLowerCase().includes(q));
+  if(mf!=='all')list=list.filter(m=>m.status===mf);
+  document.getElementById('sa').textContent=mems.filter(m=>m.status==='AKTIV').length;
+  document.getElementById('sn').textContent=mems.filter(m=>m.status==='INAKTIV').length;
+  document.getElementById('su').textContent=mems.filter(m=>m.status==='URLAUB').length;
+  document.getElementById('sg').textContent=mems.length;
+  const tb=document.getElementById('mtb');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:44px;color:var(--g3);font-family:\'Share Tech Mono\';font-size:13px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';return;}
+  tb.innerHTML=list.map(m=>{
+    const idx=mems.indexOf(m);
+    const num=String(idx+1).padStart(2,'0');
+    const rc=RC[m.rang]||'rn',rl=m.rang||'—';
+    const sc2=m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
+    return`<tr><td class="numc">${num}</td><td class="namc">➤ ${m.name}</td><td><span class="rb ${rc}">${rl}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${m.note||''}</td><td style="text-align:right;white-space:nowrap">${curRole!=='viewer'?`<button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button>`:''}</td></tr>`;
+  }).join('');
+}
+function openMM(id){
+  eMid=id||null;
+  document.getElementById('mmtitle').textContent=id?'BEARBEITEN':'NEUES MITGLIED';
+  ['mn','mno'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('mr').value='';document.getElementById('mst').value='AKTIV';
+  if(id){const m=mems.find(x=>x.id===id);if(m){document.getElementById('mn').value=m.name;document.getElementById('mr').value=m.rang;document.getElementById('mst').value=m.status;document.getElementById('mno').value=m.note||'';}}
+  document.getElementById('mmov').classList.add('open');
+}
+function closeMM(){document.getElementById('mmov').classList.remove('open');}
+function saveMem(){
+  const name=document.getElementById('mn').value.trim();
+  if(!name){toast('Name erforderlich','w');return;}
+  const d={id:eMid||'m'+Date.now(),name,rang:document.getElementById('mr').value,status:document.getElementById('mst').value,note:document.getElementById('mno').value.trim()};
+  if(eMid){mems=mems.map(m=>m.id===eMid?d:m);toast('Aktualisiert');}else{mems.push(d);toast('Mitglied hinzugefügt');}
+  save();closeMM();rmem();
+}
+
+function expText(){
+  let t='MID NIGHT CLUB — LOS SANTOS\nOFFIZIELLE MITGLIEDERLISTE\n'+'─'.repeat(40)+'\n\n';
+  mems.forEach((m,i)=>{t+=`${String(i+1).padStart(2,'0')}  ➤  ${m.name}  |  ${m.rang||'—'}  |  ${m.status}\n`;});
+  t+='\n'+'─'.repeat(40)+`\nGESAMT: ${mems.length} MITGLIEDER`;
+  navigator.clipboard.writeText(t).then(()=>toast('Liste kopiert'));
+  document.getElementById('expprev').innerHTML=`<div class="vwrap" style="margin-top:16px"><div class="vlbl">VORSCHAU</div><div class="vtxt" style="white-space:pre">${t}</div></div>`;
+}
+function expJSON(){
+  const b=new Blob([JSON.stringify({fraks,mems,ts:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mnc_backup.json';a.click();toast('JSON exportiert');
+}
+
+function toast(msg,type){
+  const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.textContent=msg;
+  document.getElementById('tc').appendChild(t);setTimeout(()=>t.remove(),2700);
+}
+
+document.querySelectorAll('.ov,.fov,.cpov,.cfov,.lgov,.apov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+init();
+</script>
+
+
+</body></html>
