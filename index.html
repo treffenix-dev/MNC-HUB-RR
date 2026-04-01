@@ -278,45 +278,6 @@ body.role-admin  .own-only{ display:none !important; }
 .apass{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);margin-top:1px;}
 .adinl{display:flex;gap:8px;flex-wrap:wrap;}
 .adinl .fi{flex:1;min-width:90px;}
-
-/* ── PROTOKOLL ──────────────────────────────────────────────────── */
-.log-wrap{display:flex;flex-direction:column;gap:0;}
-.log-toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
-.log-entry{display:grid;grid-template-columns:160px 130px 160px 1fr;gap:0;border-bottom:1px solid var(--border);padding:10px 0;align-items:start;}
-.log-entry:hover{background:rgba(255,255,255,.025);}
-.log-ts{font-family:'Share Tech Mono';font-size:11px;color:var(--g3);letter-spacing:.5px;line-height:1.5;padding-right:12px;}
-.log-user{font-family:'Rajdhani';font-size:14px;font-weight:700;color:var(--white);padding-right:12px;}
-.log-user-role{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;display:block;margin-top:2px;}
-.log-user-role.ro{color:var(--gold2);}
-.log-user-role.ra{color:#88bbee;}
-.log-act{font-family:'Share Tech Mono';font-size:11px;letter-spacing:.5px;padding:2px 8px;display:inline-block;align-self:start;border:1px solid;white-space:nowrap;}
-.log-act.add  {color:#3dcc70;border-color:rgba(61,204,112,.3);background:rgba(61,204,112,.07);}
-.log-act.edit {color:#f0c96a;border-color:rgba(240,201,106,.3);background:rgba(240,201,106,.07);}
-.log-act.del  {color:#e05040;border-color:rgba(224,80,64,.3);background:rgba(224,80,64,.07);}
-.log-act.auth {color:#b0aca6;border-color:rgba(176,172,166,.3);background:rgba(176,172,166,.07);}
-.log-act.warn {color:#ff8c40;border-color:rgba(255,140,64,.3);background:rgba(255,140,64,.07);}
-.log-act.sys  {color:#8888cc;border-color:rgba(136,136,204,.3);background:rgba(136,136,204,.07);}
-.log-detail{font-family:'Rajdhani';font-size:14px;font-weight:500;color:var(--g1);padding-left:14px;line-height:1.5;}
-.log-detail b{color:var(--white);}
-.log-empty{text-align:center;padding:60px;color:var(--g3);font-family:'Share Tech Mono';font-size:12px;letter-spacing:2px;}
-.log-stats{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
-.log-stat{background:var(--s2);border:1px solid var(--border);padding:12px 20px;min-width:100px;}
-.log-stat .n{font-family:'Bebas Neue';font-size:34px;line-height:1;}
-.log-stat .l{font-family:'Share Tech Mono';font-size:9px;color:var(--g3);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
-.log-stat.green .n{color:var(--green);}
-.log-stat.gold  .n{color:var(--gold2);}
-.log-stat.red   .n{color:var(--red);}
-.log-stat.blue  .n{color:#88bbee;}
-
-/* ── PASSWORT ÄNDERN MODAL ──────────────────────────────────────── */
-.pwov{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;}
-.pwov.open{display:flex;}
-.pwbox{background:var(--s1);border:1px solid var(--border2);border-top:3px solid var(--gold);width:100%;max-width:380px;}
-.pwhd{padding:22px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.pwtit{font-family:'Bebas Neue';font-size:26px;letter-spacing:4px;color:var(--gold2);}
-.pwbd{padding:20px 28px;}
-.pwft{padding:14px 28px 22px;border-top:1px solid var(--border);}
-.pwerr{font-family:'Rajdhani';font-size:13px;color:var(--red);min-height:16px;margin-top:8px;font-weight:600;}
 </style>
 <style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
 <body>
@@ -380,7 +341,6 @@ body.role-admin  .own-only{ display:none !important; }
   <nav class="nav">
     <button class="nb on" onclick="showPage('frak',this)">Lackierungen</button>
     <button class="nb" onclick="showPage('member',this)">Mitglieder</button>
-    <button class="nb own-only" onclick="showPage('proto',this)" id="protoNavBtn">📋 PROTOKOLL</button>
   </nav>
   <div class="hstats">
     <div class="schip">Fraktionen <b id="hcf">48</b></div>
@@ -393,7 +353,6 @@ body.role-admin  .own-only{ display:none !important; }
       <span class="ubrole rv" id="ubrole">GAST</span>
     </div>
     <button class="abtn own-only" onclick="openAP()" style="padding:8px 14px;font-size:12px">⚙ ADMINS</button>
-    <button class="logoutbtn adm-only" onclick="openPW()" style="border-color:var(--gold3);color:var(--gold2)" title="Eigenes Passwort ändern">🔑 PW</button>
     <button class="logoutbtn" onclick="doLogout()">✕ Logout</button>
   </div>
 </header>
@@ -991,63 +950,6 @@ Scheinwerfer: Yellow</div>
   </div>
 </div>
 
-
-<!-- ── PASSWORT ÄNDERN MODAL ── -->
-<div class="pwov" id="pwov">
-  <div class="pwbox">
-    <div class="pwhd">
-      <div class="pwtit">PASSWORT ÄNDERN</div>
-      <button class="xbtn" onclick="closePW()">✕</button>
-    </div>
-    <div class="pwbd">
-      <label class="lglbl">Aktuelles Passwort</label>
-      <input class="fi" id="pwold" type="password" placeholder="••••••••">
-      <label class="lglbl" style="margin-top:14px">Neues Passwort</label>
-      <input class="fi" id="pwnew" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doChangePW()">
-      <label class="lglbl" style="margin-top:14px">Neues Passwort bestätigen</label>
-      <input class="fi" id="pwconf" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doChangePW()">
-      <div class="pwerr" id="pwerr"></div>
-    </div>
-    <div class="pwft">
-      <button class="bpri" style="width:100%" onclick="doChangePW()">PASSWORT ÄNDERN</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── PROTOKOLL SEITE ── -->
-<div class="page" id="page-proto">
-  <div class="stitle"><div><h2>Aktivitäts-Protokoll</h2><small>Alle Aktionen aller eingeloggten Benutzer · Nur für Owner sichtbar</small></div></div>
-  <div class="log-stats">
-    <div class="log-stat green"><div class="n" id="ls-add">0</div><div class="l">Hinzugefügt</div></div>
-    <div class="log-stat gold"><div class="n" id="ls-edit">0</div><div class="l">Bearbeitet</div></div>
-    <div class="log-stat red"><div class="n" id="ls-del">0</div><div class="l">Gelöscht</div></div>
-    <div class="log-stat blue"><div class="n" id="ls-auth">0</div><div class="l">Logins</div></div>
-    <div class="log-stat" style=""><div class="n" id="ls-warn" style="color:#ff8c40">0</div><div class="l">Fehlversuche</div></div>
-    <div class="log-stat"><div class="n" id="ls-total" style="color:var(--white)">0</div><div class="l">Gesamt</div></div>
-  </div>
-  <div class="log-toolbar">
-    <div class="srch"><input id="log-search" type="text" placeholder="Suchen…" oninput="renderLog()"></div>
-    <select class="fbtn" id="log-user-filter" onchange="renderLog()" style="cursor:pointer">
-      <option value="">Alle Benutzer</option>
-    </select>
-    <select class="fbtn" id="log-type-filter" onchange="renderLog()" style="cursor:pointer">
-      <option value="">Alle Aktionen</option>
-      <option value="add">Hinzugefügt</option>
-      <option value="edit">Bearbeitet</option>
-      <option value="del">Gelöscht</option>
-      <option value="auth">Login/Logout</option>
-      <option value="warn">Fehlversuche</option>
-      <option value="sys">System</option>
-    </select>
-    <button class="fbtn" onclick="exportLog()">⬇ EXPORTIEREN</button>
-    <button class="actbtn del" onclick="clearLog()" style="padding:13px 18px">🗑 LOG LÖSCHEN</button>
-  </div>
-  <div style="font-family:'Share Tech Mono';font-size:10px;color:var(--g3);letter-spacing:1px;margin-bottom:12px;display:grid;grid-template-columns:160px 130px 160px 1fr;padding:0 0 8px 0;border-bottom:2px solid var(--border2);">
-    <span>DATUM / UHRZEIT</span><span>BENUTZER</span><span>AKTION</span><span style="padding-left:14px">DETAILS</span>
-  </div>
-  <div class="log-wrap" id="log-wrap"></div>
-</div>
-
 <div class="tc" id="tc"></div>
 
 <script>
@@ -1084,26 +986,20 @@ function doLg(){
   if(!u||!p){document.getElementById('lgerr').textContent='Felder ausfüllen.';return;}
   const d=getRD();
   if(u.toLowerCase()==='owner'&&p===d.op){
-    addLog('auth','LOGIN','**Owner** hat sich eingeloggt');
     applyRole('owner','Owner');closeLg();
     document.getElementById('lgu').value='';document.getElementById('lgp').value='';
     return;
   }
   const a=d.adm.find(x=>x.n.toLowerCase()===u.toLowerCase()&&x.p===p);
   if(a){
-    addLog('auth','LOGIN','**'+a.n+'** hat sich als Admin eingeloggt');
     applyRole('admin',a.n);closeLg();
     document.getElementById('lgu').value='';document.getElementById('lgp').value='';
     return;
   }
-  addLog('warn','LOGIN FEHLGESCHLAGEN',`Fehlgeschlagener Login-Versuch mit Benutzername: **${u}**`);
   document.getElementById('lgerr').textContent='Falscher Benutzername oder Passwort.';
 }
 
-function doLogout(){
-  if(curRole!=='viewer')addLog('auth','LOGOUT',`**${curUser}** hat sich ausgeloggt`);
-  applyRole('viewer','Gast');
-}
+function doLogout(){applyRole('viewer','Gast');}
 
 function openAP(){renderAL();document.getElementById('apov').classList.add('open');}
 function closeAP(){document.getElementById('apov').classList.remove('open');}
@@ -1122,155 +1018,15 @@ function addAdmin(){
   const d=getRD();
   if(d.adm.find(x=>x.n.toLowerCase()===n.toLowerCase())){toast('Admin existiert bereits','w');return;}
   d.adm.push({n,p});saveRD(d);
-  addLog('add','ADMIN ERSTELLT',`Owner hat Admin-Konto **${n}** erstellt`);
   document.getElementById('apn').value='';document.getElementById('app').value='';
   renderAL();toast('Admin hinzugefügt');
 }
-function rmAdmin(i){
-  const d=getRD();
-  const removed=d.adm[i];
-  d.adm.splice(i,1);saveRD(d);
-  addLog('del','ADMIN ENTFERNT',`Owner hat Admin-Konto **${removed.n}** gelöscht`);
-  renderAL();toast('Admin entfernt','w');
-}
+function rmAdmin(i){const d=getRD();d.adm.splice(i,1);saveRD(d);renderAL();toast('Admin entfernt','w');}
 function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<4){toast('Mind. 4 Zeichen','w');return;}
   const d=getRD();d.op=p;saveRD(d);
   document.getElementById('opw').value='';toast('Owner-Passwort geändert');
-}
-
-
-/* ══════════════════════════════════════════════════════
-   LOGGING SYSTEM
-══════════════════════════════════════════════════════ */
-const LK='mnc_log2';
-const MAX_LOG=1000;
-
-function getLog(){try{return JSON.parse(localStorage.getItem(LK))||[];}catch{return[];}}
-function saveLog(entries){localStorage.setItem(LK,JSON.stringify(entries));}
-
-function addLog(type,action,details){
-  // type: 'add'|'edit'|'del'|'auth'|'warn'|'sys'
-  const entries=getLog();
-  entries.unshift({
-    ts: new Date().toISOString(),
-    user: curUser||'Gast',
-    role: curRole||'viewer',
-    type, action, details
-  });
-  if(entries.length>MAX_LOG)entries.length=MAX_LOG;
-  saveLog(entries);
-}
-
-function fmtTs(iso){
-  const d=new Date(iso);
-  const date=d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
-  const time=d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  return date+'<br>'+time;
-}
-
-function renderLog(){
-  const entries=getLog();
-  const search=(document.getElementById('log-search').value||'').toLowerCase();
-  const userF=document.getElementById('log-user-filter').value;
-  const typeF=document.getElementById('log-type-filter').value;
-
-  // Stats
-  document.getElementById('ls-total').textContent=entries.length;
-  document.getElementById('ls-add').textContent=entries.filter(e=>e.type==='add').length;
-  document.getElementById('ls-edit').textContent=entries.filter(e=>e.type==='edit').length;
-  document.getElementById('ls-del').textContent=entries.filter(e=>e.type==='del').length;
-  document.getElementById('ls-auth').textContent=entries.filter(e=>e.type==='auth').length;
-  document.getElementById('ls-warn').textContent=entries.filter(e=>e.type==='warn').length;
-
-  // User-Filter Dropdown befüllen
-  const sel=document.getElementById('log-user-filter');
-  const curVal=sel.value;
-  const users=[...new Set(entries.map(e=>e.user))].sort();
-  sel.innerHTML='<option value="">Alle Benutzer</option>'+users.map(u=>`<option value="${u}"${u===curVal?' selected':''}>${u}</option>`).join('');
-
-  // Filter anwenden
-  let list=entries;
-  if(userF) list=list.filter(e=>e.user===userF);
-  if(typeF) list=list.filter(e=>e.type===typeF);
-  if(search) list=list.filter(e=>(e.user+e.action+e.details).toLowerCase().includes(search));
-
-  const wrap=document.getElementById('log-wrap');
-  if(!list.length){
-    wrap.innerHTML='<div class="log-empty">KEINE EINTRÄGE GEFUNDEN</div>';
-    return;
-  }
-
-  wrap.innerHTML=list.map(e=>{
-    const roleLabel=e.role==='owner'?'OWNER':e.role==='admin'?'ADMIN':'GAST';
-    const roleCls=e.role==='owner'?'ro':'ra';
-    const detailHtml=(e.details||'').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
-    return`<div class="log-entry">
-      <div class="log-ts">${fmtTs(e.ts)}</div>
-      <div class="log-user">${e.user}<span class="log-user-role ${roleCls}">${roleLabel}</span></div>
-      <div><span class="log-act ${e.type}">${e.action}</span></div>
-      <div class="log-detail">${detailHtml}</div>
-    </div>`;
-  }).join('');
-}
-
-function exportLog(){
-  const entries=getLog();
-  let txt='MNC HUB — AKTIVITÄTS-PROTOKOLL\n'+'═'.repeat(70)+'\n';
-  txt+=`Exportiert: ${new Date().toLocaleString('de-DE')}  |  Einträge: ${entries.length}\n`;
-  txt+='═'.repeat(70)+'\n\n';
-  entries.forEach(e=>{
-    const d=new Date(e.ts);
-    txt+=`[${d.toLocaleString('de-DE')}]  ${e.user} (${e.role.toUpperCase()})\n`;
-    txt+=`  ${e.action}: ${e.details}\n\n`;
-  });
-  navigator.clipboard.writeText(txt).then(()=>toast('Protokoll kopiert'));
-}
-
-function clearLog(){
-  if(!confirm('Protokoll wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.'))return;
-  saveLog([]);
-  addLog('sys','LOG GELÖSCHT','Owner hat das Protokoll geleert');
-  renderLog();
-  toast('Protokoll gelöscht','w');
-}
-
-/* ══════════════════════════════════════════════════════
-   PASSWORT ÄNDERN (für eingeloggte Admins/Owner)
-══════════════════════════════════════════════════════ */
-function openPW(){
-  document.getElementById('pwold').value='';
-  document.getElementById('pwnew').value='';
-  document.getElementById('pwconf').value='';
-  document.getElementById('pwerr').textContent='';
-  document.getElementById('pwov').classList.add('open');
-}
-function closePW(){document.getElementById('pwov').classList.remove('open');}
-
-function doChangePW(){
-  const old=document.getElementById('pwold').value;
-  const nw=document.getElementById('pwnew').value;
-  const cf=document.getElementById('pwconf').value;
-  const err=document.getElementById('pwerr');
-  err.textContent='';
-  if(!old||!nw||!cf){err.textContent='Alle Felder ausfüllen.';return;}
-  if(nw!==cf){err.textContent='Neues Passwort stimmt nicht überein.';return;}
-  if(nw.length<4){err.textContent='Passwort mind. 4 Zeichen.';return;}
-  const d=getRD();
-  if(curRole==='owner'){
-    if(old!==d.op){err.textContent='Aktuelles Passwort falsch.';return;}
-    d.op=nw;saveRD(d);
-    addLog('sys','PASSWORT GEÄNDERT',`**Owner** hat sein Passwort geändert`);
-    toast('Passwort geändert');closePW();
-  } else if(curRole==='admin'){
-    const adm=d.adm.find(a=>a.n===curUser);
-    if(!adm){err.textContent='Admin nicht gefunden.';return;}
-    if(old!==adm.p){err.textContent='Aktuelles Passwort falsch.';return;}
-    adm.p=nw;saveRD(d);
-    addLog('sys','PASSWORT GEÄNDERT',`**${curUser}** hat sein Passwort geändert`);
-    toast('Passwort geändert');closePW();
-  }
 }
 
 const FK='mnc_f6',MK='mnc_m4';
@@ -1430,7 +1186,6 @@ function showPage(id,btn){
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('page-'+id).classList.add('on');btn.classList.add('on');
   if(id==='member')rmem();
-  if(id==='proto')renderLog();
 }
 
 // FRAK GRID
@@ -1540,34 +1295,20 @@ function saveFrak(){
     reifenqualm:document.getElementById('frq').value.trim(),
     hints:document.getElementById('fhi').value.trim(),
     mnc:eFid?(fraks.find(f=>f.id===eFid)||{}).mnc||false:false};
-  if(eFid){
-    const old=fraks.find(f=>f.id===eFid)||{};
-    fraks=fraks.map(f=>f.id===eFid?d:f);
-    addLog('edit','FRAKTION BEARBEITET','**'+d.name+'** wurde von **'+curUser+'** aktualisiert');
-    toast('Aktualisiert');
-  } else {
-    fraks.push(d);
-    addLog('add','FRAKTION HINZUGEFÜGT','**'+d.name+'** wurde von **'+curUser+'** eingetragen | Primär: '+d.prim+(d.sek?' · Sek: '+d.sek:''));
-    toast('Gespeichert');
-  }
+  if(eFid){fraks=fraks.map(f=>f.id===eFid?d:f);toast('Aktualisiert');}
+  else{fraks.push(d);toast('Gespeichert');}
   save();closeFM();rfrak();
 }
 function delFrak(id){
   const f=fraks.find(x=>x.id===id);if(!f)return;
   document.getElementById('cfname').textContent='"'+f.name+'"';
-  document.getElementById('cfconfirm').onclick=()=>{
-    addLog('del','FRAKTION GELÖSCHT','**'+f.name+'** wurde von **'+curUser+'** gelöscht');
-    fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');closeCF();
-  };
+  document.getElementById('cfconfirm').onclick=()=>{fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');closeCF();};
   document.getElementById('cfov').classList.add('open');
 }
 function delMem(id){
   const m=mems.find(x=>x.id===id);if(!m)return;
   document.getElementById('cfname').textContent='"'+m.name+'"';
-  document.getElementById('cfconfirm').onclick=()=>{
-    addLog('del','MITGLIED GELÖSCHT','**'+m.name+'** wurde von **'+curUser+'** entfernt');
-    mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');closeCF();
-  };
+  document.getElementById('cfconfirm').onclick=()=>{mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');closeCF();};
   document.getElementById('cfov').classList.add('open');
 }
 function closeCF(){document.getElementById('cfov').classList.remove('open');}
@@ -1637,15 +1378,7 @@ function saveMem(){
   const name=document.getElementById('mn').value.trim();
   if(!name){toast('Name erforderlich','w');return;}
   const d={id:eMid||'m'+Date.now(),name,rang:document.getElementById('mr').value,status:document.getElementById('mst').value,note:document.getElementById('mno').value.trim()};
-  if(eMid){
-    mems=mems.map(m=>m.id===eMid?d:m);
-    addLog('edit','MITGLIED BEARBEITET','**'+d.name+'** wurde von **'+curUser+'** aktualisiert | Status: '+d.status+(d.rang?' · Rang: '+d.rang:''));
-    toast('Aktualisiert');
-  } else {
-    mems.push(d);
-    addLog('add','MITGLIED HINZUGEFÜGT','**'+d.name+'** wurde von **'+curUser+'** eingetragen | Status: '+d.status+(d.rang?' · Rang: '+d.rang:''));
-    toast('Mitglied hinzugefügt');
-  }
+  if(eMid){mems=mems.map(m=>m.id===eMid?d:m);toast('Aktualisiert');}else{mems.push(d);toast('Mitglied hinzugefügt');}
   save();closeMM();rmem();
 }
 
@@ -1666,7 +1399,7 @@ function toast(msg,type){
   document.getElementById('tc').appendChild(t);setTimeout(()=>t.remove(),2700);
 }
 
-document.querySelectorAll('.ov,.fov,.cpov,.cfov,.lgov,.apov,.pwov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
+document.querySelectorAll('.ov,.fov,.cpov,.cfov,.lgov,.apov').forEach(o=>{o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});});
 init();
 </script>
 
