@@ -278,9 +278,75 @@ body.role-admin  .own-only{ display:none !important; }
 .apass{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);margin-top:1px;}
 .adinl{display:flex;gap:8px;flex-wrap:wrap;}
 .adinl .fi{flex:1;min-width:90px;}
+
+/* ── SECURITY LOCKOUT BANNER ─────────────────────────────────────────── */
+.lockbanner{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:var(--red);color:#fff;font-family:'Share Tech Mono';font-size:13px;letter-spacing:2px;text-align:center;padding:9px 16px;}
+.lockbanner.show{display:block;}
+
+/* ── SESSION TIMEOUT BADGE ───────────────────────────────────────────── */
+.sessiontimer{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);letter-spacing:1px;margin-top:2px;}
+.sessiontimer.warn{color:#f0a020;}
+
+/* ── CONTROL PANEL ───────────────────────────────────────────────────── */
+.cpgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;}
+@media(max-width:900px){.cpgrid{grid-template-columns:1fr;}}
+.cpcard{background:var(--s1);border:1px solid var(--border);padding:22px 26px;}
+.cpcard-title{font-family:'Share Tech Mono';font-size:11px;color:var(--gold3);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.cpstat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;font-weight:600;}
+.cpstat-row:last-child{border-bottom:none;}
+.cpstat-key{font-family:'Share Tech Mono';font-size:11px;color:var(--g2);letter-spacing:1px;text-transform:uppercase;}
+.cpstat-val{color:var(--white);font-family:'Rajdhani';font-size:15px;font-weight:700;}
+.cpstat-val.ok{color:var(--green);}
+.cpstat-val.warn{color:#f0a020;}
+.cpstat-val.err{color:var(--red);}
+
+/* ── ACTIVITY LOG ────────────────────────────────────────────────────── */
+.logwrap{background:var(--s1);border:1px solid var(--border);}
+.loghead{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:2px solid var(--border);flex-wrap:wrap;gap:10px;}
+.loghead-title{font-family:'Share Tech Mono';font-size:11px;color:var(--gold3);letter-spacing:2px;text-transform:uppercase;}
+.log-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.log-filters select,.log-filters input{padding:7px 12px;background:var(--s2);border:1px solid var(--border2);color:var(--white);font-family:'Share Tech Mono';font-size:11px;outline:none;letter-spacing:1px;}
+.log-filters select:focus,.log-filters input:focus{border-color:var(--gold3);}
+.logtable{width:100%;border-collapse:collapse;font-size:13px;}
+.logtable thead tr{background:var(--s2);border-bottom:2px solid var(--border);}
+.logtable th{padding:10px 14px;font-family:'Share Tech Mono';font-size:10px;color:var(--gold3);letter-spacing:1.5px;text-transform:uppercase;text-align:left;white-space:nowrap;}
+.logtable td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.logtable tbody tr:hover{background:var(--s2);}
+.log-ts{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);white-space:nowrap;}
+.log-user{font-family:'Rajdhani';font-size:13px;font-weight:700;white-space:nowrap;}
+.log-role-owner{color:var(--gold2);}
+.log-role-admin{color:#88bbee;}
+.log-role-viewer{color:var(--g3);}
+.log-action{font-family:'Share Tech Mono';font-size:10px;letter-spacing:.8px;padding:3px 8px;border:1px solid;display:inline-block;white-space:nowrap;}
+.log-action.login{border-color:var(--green);color:var(--green);background:rgba(61,204,112,.06);}
+.log-action.logout{border-color:var(--g3);color:var(--g3);}
+.log-action.fail{border-color:var(--red);color:var(--red);background:rgba(224,80,64,.08);}
+.log-action.edit{border-color:#88bbee;color:#88bbee;background:rgba(136,187,238,.06);}
+.log-action.delete{border-color:var(--red);color:var(--red);}
+.log-action.add{border-color:var(--green);color:var(--green);}
+.log-action.security{border-color:var(--gold3);color:var(--gold2);}
+.log-action.other{border-color:var(--border2);color:var(--g2);}
+.log-detail{color:var(--g2);font-size:13px;max-width:320px;}
+.logcount{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);letter-spacing:1px;padding:8px 14px;border-top:1px solid var(--border);text-align:right;}
+
+/* ── ADMIN ACCOUNT ROWS ──────────────────────────────────────────────── */
+.arow-ext{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border:1px solid var(--border);margin-bottom:5px;gap:10px;}
+.arow-info{flex:1;}
+.arow-name{font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--white);}
+.arow-meta{font-family:'Share Tech Mono';font-size:9px;color:var(--g3);margin-top:2px;letter-spacing:.8px;}
+.arow-status{font-family:'Share Tech Mono';font-size:9px;padding:2px 7px;border:1px solid;letter-spacing:1px;text-transform:uppercase;}
+.arow-status.online{border-color:var(--green);color:var(--green);}
+.arow-status.offline{border-color:var(--border2);color:var(--g3);}
+
+/* ── SECURITY CARD ───────────────────────────────────────────────────── */
+.sec-meter{height:6px;background:var(--s3);border:1px solid var(--border);margin-top:6px;overflow:hidden;}
+.sec-meter-fill{height:100%;transition:width .4s;}
+.pw-strength-label{font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;margin-top:4px;}
 </style>
 <style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
 <body>
+
+<div class="lockbanner" id="lockbanner">🔒 ZUGANG GESPERRT — <span id="lockCountdown"></span></div>
 
 <!-- ── LOGIN MODAL ── -->
 <div class="lgov" id="lgov">
@@ -341,6 +407,7 @@ body.role-admin  .own-only{ display:none !important; }
   <nav class="nav">
     <button class="nb on" onclick="showPage('frak',this)">Lackierungen</button>
     <button class="nb" onclick="showPage('member',this)">Mitglieder</button>
+    <button class="nb own-only" onclick="showPage('ctrl',this);renderCtrl()">⬡ Control Panel</button>
   </nav>
   <div class="hstats">
     <div class="schip">Fraktionen <b id="hcf">48</b></div>
@@ -763,6 +830,88 @@ body.role-admin  .own-only{ display:none !important; }
   </div>
 </div>
 
+<!-- CONTROL PANEL -->
+<div class="page" id="page-ctrl">
+  <div class="stitle"><div><h2>Control Panel</h2><small>Echtzeit-Überwachung · Sicherheit · Benutzerverwaltung</small></div></div>
+
+  <!-- Status Cards -->
+  <div class="cpgrid">
+    <!-- Aktive Session -->
+    <div class="cpcard">
+      <div class="cpcard-title">◉ Aktive Session</div>
+      <div id="cp-session">
+        <div class="cpstat-row"><span class="cpstat-key">Eingeloggt als</span><span class="cpstat-val ok" id="cp-sess-user">—</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Rolle</span><span class="cpstat-val" id="cp-sess-role">—</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Session-Start</span><span class="cpstat-val" id="cp-sess-start">—</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Letzte Aktivität</span><span class="cpstat-val" id="cp-sess-last">—</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Timeout in</span><span class="cpstat-val warn" id="cp-sess-timeout">30:00</span></div>
+      </div>
+    </div>
+
+    <!-- Sicherheitsstatus -->
+    <div class="cpcard">
+      <div class="cpcard-title">🛡 Sicherheitsstatus</div>
+      <div id="cp-security">
+        <div class="cpstat-row"><span class="cpstat-key">Login-Schutz</span><span class="cpstat-val ok">SHA-256 Hashing</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Brute-Force-Schutz</span><span class="cpstat-val ok">Aktiv</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Session-Timeout</span><span class="cpstat-val ok">30 Min.</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Fehlversuche (Session)</span><span class="cpstat-val" id="cp-attempts">0</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Sperre Status</span><span class="cpstat-val ok" id="cp-lockstatus">Nicht aktiv</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Log-Einträge</span><span class="cpstat-val" id="cp-logcount">0</span></div>
+      </div>
+    </div>
+
+    <!-- Admin-Konten -->
+    <div class="cpcard">
+      <div class="cpcard-title">👥 Admin-Konten</div>
+      <div id="cp-admins">
+        <div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px;padding:10px 0">Wird geladen…</div>
+      </div>
+    </div>
+
+    <!-- Letzte Logins pro Admin -->
+    <div class="cpcard">
+      <div class="cpcard-title">⏱ Letzte Aktivitäten pro Konto</div>
+      <div id="cp-lastlogins">
+        <div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px;padding:10px 0">Wird geladen…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aktivitätsprotokoll -->
+  <div class="logwrap">
+    <div class="loghead">
+      <div class="loghead-title">📋 Aktivitätsprotokoll</div>
+      <div class="log-filters">
+        <select id="log-filter-user" onchange="renderCtrl()">
+          <option value="">Alle Benutzer</option>
+        </select>
+        <select id="log-filter-action" onchange="renderCtrl()">
+          <option value="">Alle Aktionen</option>
+          <option value="LOGIN">Login</option>
+          <option value="LOGOUT">Logout</option>
+          <option value="LOGIN-FAIL">Fehlversuche</option>
+          <option value="EDIT">Bearbeitet</option>
+          <option value="ADD">Hinzugefügt</option>
+          <option value="DELETE">Gelöscht</option>
+          <option value="SECURITY">Sicherheit</option>
+        </select>
+        <button class="fbtn" onclick="clearLog()" style="border-color:rgba(224,80,64,.4);color:var(--red)">✕ LOG LÖSCHEN</button>
+        <button class="fbtn" onclick="exportLog()">⤓ EXPORT</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="logtable">
+        <thead><tr><th>Zeitstempel</th><th>Benutzer</th><th>Rolle</th><th>Aktion</th><th>Details</th></tr></thead>
+        <tbody id="log-tbody">
+          <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--g3);font-family:'Share Tech Mono';font-size:11px">Keine Einträge</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="logcount" id="log-footer">0 Einträge</div>
+  </div>
+</div>
+
 <!-- DETAIL MODAL -->
 <div class="ov" id="detov">
   <div class="detm">
@@ -953,81 +1102,371 @@ Scheinwerfer: Yellow</div>
 <div class="tc" id="tc"></div>
 
 <script>
-const RK='mnc_roles';
+const RK='mnc_roles_v2'; // v2 = hashed passwords
+const LOG_KEY='mnc_actlog';
+const RL_KEY='mnc_ratelimit';
+const SESS_KEY='mnc_session';
+const HASH_SALT='MNC_SECURE_HUB_2025';
 let curRole='viewer';
+let loginAttempts=0; // in-memory, resets on page reload
+let sessionTimer=null;
+let sessionStart=null;
+const SESSION_TIMEOUT=30*60*1000; // 30 min
 
-function getRD(){try{return JSON.parse(localStorage.getItem(RK))||{op:'MNC2025!',adm:[]};}catch{return{op:'MNC2025!',adm:[]};}}
+/* ── SHA-256 HASHING ────────────────────────────────────────────────── */
+async function sha256(str){
+  const enc=new TextEncoder();
+  const buf=await crypto.subtle.digest('SHA-256',enc.encode(str+HASH_SALT));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+function isHash(s){return/^[0-9a-f]{64}$/.test(s);}
+
+/* ── ROLE DATA ──────────────────────────────────────────────────────── */
+function getRD(){
+  // Try v2 first, then migrate from v1
+  try{
+    const v2=localStorage.getItem(RK);
+    if(v2)return JSON.parse(v2);
+    // Migrate from old plain-text store
+    const v1=JSON.parse(localStorage.getItem('mnc_roles')||'{"op":"MNC2025!","adm":[]}');
+    return v1; // will be hashed on next successful login
+  }catch{return{op:'MNC2025!',adm:[]};}
+}
 function saveRD(d){localStorage.setItem(RK,JSON.stringify(d));}
 
+/* ── ACTIVITY LOG ───────────────────────────────────────────────────── */
+function logAction(action,detail=''){
+  try{
+    const log=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+    const user=curRole==='viewer'?'GAST':(document.getElementById('ubname')||{textContent:'?'}).textContent;
+    log.unshift({ts:new Date().toISOString(),user,role:curRole,action,detail});
+    if(log.length>500)log.length=500;
+    localStorage.setItem(LOG_KEY,JSON.stringify(log));
+  }catch(e){}
+}
+function getLog(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch{return[];}}
+function clearLog(){
+  if(!confirm('Aktivitätsprotokoll wirklich löschen?'))return;
+  localStorage.removeItem(LOG_KEY);
+  logAction('SECURITY','Aktivitätsprotokoll gelöscht');
+  renderCtrl();toast('Log gelöscht','w');
+}
+function exportLog(){
+  const log=getLog();
+  const csv=['Zeitstempel,Benutzer,Rolle,Aktion,Details',...log.map(e=>`"${e.ts}","${e.user}","${e.role}","${e.action}","${(e.detail||'').replace(/"/g,"'")}"`)].join('\n');
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mnc_activity_log.csv';a.click();
+  toast('Log exportiert');
+}
+
+/* ── RATE LIMITING ──────────────────────────────────────────────────── */
+function checkRateLimit(){
+  try{
+    const rl=JSON.parse(localStorage.getItem(RL_KEY)||'{}');
+    if(rl.until&&Date.now()<rl.until){
+      const rem=Math.ceil((rl.until-Date.now())/1000);
+      return{locked:true,remaining:rem,count:rl.count||0};
+    }
+    return{locked:false,remaining:0,count:rl.count||0};
+  }catch{return{locked:false,remaining:0,count:0};}
+}
+function recordFailedAttempt(){
+  loginAttempts++;
+  try{
+    const rl=JSON.parse(localStorage.getItem(RL_KEY)||'{}');
+    rl.count=(rl.count||0)+1;
+    rl.last=Date.now();
+    if(rl.count>=10){
+      rl.until=Date.now()+5*60*1000;
+      rl.count=0;
+      localStorage.setItem(RL_KEY,JSON.stringify(rl));
+      showLockBanner(5*60);
+      return'lockout';
+    }else if(loginAttempts>=5){
+      rl.until=Date.now()+15*1000;
+      localStorage.setItem(RL_KEY,JSON.stringify(rl));
+      showLockBanner(15);
+      return'cooldown';
+    }
+    localStorage.setItem(RL_KEY,JSON.stringify(rl));
+  }catch{}
+  return'warn';
+}
+function clearRateLimit(){localStorage.removeItem(RL_KEY);loginAttempts=0;hideLockBanner();}
+
+let lockInterval=null;
+function showLockBanner(seconds){
+  const b=document.getElementById('lockbanner');
+  const c=document.getElementById('lockCountdown');
+  if(!b)return;
+  b.classList.add('show');
+  clearInterval(lockInterval);
+  let rem=seconds;
+  c.textContent=`Noch ${rem}s gesperrt`;
+  lockInterval=setInterval(()=>{
+    rem--;
+    if(rem<=0){hideLockBanner();clearInterval(lockInterval);}
+    else c.textContent=`Noch ${rem}s gesperrt`;
+  },1000);
+}
+function hideLockBanner(){
+  const b=document.getElementById('lockbanner');
+  if(b)b.classList.remove('show');
+  clearInterval(lockInterval);
+}
+
+/* ── SESSION MANAGEMENT ─────────────────────────────────────────────── */
+function startSession(role,user){
+  sessionStart=Date.now();
+  sessionStorage.setItem(SESS_KEY,JSON.stringify({role,user,start:sessionStart,last:Date.now()}));
+  resetSessionTimer();
+}
+function touchSession(){
+  const s=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+  if(s.user){s.last=Date.now();sessionStorage.setItem(SESS_KEY,JSON.stringify(s));}
+  resetSessionTimer();
+}
+function resetSessionTimer(){
+  clearTimeout(sessionTimer);
+  if(curRole==='viewer')return;
+  sessionTimer=setTimeout(()=>{
+    logAction('AUTO-LOGOUT','Session-Timeout (30 Min. Inaktivität)');
+    doLogout();
+    toast('Automatisch abgemeldet (Inaktivität)','w');
+  },SESSION_TIMEOUT);
+}
+function getSession(){
+  try{return JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');}catch{return{};}
+}
+// Reset timer on any user activity
+document.addEventListener('click',()=>{if(curRole!=='viewer')touchSession();});
+document.addEventListener('keydown',()=>{if(curRole!=='viewer')touchSession();});
+
+/* ── ROLE APPLICATION ────────────────────────────────────────────────── */
 function applyRole(role,user){
   curRole=role;
   document.body.classList.remove('role-viewer','role-admin','role-owner');
   document.body.classList.add('role-'+role);
   const guest=role==='viewer';
-  document.getElementById('lgBtn').style.display   = guest ? '' : 'none';
-  document.getElementById('ubadge').style.display  = guest ? 'none' : 'flex';
+  document.getElementById('lgBtn').style.display=guest?'':'none';
+  document.getElementById('ubadge').style.display=guest?'none':'flex';
   if(!guest){
     document.getElementById('ubname').textContent=user;
     const r=document.getElementById('ubrole');
-    r.textContent = role==='owner' ? 'OWNER' : 'ADMIN';
-    r.className   = 'ubrole '+(role==='owner'?'ro':'ra');
+    r.textContent=role==='owner'?'OWNER':'ADMIN';
+    r.className='ubrole '+(role==='owner'?'ro':'ra');
   }
 }
 
 function openLg(){
   document.getElementById('lgerr').textContent='';
+  const rl=checkRateLimit();
+  if(rl.locked){document.getElementById('lgerr').textContent=`Gesperrt. Noch ${rl.remaining}s warten.`;showLockBanner(rl.remaining);}
   document.getElementById('lgov').classList.add('open');
 }
 function closeLg(){document.getElementById('lgov').classList.remove('open');}
 
-function doLg(){
+/* ── LOGIN (SECURED) ─────────────────────────────────────────────────── */
+async function doLg(){
+  const rl=checkRateLimit();
+  if(rl.locked){
+    document.getElementById('lgerr').textContent=`Zugang gesperrt. Noch ${rl.remaining}s warten.`;
+    showLockBanner(rl.remaining);return;
+  }
   const u=(document.getElementById('lgu').value||'').trim();
   const p=document.getElementById('lgp').value||'';
   if(!u||!p){document.getElementById('lgerr').textContent='Felder ausfüllen.';return;}
+  
   const d=getRD();
-  if(u.toLowerCase()==='owner'&&p===d.op){
-    applyRole('owner','Owner');closeLg();
-    document.getElementById('lgu').value='';document.getElementById('lgp').value='';
-    return;
+  const ph=await sha256(p);
+  
+  // Owner check
+  if(u.toLowerCase()==='owner'){
+    const stored=d.op||'MNC2025!';
+    const match=isHash(stored)?(stored===ph):(stored===p);
+    if(match){
+      // Upgrade to hash if plain-text
+      if(!isHash(stored)){d.op=ph;saveRD(d);}
+      loginAttempts=0;clearRateLimit();
+      applyRole('owner','Owner');
+      startSession('owner','Owner');
+      logAction('LOGIN','Owner erfolgreich angemeldet');
+      closeLg();
+      document.getElementById('lgu').value='';document.getElementById('lgp').value='';
+      return;
+    }
   }
-  const a=d.adm.find(x=>x.n.toLowerCase()===u.toLowerCase()&&x.p===p);
+  
+  // Admin check
+  const a=(d.adm||[]).find(x=>x.n.toLowerCase()===u.toLowerCase());
   if(a){
-    applyRole('admin',a.n);closeLg();
-    document.getElementById('lgu').value='';document.getElementById('lgp').value='';
-    return;
+    const stored=a.p;
+    const match=isHash(stored)?(stored===ph):(stored===p);
+    if(match){
+      if(!isHash(stored)){a.p=ph;saveRD(d);}
+      loginAttempts=0;clearRateLimit();
+      applyRole('admin',a.n);
+      startSession('admin',a.n);
+      logAction('LOGIN',`Admin "${a.n}" erfolgreich angemeldet`);
+      closeLg();
+      document.getElementById('lgu').value='';document.getElementById('lgp').value='';
+      return;
+    }
   }
-  document.getElementById('lgerr').textContent='Falscher Benutzername oder Passwort.';
+  
+  // Failed
+  logAction('LOGIN-FAIL',`Fehlversuch für Benutzer "${u}"`);
+  const res=recordFailedAttempt();
+  if(res==='lockout')document.getElementById('lgerr').textContent='Zu viele Fehlversuche! 5 Minuten gesperrt.';
+  else if(res==='cooldown')document.getElementById('lgerr').textContent='Zu viele Versuche. 15 Sekunden warten.';
+  else document.getElementById('lgerr').textContent=`Falscher Benutzername oder Passwort. (Versuch ${loginAttempts})`;
 }
 
-function doLogout(){applyRole('viewer','Gast');}
+function doLogout(){
+  logAction('LOGOUT',`"${curRole==='owner'?'Owner':document.getElementById('ubname').textContent}" abgemeldet`);
+  clearTimeout(sessionTimer);
+  sessionStorage.removeItem(SESS_KEY);
+  applyRole('viewer','Gast');
+}
 
 function openAP(){renderAL();document.getElementById('apov').classList.add('open');}
 function closeAP(){document.getElementById('apov').classList.remove('open');}
 
 function renderAL(){
   const d=getRD();
-  document.getElementById('adminlist').innerHTML=d.adm.length
-    ? d.adm.map((a,i)=>`<div class="arow"><div><div class="aname">${a.n}</div><div class="apass">Passwort: ${a.p}</div></div><button class="rabtn del" onclick="rmAdmin(${i})">✕</button></div>`).join('')
+  document.getElementById('adminlist').innerHTML=(d.adm||[]).length
+    ? d.adm.map((a,i)=>`<div class="arow"><div><div class="aname">${a.n}</div><div class="apass">Passwort: ${isHash(a.p)?'[verschlüsselt]':a.p}</div></div><button class="rabtn del" onclick="rmAdmin(${i})">✕</button></div>`).join('')
     : '<div style="color:var(--g3);font-family:Share Tech Mono;font-size:11px;padding:6px 0">Keine Admins eingetragen.</div>';
 }
-function addAdmin(){
+
+async function addAdmin(){
   const n=(document.getElementById('apn').value||'').trim();
   const p=(document.getElementById('app').value||'').trim();
   if(!n||!p){toast('Name und Passwort erforderlich','w');return;}
   if(n.toLowerCase()==='owner'){toast('"owner" ist reserviert','w');return;}
+  if(p.length<6){toast('Mind. 6 Zeichen für Passwort','w');return;}
   const d=getRD();
-  if(d.adm.find(x=>x.n.toLowerCase()===n.toLowerCase())){toast('Admin existiert bereits','w');return;}
-  d.adm.push({n,p});saveRD(d);
+  if((d.adm||[]).find(x=>x.n.toLowerCase()===n.toLowerCase())){toast('Admin existiert bereits','w');return;}
+  const ph=await sha256(p);
+  if(!d.adm)d.adm=[];
+  d.adm.push({n,p:ph});
+  saveRD(d);
   document.getElementById('apn').value='';document.getElementById('app').value='';
-  renderAL();toast('Admin hinzugefügt');
+  renderAL();
+  logAction('SECURITY',`Admin-Konto "${n}" hinzugefügt`);
+  toast('Admin hinzugefügt');
 }
-function rmAdmin(i){const d=getRD();d.adm.splice(i,1);saveRD(d);renderAL();toast('Admin entfernt','w');}
-function changeOwnerPw(){
+
+function rmAdmin(i){
+  const d=getRD();
+  const name=(d.adm[i]||{}).n||'?';
+  d.adm.splice(i,1);saveRD(d);renderAL();
+  logAction('SECURITY',`Admin-Konto "${name}" entfernt`);
+  toast('Admin entfernt','w');
+}
+
+async function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
-  if(p.length<4){toast('Mind. 4 Zeichen','w');return;}
-  const d=getRD();d.op=p;saveRD(d);
-  document.getElementById('opw').value='';toast('Owner-Passwort geändert');
+  if(p.length<6){toast('Mind. 6 Zeichen','w');return;}
+  const ph=await sha256(p);
+  const d=getRD();d.op=ph;saveRD(d);
+  document.getElementById('opw').value='';
+  logAction('SECURITY','Owner-Passwort wurde geändert');
+  toast('Owner-Passwort geändert');
 }
+
+/* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
+function renderCtrl(){
+  // Session info
+  const s=getSession();
+  document.getElementById('cp-sess-user').textContent=s.user||'—';
+  document.getElementById('cp-sess-role').textContent=(s.role||'—').toUpperCase();
+  document.getElementById('cp-sess-start').textContent=s.start?new Date(s.start).toLocaleTimeString('de-DE'):'—';
+  document.getElementById('cp-sess-last').textContent=s.last?new Date(s.last).toLocaleTimeString('de-DE'):'—';
+  
+  // Security status
+  const rl=checkRateLimit();
+  document.getElementById('cp-attempts').textContent=loginAttempts;
+  document.getElementById('cp-attempts').className='cpstat-val'+(loginAttempts>0?' warn':'');
+  document.getElementById('cp-lockstatus').textContent=rl.locked?`Gesperrt (${rl.remaining}s)`:'Nicht aktiv';
+  document.getElementById('cp-lockstatus').className='cpstat-val'+(rl.locked?' err':' ok');
+  const log=getLog();
+  document.getElementById('cp-logcount').textContent=log.length;
+  
+  // Admin accounts with online status
+  const d=getRD();
+  const currentUser=s.user||'';
+  const currentRole=s.role||'';
+  let admHtml='<div class="arow-ext"><div class="arow-info"><div class="arow-name">Owner</div><div class="arow-meta">Reserviertes Konto · SHA-256 geschützt</div></div><span class="arow-status '+(currentRole==='owner'?'online':'offline')+'">'+(currentRole==='owner'?'ONLINE':'OFFLINE')+'</span></div>';
+  if((d.adm||[]).length){
+    admHtml+=(d.adm||[]).map(a=>{
+      const isOnline=currentRole==='admin'&&currentUser===a.n;
+      const lastLogin=log.find(e=>e.user===a.n&&e.action==='LOGIN');
+      const lastFail=log.filter(e=>e.detail&&e.detail.includes(`"${a.n}"`)&&e.action==='LOGIN-FAIL').length;
+      return`<div class="arow-ext"><div class="arow-info"><div class="arow-name">${a.n}</div><div class="arow-meta">${lastLogin?'Letzter Login: '+new Date(lastLogin.ts).toLocaleString('de-DE'):'Noch nie angemeldet'}${lastFail>0?' · '+lastFail+' Fehlversuch(e)':''}</div></div><span class="arow-status ${isOnline?'online':'offline'}">${isOnline?'ONLINE':'OFFLINE'}</span></div>`;
+    }).join('');
+  }else{admHtml+='<div style="color:var(--g3);font-family:Share Tech Mono;font-size:11px;padding:10px 0">Keine Admins.</div>';}
+  document.getElementById('cp-admins').innerHTML=admHtml;
+  
+  // Last activities per account
+  const allUsers=['Owner',...(d.adm||[]).map(a=>a.n)];
+  document.getElementById('cp-lastlogins').innerHTML=allUsers.map(u=>{
+    const acts=log.filter(e=>e.user===u);
+    const last=acts[0];
+    const actionCount=acts.filter(e=>['ADD','EDIT','DELETE'].includes(e.action)).length;
+    const failCount=log.filter(e=>e.action==='LOGIN-FAIL'&&e.detail&&e.detail.includes(`"${u.toLowerCase()}`)).length;
+    return`<div class="cpstat-row"><span class="cpstat-key">${u}</span><span class="cpstat-val" style="font-size:12px;text-align:right"><span style="color:var(--g2)">${last?new Date(last.ts).toLocaleString('de-DE'):'—'}</span>${actionCount>0?`<br><span style="color:#88bbee;font-size:10px">${actionCount} Änderung(en)</span>`:''}${failCount>0?`<br><span style="color:var(--red);font-size:10px">${failCount} Fehlversuch(e) auf Konto</span>`:''}</span></div>`;
+  }).join('');
+  
+  // Log filters - populate user dropdown
+  const uFilter=document.getElementById('log-filter-user');
+  const curUVal=uFilter.value;
+  uFilter.innerHTML='<option value="">Alle Benutzer</option>'+[...new Set(log.map(e=>e.user))].map(u=>`<option value="${u}">${u}</option>`).join('');
+  uFilter.value=curUVal;
+  
+  // Activity log table
+  const uF=uFilter.value;
+  const aF=document.getElementById('log-filter-action').value;
+  let filtered=log;
+  if(uF)filtered=filtered.filter(e=>e.user===uF);
+  if(aF)filtered=filtered.filter(e=>e.action.startsWith(aF));
+  const max=200;
+  const shown=filtered.slice(0,max);
+  
+  if(!shown.length){
+    document.getElementById('log-tbody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--g3);font-family:\'Share Tech Mono\';font-size:11px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';
+  }else{
+    document.getElementById('log-tbody').innerHTML=shown.map(e=>{
+      const dt=new Date(e.ts);
+      const ts=dt.toLocaleDateString('de-DE')+' '+dt.toLocaleTimeString('de-DE');
+      const roleClass=e.role==='owner'?'log-role-owner':e.role==='admin'?'log-role-admin':'log-role-viewer';
+      const ac=e.action;
+      const acClass=ac==='LOGIN'?'login':ac==='LOGOUT'?'logout':ac==='LOGIN-FAIL'?'fail':ac==='ADD'?'add':ac==='EDIT'?'edit':ac==='DELETE'?'delete':ac==='SECURITY'?'security':'other';
+      return`<tr>
+        <td class="log-ts">${ts}</td>
+        <td class="log-user ${roleClass}">${e.user}</td>
+        <td><span class="log-role-${e.role}" style="font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px">${(e.role||'').toUpperCase()}</span></td>
+        <td><span class="log-action ${acClass}">${ac}</span></td>
+        <td class="log-detail">${e.detail||'—'}</td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('log-footer').textContent=`${filtered.length} Einträge${filtered.length>max?' (zeige '+max+')':''} · Gesamt: ${log.length}`;
+}
+
+// Update session timeout display every second when on ctrl page
+setInterval(()=>{
+  if(curRole==='viewer')return;
+  const s=getSession();
+  if(!s.last)return;
+  const rem=Math.max(0,SESSION_TIMEOUT-(Date.now()-s.last));
+  const m=Math.floor(rem/60000).toString().padStart(2,'0');
+  const sec=Math.floor((rem%60000)/1000).toString().padStart(2,'0');
+  const el=document.getElementById('cp-sess-timeout');
+  if(el){el.textContent=m+':'+sec;el.className='cpstat-val'+(rem<5*60*1000?' err':rem<10*60*1000?' warn':' ok');}
+  const el2=document.getElementById('cp-sess-last');
+  if(el2&&s.last)el2.textContent=new Date(s.last).toLocaleTimeString('de-DE');
+},1000);
 
 const FK='mnc_f6',MK='mnc_m4';
 let fraks=[],mems=[],eFid=null,eMid=null,mf='all';
@@ -1295,20 +1734,20 @@ function saveFrak(){
     reifenqualm:document.getElementById('frq').value.trim(),
     hints:document.getElementById('fhi').value.trim(),
     mnc:eFid?(fraks.find(f=>f.id===eFid)||{}).mnc||false:false};
-  if(eFid){fraks=fraks.map(f=>f.id===eFid?d:f);toast('Aktualisiert');}
-  else{fraks.push(d);toast('Gespeichert');}
+  if(eFid){fraks=fraks.map(f=>f.id===eFid?d:f);toast('Aktualisiert');logAction('EDIT',`Fraktion "${name}" bearbeitet`);}
+  else{fraks.push(d);toast('Gespeichert');logAction('ADD',`Fraktion "${name}" hinzugefügt`);}
   save();closeFM();rfrak();
 }
 function delFrak(id){
   const f=fraks.find(x=>x.id===id);if(!f)return;
   document.getElementById('cfname').textContent='"'+f.name+'"';
-  document.getElementById('cfconfirm').onclick=()=>{fraks=fraks.filter(f=>f.id!==id);save();rfrak();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfconfirm').onclick=()=>{fraks=fraks.filter(f=>f.id!==id);save();rfrak();logAction('DELETE',`Fraktion "${f.name}" gelöscht`);toast('Gelöscht','w');closeCF();};
   document.getElementById('cfov').classList.add('open');
 }
 function delMem(id){
   const m=mems.find(x=>x.id===id);if(!m)return;
   document.getElementById('cfname').textContent='"'+m.name+'"';
-  document.getElementById('cfconfirm').onclick=()=>{mems=mems.filter(m=>m.id!==id);save();rmem();toast('Gelöscht','w');closeCF();};
+  document.getElementById('cfconfirm').onclick=()=>{mems=mems.filter(m=>m.id!==id);save();rmem();logAction('DELETE',`Mitglied "${m.name}" gelöscht`);toast('Gelöscht','w');closeCF();};
   document.getElementById('cfov').classList.add('open');
 }
 function closeCF(){document.getElementById('cfov').classList.remove('open');}
@@ -1378,7 +1817,8 @@ function saveMem(){
   const name=document.getElementById('mn').value.trim();
   if(!name){toast('Name erforderlich','w');return;}
   const d={id:eMid||'m'+Date.now(),name,rang:document.getElementById('mr').value,status:document.getElementById('mst').value,note:document.getElementById('mno').value.trim()};
-  if(eMid){mems=mems.map(m=>m.id===eMid?d:m);toast('Aktualisiert');}else{mems.push(d);toast('Mitglied hinzugefügt');}
+  if(eMid){mems=mems.map(m=>m.id===eMid?d:m);toast('Aktualisiert');logAction('EDIT',`Mitglied "${name}" bearbeitet`);}
+  else{mems.push(d);toast('Mitglied hinzugefügt');logAction('ADD',`Mitglied "${name}" hinzugefügt`);}
   save();closeMM();rmem();
 }
 
