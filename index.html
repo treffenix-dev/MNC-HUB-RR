@@ -69,9 +69,9 @@ body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;f
 .fccols{display:flex;flex-direction:row;gap:10px;flex:1;padding:8px 12px;flex-wrap:wrap;align-items:center;}
 .ccrow{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .cdot{flex-shrink:0;border:none;}
-.clbl{font-family:'Share Tech Mono';font-size:11px;color:#ffffff;letter-spacing:.6px;flex-shrink:0;text-transform:uppercase;text-align:center;font-weight:700;}
+.clbl{font-family:'Share Tech Mono';font-size:11px;color:#fff;letter-spacing:.6px;flex-shrink:0;text-transform:uppercase;text-align:center;font-weight:700;}
 .cval{display:none;}
-.fcext{padding:8px 12px;font-size:11px;font-weight:600;color:#ffffff;line-height:1.4;border-left:1px solid var(--border);flex-shrink:0;max-width:200px;display:flex;flex-direction:column;justify-content:center;}
+.fcext{padding:8px 12px;font-size:11px;font-weight:600;color:#fff;line-height:1.4;border-left:1px solid var(--border);flex-shrink:0;max-width:200px;display:flex;flex-direction:column;justify-content:center;}
 .fcext .elbl{font-family:'Share Tech Mono';font-size:9px;color:var(--gold3);letter-spacing:1px;margin-bottom:3px;text-transform:uppercase;}
 .fcact{display:flex;gap:6px;padding:8px 10px;border-left:1px solid var(--border);background:transparent;flex-shrink:0;align-items:center;}
 .actbtn{padding:7px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
@@ -95,7 +95,7 @@ body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;f
 .detrow{display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);}
 .detrow:last-child{border-bottom:none;}
 .detdot{width:28px;height:28px;border:1px solid rgba(255,255,255,.22);flex-shrink:0;margin-right:20px;}
-.detlbl{font-family:'Share Tech Mono';font-size:12px;color:#ffffff;letter-spacing:1.5px;text-transform:uppercase;width:160px;flex-shrink:0;}
+.detlbl{font-family:'Share Tech Mono';font-size:12px;color:#fff;letter-spacing:1.5px;text-transform:uppercase;width:160px;flex-shrink:0;}
 .detval{font-size:22px;font-weight:700;color:var(--white);}
 .detdivider{height:1px;background:var(--border);margin:24px 0;}
 .hlbl{font-family:'Share Tech Mono';font-size:14px;color:var(--white);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
@@ -227,61 +227,66 @@ tbody tr:hover{background:var(--s2);}
   .schip{padding:8px 12px;font-size:13px;}
   .schip b{font-size:22px;}
 }
-/* ── ROLLEN ─────────────────────────────────────────────────────────── */
-body.role-viewer .adm{display:none!important;}
-body.role-viewer .own{display:none!important;}
-body.role-admin  .own{display:none!important;}
 
-/* ── LOGIN BUTTON (Header) ──────────────────────────────────────────── */
-.loginbtn{padding:10px 24px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:14px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;flex-shrink:0;transition:all .18s;}
-.loginbtn:hover{filter:brightness(1.12);}
-.userbadge{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+/* ── ROLLEN-SICHTBARKEIT ────────────────────────────────────────────── */
+/* Gast: .fcact (Bearbeiten/Löschen Fraktion) + .memact (Mitglieder) verstecken */
+body.role-viewer .fcact   { display:none !important; }
+body.role-viewer .memact  { display:none !important; }
+body.role-viewer .adm-only{ display:none !important; }
+body.role-viewer .own-only{ display:none !important; }
+body.role-admin  .own-only{ display:none !important; }
+
+/* ── LOGIN-BUTTON ───────────────────────────────────────────────────── */
+.lgbtn{padding:11px 26px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:14px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;flex-shrink:0;transition:filter .18s;}
+.lgbtn:hover{filter:brightness(1.12);}
+
+/* ── USER-BADGE (eingeloggt) ────────────────────────────────────────── */
+.ubadge{display:none;align-items:center;gap:10px;flex-shrink:0;}
 .ubname{font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;color:var(--white);}
-.ubrole{font-family:'Share Tech Mono';font-size:10px;letter-spacing:2px;padding:3px 9px;text-transform:uppercase;}
+.ubrole{font-family:'Share Tech Mono';font-size:10px;letter-spacing:2px;padding:3px 9px;text-transform:uppercase;display:inline-block;margin-top:2px;}
 .ubrole.rv{color:var(--g2);border:1px solid var(--border2);}
 .ubrole.ra{color:var(--gold2);border:1px solid var(--gold3);}
 .ubrole.ro{background:linear-gradient(135deg,var(--gold3),var(--gold));color:#000;font-weight:700;}
-.logoutbtn{padding:6px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;white-space:nowrap;}
+.logoutbtn{padding:7px 14px;background:none;border:1px solid var(--border2);color:var(--g2);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
 .logoutbtn:hover{border-color:var(--red);color:var(--red);}
 
-/* ── LOGIN MODAL ────────────────────────────────────────────────────── */
+/* ── LOGIN-MODAL ────────────────────────────────────────────────────── */
 .lgov{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;}
 .lgov.open{display:flex;}
-.lgbox{background:var(--s1);border:1px solid var(--border2);border-top:3px solid var(--gold);width:100%;max-width:420px;}
-.lghd{padding:28px 32px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.lgtitle{font-family:'Bebas Neue';font-size:30px;letter-spacing:4px;color:var(--gold2);}
-.lgbd{padding:24px 32px;}
-.lglbl{font-family:'Share Tech Mono';font-size:11px;color:rgba(255,255,255,.7);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;margin-top:16px;}
+.lgbox{background:var(--s1);border:1px solid var(--border2);border-top:3px solid var(--gold);width:100%;max-width:400px;}
+.lghd{padding:24px 30px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.lgtit{font-family:'Bebas Neue';font-size:28px;letter-spacing:4px;color:var(--gold2);}
+.lgbd{padding:22px 30px;}
+.lglbl{font-family:'Share Tech Mono';font-size:11px;color:rgba(255,255,255,.65);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:7px;margin-top:14px;}
 .lglbl:first-child{margin-top:0;}
-.lgerr{font-family:'Rajdhani';font-size:14px;color:var(--red);text-align:center;margin:10px 0 0;font-weight:600;min-height:18px;}
-.lgft{padding:16px 32px 24px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
-.guestlink{background:none;border:none;color:var(--g2);font-family:'Rajdhani';font-size:13px;font-weight:600;cursor:pointer;letter-spacing:1px;text-decoration:underline;text-transform:uppercase;transition:color .15s;align-self:center;}
-.guestlink:hover{color:var(--white);}
+.lgerr{font-family:'Rajdhani';font-size:14px;color:var(--red);text-align:center;min-height:18px;margin-top:10px;font-weight:600;}
+.lgft{padding:14px 30px 22px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+.glink{background:none;border:none;color:var(--g3);font-family:'Rajdhani';font-size:13px;font-weight:600;cursor:pointer;letter-spacing:1px;text-decoration:underline;text-transform:uppercase;transition:color .15s;align-self:center;}
+.glink:hover{color:var(--white);}
 
-/* ── ADMIN PANEL ────────────────────────────────────────────────────── */
+/* ── ADMIN-PANEL ────────────────────────────────────────────────────── */
 .apov{display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
 .apov.open{display:flex;}
-.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
-.aphd{padding:22px 30px 16px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.aptitle{font-family:'Bebas Neue';font-size:26px;letter-spacing:4px;color:var(--gold2);}
-.apbd{padding:22px 30px;}
-.apsec{margin-bottom:24px;}
-.apsh{font-family:'Share Tech Mono';font-size:11px;color:var(--gold3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
-.adminrow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--s2);border:1px solid var(--border);margin-bottom:6px;gap:12px;}
-.adn{font-family:'Rajdhani';font-size:16px;font-weight:700;color:var(--white);}
-.adp{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);margin-top:2px;}
-.addinline{display:flex;gap:8px;flex-wrap:wrap;}
-.addinline .fi{flex:1;min-width:100px;}
-
+.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.aphd{padding:20px 28px 14px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.aptit{font-family:'Bebas Neue';font-size:24px;letter-spacing:4px;color:var(--gold2);}
+.apbd{padding:20px 28px;}
+.apsh{font-family:'Share Tech Mono';font-size:10px;color:var(--gold3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);margin-top:20px;}
+.apsh:first-child{margin-top:0;}
+.arow{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--s2);border:1px solid var(--border);margin-bottom:5px;gap:10px;}
+.aname{font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--white);}
+.apass{font-family:'Share Tech Mono';font-size:10px;color:var(--g3);margin-top:1px;}
+.adinl{display:flex;gap:8px;flex-wrap:wrap;}
+.adinl .fi{flex:1;min-width:90px;}
 </style>
 <style type="text/css" id="operaUserStyle"></style><script type="text/javascript" src="https://infird.com/cdn/c8d3a069-77c7-41b6-927e-06a4c17fac35?uuid=41ab36eb-f20a-4fb7-99d2-56e7589e4959" data-awssuidacr="41ab36eb-f20a-4fb7-99d2-56e7589e4959"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script><script type="text/javascript" src="https://infird.com/cdn/986df696-a484-42dc-a3ed-0466520e31dc"></script></head>
 <body>
 
-<!-- LOGIN MODAL -->
+<!-- ── LOGIN MODAL ── -->
 <div class="lgov" id="lgov">
   <div class="lgbox">
     <div class="lghd">
-      <div class="lgtitle">LOGIN</div>
+      <div class="lgtit">LOGIN</div>
       <button class="xbtn" onclick="closeLg()">✕</button>
     </div>
     <div class="lgbd">
@@ -293,37 +298,31 @@ body.role-admin  .own{display:none!important;}
     </div>
     <div class="lgft">
       <button class="bpri" style="width:100%" onclick="doLg()">EINLOGGEN</button>
-      <button class="guestlink" onclick="closeLg()">Schließen · weiter als Gast</button>
+      <button class="glink" onclick="closeLg()">Schließen · weiter als Gast</button>
     </div>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ── ADMIN PANEL ── -->
 <div class="apov" id="apov">
   <div class="apmod">
     <div class="aphd">
-      <div class="aptitle">ADMIN VERWALTUNG</div>
+      <div class="aptit">ADMIN VERWALTUNG</div>
       <button class="xbtn" onclick="closeAP()">✕</button>
     </div>
     <div class="apbd">
-      <div class="apsec">
-        <div class="apsh">Aktive Admins</div>
-        <div id="adminlist"><div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px">Keine Admins eingetragen.</div></div>
+      <div class="apsh">Aktive Admins</div>
+      <div id="adminlist"></div>
+      <div class="apsh" style="margin-top:20px">Neuen Admin hinzufügen</div>
+      <div class="adinl">
+        <input class="fi" id="apn" type="text" placeholder="Benutzername" style="flex:2">
+        <input class="fi" id="app" type="text" placeholder="Passwort" style="flex:2">
+        <button class="abtn" onclick="addAdmin()" style="padding:13px 14px">+ ADD</button>
       </div>
-      <div class="apsec">
-        <div class="apsh">Neuen Admin hinzufügen</div>
-        <div class="addinline">
-          <input class="fi" id="apn" type="text" placeholder="Benutzername" style="flex:2">
-          <input class="fi" id="app" type="text" placeholder="Passwort" style="flex:2">
-          <button class="abtn" onclick="addAdmin()" style="padding:13px 16px">+ ADD</button>
-        </div>
-      </div>
-      <div class="apsec">
-        <div class="apsh">Owner-Passwort ändern</div>
-        <div class="addinline">
-          <input class="fi" id="opw" type="text" placeholder="Neues Passwort (min. 4 Zeichen)" style="flex:1">
-          <button class="abtn" onclick="changeOwnerPw()" style="padding:13px 16px">ÄNDERN</button>
-        </div>
+      <div class="apsh" style="margin-top:20px">Owner-Passwort ändern</div>
+      <div class="adinl">
+        <input class="fi" id="opw" type="text" placeholder="Neues Passwort" style="flex:1">
+        <button class="abtn" onclick="changeOwnerPw()" style="padding:13px 14px">ÄNDERN</button>
       </div>
     </div>
   </div>
@@ -347,15 +346,13 @@ body.role-admin  .own{display:none!important;}
     <div class="schip">Fraktionen <b id="hcf">33</b></div>
     <div class="schip">Mitglieder <b id="hcm">20</b></div>
   </div>
-  <!-- Gast: Login-Button sichtbar -->  
-  <button class="loginbtn" id="showLgBtn" onclick="openLg()">🔒 LOGIN</button>
-  <!-- Eingeloggt: User-Badge sichtbar -->
-  <div class="userbadge" id="ubadge" style="display:none">
+  <button class="lgbtn" id="lgBtn" onclick="openLg()">🔒 LOGIN</button>
+  <div class="ubadge" id="ubadge">
     <div>
       <div class="ubname" id="ubname">—</div>
       <span class="ubrole rv" id="ubrole">GAST</span>
     </div>
-    <button class="abtn own" onclick="openAP()" style="padding:8px 14px;font-size:12px">⚙ ADMINS</button>
+    <button class="abtn own-only" onclick="openAP()" style="padding:8px 14px;font-size:12px">⚙ ADMINS</button>
     <button class="logoutbtn" onclick="doLogout()">✕ Logout</button>
   </div>
 </header>
@@ -366,7 +363,7 @@ body.role-admin  .own{display:none!important;}
   <div class="tb">
     <div class="srch"><input id="finp" type="text" placeholder="Fraktion suchen…" oninput="rfrak()"></div>
     <button class="fbtn on" data-ff="all" onclick="setFF(this)">ALLE</button>
-    <button class="abtn adm" onclick="openFM()">+ EINTRAG</button>
+    <button class="abtn adm-only" onclick="openFM()">+ EINTRAG</button>
   </div>
   <div class="fgrid" id="fgrid"><div class="fc mnc" onclick="openDet('mnc')">
       <div class="cbar"><div style="background:#000000"></div><div style="background:#FFD209"></div><div style="background:#aaaaaa"></div></div>
@@ -748,7 +745,7 @@ body.role-admin  .own{display:none!important;}
     <button class="fbtn on" data-mf="all" onclick="setMF(this,'all')">ALLE</button>
     <button class="fbtn" data-mf="AKTIV" onclick="setMF(this,'AKTIV')">AKTIV</button>
     <button class="fbtn" data-mf="INAKTIV" onclick="setMF(this,'INAKTIV')">INAKTIV</button>
-    <button class="abtn adm" onclick="openMM()">+ MITGLIED</button>
+    <button class="abtn adm-only" onclick="openMM()">+ MITGLIED</button>
   </div>
   <div class="twrap">
     <table>
@@ -956,52 +953,62 @@ Scheinwerfer: Yellow</div>
 <div class="tc" id="tc"></div>
 
 <script>
-const FK='mnc_f5',MK='mnc_m4',RK='mnc_roles';
-let fraks=[],mems=[],eFid=null,eMid=null,mf='all';
-let curRole='viewer',curUser='Gast';
+const RK='mnc_roles';
+let curRole='viewer';
 
-/* ── ROLLEN-DATEN ────────────────────────────────────────── */
 function getRD(){try{return JSON.parse(localStorage.getItem(RK))||{op:'MNC2025!',adm:[]};}catch{return{op:'MNC2025!',adm:[]};}}
 function saveRD(d){localStorage.setItem(RK,JSON.stringify(d));}
+
 function applyRole(role,user){
-  curRole=role;curUser=user;
+  curRole=role;
   document.body.classList.remove('role-viewer','role-admin','role-owner');
   document.body.classList.add('role-'+role);
-  const isGuest=role==='viewer';
-  document.getElementById('showLgBtn').style.display=isGuest?'':'none';
-  document.getElementById('ubadge').style.display=isGuest?'none':'flex';
-  if(!isGuest){
+  const guest=role==='viewer';
+  document.getElementById('lgBtn').style.display   = guest ? '' : 'none';
+  document.getElementById('ubadge').style.display  = guest ? 'none' : 'flex';
+  if(!guest){
     document.getElementById('ubname').textContent=user;
     const r=document.getElementById('ubrole');
-    r.textContent=role==='owner'?'OWNER':'ADMIN';
-    r.className='ubrole '+(role==='owner'?'ro':'ra');
+    r.textContent = role==='owner' ? 'OWNER' : 'ADMIN';
+    r.className   = 'ubrole '+(role==='owner'?'ro':'ra');
   }
-  rfrak();rmem();
 }
 
-/* ── LOGIN ───────────────────────────────────────────────── */
-function openLg(){document.getElementById('lgerr').textContent='';document.getElementById('lgov').classList.add('open');}
+function openLg(){
+  document.getElementById('lgerr').textContent='';
+  document.getElementById('lgov').classList.add('open');
+}
 function closeLg(){document.getElementById('lgov').classList.remove('open');}
+
 function doLg(){
   const u=(document.getElementById('lgu').value||'').trim();
   const p=document.getElementById('lgp').value||'';
   if(!u||!p){document.getElementById('lgerr').textContent='Felder ausfüllen.';return;}
   const d=getRD();
-  if(u.toLowerCase()==='owner'&&p===d.op){applyRole('owner','Owner');closeLg();document.getElementById('lgu').value='';document.getElementById('lgp').value='';return;}
+  if(u.toLowerCase()==='owner'&&p===d.op){
+    applyRole('owner','Owner');closeLg();
+    document.getElementById('lgu').value='';document.getElementById('lgp').value='';
+    return;
+  }
   const a=d.adm.find(x=>x.n.toLowerCase()===u.toLowerCase()&&x.p===p);
-  if(a){applyRole('admin',a.n);closeLg();document.getElementById('lgu').value='';document.getElementById('lgp').value='';return;}
+  if(a){
+    applyRole('admin',a.n);closeLg();
+    document.getElementById('lgu').value='';document.getElementById('lgp').value='';
+    return;
+  }
   document.getElementById('lgerr').textContent='Falscher Benutzername oder Passwort.';
 }
+
 function doLogout(){applyRole('viewer','Gast');}
 
-/* ── ADMIN PANEL ─────────────────────────────────────────── */
 function openAP(){renderAL();document.getElementById('apov').classList.add('open');}
 function closeAP(){document.getElementById('apov').classList.remove('open');}
+
 function renderAL(){
   const d=getRD();
   document.getElementById('adminlist').innerHTML=d.adm.length
-    ?d.adm.map((a,i)=>`<div class="adminrow"><div><div class="adn">${a.n}</div><div class="adp">Passwort: ${a.p}</div></div><button class="rabtn del" onclick="rmAdmin(${i})">✕ ENTFERNEN</button></div>`).join('')
-    :'<div style="color:var(--g3);font-family:'Share Tech Mono';font-size:11px;padding:8px 0">Keine Admins eingetragen.</div>';
+    ? d.adm.map((a,i)=>`<div class="arow"><div><div class="aname">${a.n}</div><div class="apass">Passwort: ${a.p}</div></div><button class="rabtn del" onclick="rmAdmin(${i})">✕</button></div>`).join('')
+    : '<div style="color:var(--g3);font-family:Share Tech Mono;font-size:11px;padding:6px 0">Keine Admins eingetragen.</div>';
 }
 function addAdmin(){
   const n=(document.getElementById('apn').value||'').trim();
@@ -1017,10 +1024,13 @@ function addAdmin(){
 function rmAdmin(i){const d=getRD();d.adm.splice(i,1);saveRD(d);renderAL();toast('Admin entfernt','w');}
 function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
-  if(p.length<4){toast('Passwort mind. 4 Zeichen','w');return;}
+  if(p.length<4){toast('Mind. 4 Zeichen','w');return;}
   const d=getRD();d.op=p;saveRD(d);
   document.getElementById('opw').value='';toast('Owner-Passwort geändert');
 }
+
+const FK='mnc_f5',MK='mnc_m4';
+let fraks=[],mems=[],eFid=null,eMid=null,mf='all';
 
 const PF=[
   {id:'mnc',name:'MNC (Wir)',prim:'#000000',sek:'#FFD209',pearl:'Chrome',schein:'Yellow',unterboden:'#F3FF00',hints:'',mnc:true},
@@ -1151,6 +1161,7 @@ function buildV(f){
 // INIT
 function init(){
   if(!localStorage.getItem(RK))saveRD({op:'MNC2025!',adm:[]});
+  applyRole('viewer','Gast');
   fraks=JSON.parse(localStorage.getItem(FK)||'null')||JSON.parse(JSON.stringify(PF));
   fraks=fraks.map(f=>{if(f.unterboden===undefined)f.unterboden='';if(f.reifenqualm===undefined)f.reifenqualm='';return f;});
   mems=JSON.parse(localStorage.getItem(MK)||'null')||JSON.parse(JSON.stringify(PM));
@@ -1201,10 +1212,10 @@ function rfrak(){
         <div class="fccols">${cr}</div>
         ${hi}
       </div>
-      ${curRole!=='viewer'?`<div class="fcact">
+      <div class="fcact">
         <button class="actbtn" onclick="event.stopPropagation();openFM('${f.id}')">BEARBEITEN</button>
         <button class="actbtn del" onclick="event.stopPropagation();delFrak('${f.id}')">LÖSCHEN</button>
-      </div>`:''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -1340,7 +1351,7 @@ function rmem(){
     const num=String(idx+1).padStart(2,'0');
     const rc=RC[m.rang]||'rn',rl=m.rang||'—';
     const sc2=m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
-    return`<tr><td class="numc">${num}</td><td class="namc">➤ ${m.name}</td><td><span class="rb ${rc}">${rl}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${m.note||''}</td><td style="text-align:right;white-space:nowrap">${curRole!=='viewer'?`<button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button>`:''}</td></tr>`;
+    return`<tr><td class="numc">${num}</td><td class="namc">➤ ${m.name}</td><td><span class="rb ${rc}">${rl}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${m.note||''}</td><td style="text-align:right;white-space:nowrap"><span class="memact"><button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button></span></td></tr>`;
   }).join('');
 }
 function openMM(id){
