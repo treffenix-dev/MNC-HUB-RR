@@ -636,7 +636,7 @@ if(FB_CONFIGURED){
     <div class="schip">Fraktionen <b id="hcf">—</b></div>
     <div class="schip">Mitglieder <b id="hcm">—</b></div>
   </div>
-  <div class="fb-status" id="fb-status-badge" title="Firebase Sync-Status">
+  <div class="fb-status" id="fb-status-badge" title="Firebase Sync-Status" style="display:none">
     <div class="fb-dot local" id="fb-dot"></div>
     <span class="fb-label" id="fb-label">LOKAL</span>
   </div>
@@ -1044,7 +1044,7 @@ Sonstiges:'></textarea>
 </div>
 
 <div class="tc" id="tc" aria-live="polite"></div>
-<div class="sync-indicator" id="sync-indicator"><span class="spin">↻</span> <span id="sync-msg">Synchronisiere…</span></div>
+<div class="sync-indicator" id="sync-indicator" style="display:none"><span class="spin">↻</span> <span id="sync-msg">Synchronisiere…</span></div>
 
 <script>
 'use strict';
@@ -1304,6 +1304,14 @@ let loginAttempts = 0;
 let sessionTimer = null;
 let sessionStart = null;
 
+// Rate Limit beim Start prüfen — abgelaufene Sperren sofort clearen
+(function(){
+  try{
+    const rl = JSON.parse(localStorage.getItem('mnc_ratelimit') || '{}');
+    if(rl.until && Date.now() >= rl.until) localStorage.removeItem('mnc_ratelimit');
+  }catch{}
+})();
+
 /* ── SHA-256 HASHING ────────────────────────────────────────────────── */
 async function sha256(str) {
   const enc = new TextEncoder();
@@ -1382,6 +1390,8 @@ function checkRateLimit(){
       const rem = Math.ceil((rl.until - Date.now()) / 1000);
       return {locked:true, remaining:rem, count:rl.count||0};
     }
+    // Sperre abgelaufen → automatisch clearen
+    if(rl.until && Date.now() >= rl.until) clearRateLimit();
     return {locked:false, remaining:0, count:rl.count||0};
   }catch{ return {locked:false, remaining:0, count:0}; }
 }
@@ -1417,11 +1427,21 @@ function showLockBanner(seconds){
   b.classList.add('show');
   clearInterval(lockInterval);
   let rem = seconds;
+  // Sofort anzeigen
   c.textContent = `Noch ${rem}s gesperrt`;
+  // Fehlerfeld auch aktualisieren
+  const err = document.getElementById('lgerr');
   lockInterval = setInterval(()=>{
     rem--;
-    if(rem <= 0){ hideLockBanner(); clearInterval(lockInterval); }
-    else c.textContent = `Noch ${rem}s gesperrt`;
+    if(rem <= 0){
+      hideLockBanner();
+      clearInterval(lockInterval);
+      if(err) err.textContent = '';
+      clearRateLimit();
+    } else {
+      c.textContent = `Noch ${rem}s gesperrt`;
+      if(err && err.textContent.includes('Gesperrt')) err.textContent = `Gesperrt. Noch ${rem}s warten.`;
+    }
   }, 1000);
 }
 function hideLockBanner(){
@@ -1477,9 +1497,13 @@ function applyRole(role, user){
   rc.className = 'ubrole ' + (isOwner ? 'ro' : isAdmin ? 'ra' : 'rv');
   document.querySelectorAll('.adm-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
   document.querySelectorAll('.own-only').forEach(el => el.style.display = isOwner ? '' : 'none');
-  // Firebase Sync Panel: NUR für Google-Owner (treffe69nix@gmail.com)
+  // Firebase Status Badge + Sync: NUR für Google-Owner
+  const fbBadge = document.getElementById('fb-status-badge');
+  if(fbBadge) fbBadge.style.display = window._curIsGoogleOwner ? '' : 'none';
   const fbPanel = document.getElementById('fb-panel-wrap');
   if(fbPanel) fbPanel.style.display = window._curIsGoogleOwner ? '' : 'none';
+  const syncEl = document.getElementById('sync-indicator');
+  if(syncEl) syncEl.style.display = window._curIsGoogleOwner ? '' : 'none';
   // Perm-basierte Buttons
   const addFrakBtn = document.getElementById('btn-add-frak');
   if(addFrakBtn) addFrakBtn.style.display = hasPerm('canAddFrak') ? '' : 'none';
