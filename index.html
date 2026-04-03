@@ -530,7 +530,6 @@ if(FB_CONFIGURED){
     </div>
     <div class="lgft">
       <button class="bpri" style="width:100%" onclick="doLg()">EINLOGGEN</button>
-      <button class="glink" onclick="resetOwnerPwToDefault()" style="color:var(--gold3);font-size:11px;margin-top:4px">🔑 Owner-Passwort auf Standard zurücksetzen (MNC2025!)</button>
       <button class="glink" onclick="closeLg()">Schließen · weiter als Gast</button>
     </div>
   </div>
@@ -572,15 +571,6 @@ if(FB_CONFIGURED){
           </div>
           <button class="abtn" onclick="saveOwnerTimeout()" style="padding:10px 18px;font-size:13px;margin-top:6px">TIMEOUT SPEICHERN</button>
         </div>
-      </div>
-
-      <!-- 2. Owner Berechtigungen (nur sichtbar wenn Google-Owner eingeloggt) -->
-      <div id="owner-perm-wrap" style="display:none;padding:14px;border-top:1px solid var(--border);background:var(--s1)">
-        <div class="apsh" style="margin-bottom:10px;color:var(--gold2)">Berechtigungen des 2. Owners (owner/Passwort)</div>
-        <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--g3);margin-bottom:10px">
-          Schalte frei was der lokale Owner-Account darf. Standardmäßig alles gesperrt.
-        </div>
-        <div class="perm-grid" id="owner-perm-boxes"></div>
       </div>
 
       <!-- Admin Konten Liste -->
@@ -683,7 +673,7 @@ if(FB_CONFIGURED){
       <div class="hcard-title">Mitglieder</div>
       <div class="hcard-sub">Clubmitglieder · Ränge · Status</div>
     </div>
-    <div class="hcard own-only" onclick="navTo('ctrl')" style="opacity:.6">
+    <div class="hcard own-only" onclick="navTo('ctrl')"  style="opacity:1">
       <div class="hcard-icon">⬡</div>
       <div class="hcard-title">Control Panel</div>
       <div class="hcard-sub">Sicherheit · Logs · Admin-Verwaltung</div>
@@ -1208,10 +1198,15 @@ function fbSetupListeners(){
     showSyncIndicator('↻ Mitglieder aktualisiert');
   });
 
-  // Rollen/Passwörter live (nur für Kick-Sync relevant)
+  // Rollen/Passwörter live (nur für Kick-Sync, KEIN Passwort-Overwrite)
   fbListen(FB_PATH.roles, data=>{
     if(!data || !data.op) return;
-    saveRD(data);
+    // Nur Admin-Liste syncen, niemals das Owner-Passwort überschreiben
+    // (Passwort-Änderungen gehen von lokal → Firebase, nie andersrum)
+    const local = getRD();
+    const merged = {...data, op: local.op}; // Lokales PW behalten
+    // _origSaveRD direkt aufrufen um keinen Firebase-Echo auszulösen
+    localStorage.setItem(RK, JSON.stringify(merged));
   });
 
   // Kick-Signal live
@@ -1280,13 +1275,24 @@ function initFirebase(){
   fbSetStatus('sync', 'VERBINDET…');
 
   // Daten laden und Listener starten
-  fbPullAll().then(()=>{
+  fbPullAll().then(async ()=>{
     fbSetupListeners();
     fbHookSave();
     fbHookRoles();
     fbHookKick();
     fbSetStatus('online', 'ONLINE ✓');
     toast('🔥 Firebase verbunden · Echtzeit-Sync aktiv');
+    // Nach Daten-Load: prüfe ob Google-User beim Reload vorhanden ist
+    if(window._pendingGoogleUser){
+      const u = window._pendingGoogleUser;
+      window._pendingGoogleUser = null;
+      // Nur einloggen wenn kein lokaler Owner/Admin aktiv ist
+      const _localSess = getSession();
+      const _hasLocalSession = _localSess.role && _localSess.role !== 'viewer' && !window._viaGoogle;
+      if(!_hasLocalSession){
+        await _handleGoogleUser(u, true); // silent=true: kein Toast beim Reload
+      }
+    }
   }).catch(e=>{
     _fbOnline = false;
     fbSetStatus('offline', 'OFFLINE');
@@ -1333,7 +1339,7 @@ function esc(str){
 }
 
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
-const DEFAULT_PW = 'MNC2025!';
+const DEFAULT_PW = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; // Einmal-PW (bereits gehasht)
 function getRD(){
   try{
     const v2 = localStorage.getItem(RK);
@@ -1552,20 +1558,6 @@ async function doLg(){
   rfrak(); rmem();
   toast(`Willkommen, ${document.getElementById('ubname').textContent}!`);
 }
-function resetOwnerPwToDefault(){
-  if(!confirm('Owner-Passwort auf "MNC2025!" zurücksetzen?\nDies löscht ein eventuell geändertes Passwort!')) return;
-  try{
-    const d = getRD();
-    d.op = 'MNC2025!';
-    saveRD(d);
-    clearRateLimit();
-    document.getElementById('lgerr').textContent = '✓ Passwort zurückgesetzt auf: MNC2025!';
-    document.getElementById('lgerr').style.color = 'var(--green)';
-    document.getElementById('lgu').value = 'Owner';
-    document.getElementById('lgp').value = '';
-    setTimeout(()=>{ document.getElementById('lgerr').style.color=''; }, 3000);
-  }catch(e){ alert('Fehler: '+e.message); }
-}
 function openLg(){
   document.getElementById('lgov').classList.add('open');
   setTimeout(()=>document.getElementById('lgu').focus(), 80);
@@ -1579,6 +1571,14 @@ function doLogout(){
   logAction('LOGOUT');
   sessionStorage.removeItem(SESS_KEY);
   clearTimeout(sessionTimer);
+  // Google signOut
+  window._curIsGoogleOwner = false;
+  window._curGooglePerms   = null;
+  window._viaGoogle        = false;
+  window._pendingGoogleUser = null;
+  if(window._mncAuth && window._mncGA){
+    window._mncGA.signOut(window._mncAuth).catch(()=>{});
+  }
   applyRole('viewer','Gast');
   closeLg();
   rfrak(); rmem();
@@ -1619,13 +1619,8 @@ function getAdminPerms(name){
 }
 function hasPerm(perm){
   if(curRole==='owner'){
-    // Google-Owner hat immer alle Rechte
-    if(window._curIsGoogleOwner) return true;
-    // Lokaler "owner" (2. Owner): prüft seine freigeschalteten Rechte
-    const d = getRD();
-    const ownerPerms = d.ownerPerms || {};
-    // Wenn ownerPerms leer → noch gar nichts freigeschaltet (neuer 2. Owner)
-    return ownerPerms[perm] === true;
+    // Owner hat immer alle Rechte — egal ob Google-Owner oder lokaler Owner
+    return true;
   }
   if(curRole==='admin'){
     // Google-Admin: Rechte aus Firebase-Eintrag
@@ -1702,19 +1697,6 @@ function renderAdminPanel(){
   document.getElementById('owner-timeout-val').textContent=ownerTO+' Min';
 
   // Nur Google-Owner sieht 2. Owner Berechtigungs-Panel
-  const ownerPermWrap = document.getElementById('owner-perm-wrap');
-  if(ownerPermWrap) ownerPermWrap.style.display = isGoogleOwner ? '' : 'none';
-  if(isGoogleOwner){
-    const ownerPerms = d.ownerPerms || {};
-    const boxes = PERM_DEFS.map(p=>`
-      <label class="perm-item">
-        <input type="checkbox" ${ownerPerms[p.id]?'checked':''} onchange="toggleOwnerPerm('${p.id}',this.checked)">
-        <div><div class="perm-item-lbl">${p.label}</div><div class="perm-item-desc">${p.desc}</div></div>
-      </label>`).join('');
-    const el = document.getElementById('owner-perm-boxes');
-    if(el) el.innerHTML = boxes;
-  }
-
   const admins=d.adm||[];
   document.getElementById('ap-admin-count').textContent=`(${admins.length})`;
   if(admins.length>0) document.getElementById('ap-kick-info').classList.add('show');
@@ -1794,16 +1776,6 @@ function saveOwnerTimeout(){
   logAction('SECURITY',`Standard-Timeout auf ${v}min gesetzt`);
   toast(`Timeout: ${v} Min gespeichert`);
   resetSessionTimer();
-}
-// 2. Owner Berechtigungen (nur Google-Owner kann diese setzen)
-function toggleOwnerPerm(permId, val){
-  if(!window._curIsGoogleOwner){ toast('Nur Google-Owner kann das ändern','e'); return; }
-  const d=getRD();
-  d.ownerPerms = d.ownerPerms || {};
-  d.ownerPerms[permId] = val;
-  saveRD(d);
-  logAction('SECURITY',`2.Owner Recht "${permId}" ${val?'AN':'AUS'}`);
-  applyRole(curRole, document.getElementById('ubname').textContent); // Buttons neu rendern
 }
 function saveAdminTimeout(name){
   const v=parseInt(document.getElementById('to-'+name).value);
@@ -2299,15 +2271,39 @@ function init(){
   // Passwort-Reset: falls localStorage leer oder Owner-PW nicht gesetzt, Standardwert setzen
   const _existingRD = localStorage.getItem(RK);
   if(!_existingRD){
-    saveRD({op:'MNC2025!', adm:[]});
+    saveRD({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]});
   } else {
     // Sicherstellen dass das op-Feld vorhanden ist
     try{
       const _rd = JSON.parse(_existingRD);
-      if(!_rd.op){ _rd.op = 'MNC2025!'; saveRD(_rd); }
-    }catch{ saveRD({op:'MNC2025!', adm:[]}); }
+      if(!_rd.op){ _rd.op = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; saveRD(_rd); }
+    }catch{ saveRD({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]}); }
   }
-  applyRole('viewer','Gast');
+
+  // Session aus sessionStorage wiederherstellen (lokale Owner/Admin bleiben nach Reload eingeloggt)
+  // Google-User werden separat via onAuthStateChanged wiederhergestellt
+  const _sess = getSession();
+  if(_sess.role && _sess.user && _sess.role !== 'viewer'){
+    // Prüfen ob der Account noch existiert und nicht gebannt ist
+    const d = getRD();
+    let valid = false;
+    if(_sess.role === 'owner'){
+      valid = true; // Owner immer gültig
+    } else if(_sess.role === 'admin'){
+      const adm = (d.adm||[]).find(a => a.n === _sess.user);
+      valid = adm && !adm.banned;
+    }
+    if(valid){
+      curRole = _sess.role;
+      applyRole(_sess.role, _sess.user);
+      resetSessionTimer();
+    } else {
+      applyRole('viewer','Gast');
+    }
+  } else {
+    applyRole('viewer','Gast');
+  }
+
   fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
   fraks = fraks.map(f=>{
     if(f.unterboden===undefined) f.unterboden='';
@@ -2333,7 +2329,7 @@ function updateHomeStats(){
   document.getElementById('home-cf').textContent = fraks.length;
   document.getElementById('home-cm').textContent = mems.length;
   document.getElementById('home-ca').textContent = mems.filter(m=>m.status==='AKTIV').length;
-  document.getElementById('home-ci').textContent = mems.filter(m=>m.status==='INAKTIV').length;
+  document.getElementById('home-ci').textContent = mems.filter(m=>m.status==='INAKTIV'||m.status==='Urlaub'||m.status==='URLAUB').length;
   document.getElementById('hcard-cf').textContent = fraks.length;
   document.getElementById('hcard-cm').textContent = mems.length;
 }
@@ -3102,16 +3098,7 @@ function runSecurityAudit(){
   );
 
   if(issues.length > 0){
-    console.warn('[MNC SECURITY AUDIT] ⚠ Probleme:', issues);
     logAction('SECURITY', `Audit: ${issues.length} Problem(e) — ${issues[0]}`);
-  } else {
-    console.info('[MNC SECURITY AUDIT] ✓ Alles sauber');
-  }
-
-  if(inIframe && !inClaudePreview){
-    console.warn('[MNC SECURITY AUDIT] ℹ Seite läuft in einem iFrame (nicht Claude.ai)');
-  } else if(inIframe){
-    console.info('[MNC SECURITY AUDIT] ℹ Claude.ai Vorschau-Modus (normal)');
   }
 
   return issues;
@@ -3133,19 +3120,10 @@ init();
    • Gast          → kein Login → viewer
    ══════════════════════════════════════════════════════════════════════ */
 
-const FB_CONFIG = {
-  apiKey:            "AIzaSyBDBXVpKSLCQWasScX9wvS7jZoIBNKvUvA",
-  authDomain:        "mnc-hub-rr.firebaseapp.com",
-  databaseURL:       "https://mnc-hub-rr-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "mnc-hub-rr",
-  storageBucket:     "mnc-hub-rr.firebasestorage.app",
-  messagingSenderId: "134160037882",
-  appId:             "1:134160037882:web:5940264c467c59be27d643"
-};
-
 window._curIsGoogleOwner = false;
 window._curGooglePerms   = null;
 window._viaGoogle        = false;
+window._pendingGoogleUser = null;
 
 // Firebase SDK laden
 (function(){
@@ -3165,8 +3143,18 @@ window._viaGoogle        = false;
     window._mncGA   = { signInWithPopup, GoogleAuthProvider, signOut };
     window._fbReady = true;
     onAuthStateChanged(auth, user => {
-      if(user) window.dispatchEvent(new CustomEvent('fbGoogleUser', {detail: user}));
-      else     window.dispatchEvent(new CustomEvent('fbGoogleOut'));
+      if(user){
+        // Beim ersten Aufruf (Reload oder frischer Login): User in _pendingGoogleUser zwischenspeichern
+        // initFirebase() → fbPullAll() → dann _handleGoogleUser(pending, silent)
+        // Beim frischen Login via Popup: _pendingGoogleUser wird in fbPullAll schon geleert sein
+        if(!window._pendingGoogleUser && !window._viaGoogle){
+          window._pendingGoogleUser = user;
+        }
+        window.dispatchEvent(new CustomEvent('fbGoogleUser', {detail: user}));
+      } else {
+        window._pendingGoogleUser = null;
+        window.dispatchEvent(new CustomEvent('fbGoogleOut'));
+      }
     });
     window.dispatchEvent(new Event('fbReady'));
   `;
@@ -3179,7 +3167,10 @@ setTimeout(()=>{ if(!_fbOnline) fbSetStatus('local','LOKAL'); }, 5000);
 
 // ── GOOGLE AUTH ─────────────────────────────────────────────────────────
 window.addEventListener('fbGoogleUser', async e => {
-  await _handleGoogleUser(e.detail);
+  // Reload-Fall: _pendingGoogleUser ist gesetzt → wird nach fbPullAll() verarbeitet, hier überspringen
+  if(window._pendingGoogleUser) return;
+  // Frischer Login via Popup (_viaGoogle=true gesetzt in doGoogleLg)
+  await _handleGoogleUser(e.detail, false);
 });
 window.addEventListener('fbGoogleOut', ()=>{
   if(window._viaGoogle){
@@ -3190,7 +3181,7 @@ window.addEventListener('fbGoogleOut', ()=>{
   }
 });
 
-async function _handleGoogleUser(user){
+async function _handleGoogleUser(user, silent){
   const email = (user.email||'').toLowerCase();
   const name  = user.displayName || email.split('@')[0];
   const key   = email.replace(/@/g,'__at__').replace(/\./g,'_');
@@ -3226,7 +3217,13 @@ async function _handleGoogleUser(user){
   closeLg();
   rfrak(); rmem();
   logAction('LOGIN', `Google: ${email} → ${role}`);
-  toast(`✓ Willkommen, ${displayName}!`);
+  if(!silent){
+    if(role==='viewer'){
+      toast(`Google-Login: Du bist als Gast eingeloggt. Bitte den Owner, dich einzutragen.`, 'w');
+    } else {
+      toast(`✓ Willkommen, ${displayName}!`);
+    }
+  }
 
   const gb = document.getElementById('googleLoginBtn');
   if(gb) gb.disabled = false;
@@ -3241,11 +3238,15 @@ async function doGoogleLg(){
   const rl = checkRateLimit();
   if(rl.locked){ err.textContent = `Gesperrt. Noch ${rl.remaining}s.`; return; }
   document.getElementById('googleLoginBtn').disabled = true;
+  // Markiere als frischen Login → onAuthStateChanged überspringt _pendingGoogleUser
+  window._viaGoogle = true;
   try{
     const p = new window._mncGA.GoogleAuthProvider();
     p.setCustomParameters({prompt:'select_account'});
     await window._mncGA.signInWithPopup(window._mncAuth, p);
+    // Erfolg: wird via fbGoogleUser-Event + _handleGoogleUser verarbeitet
   }catch(e){
+    window._viaGoogle = false;
     document.getElementById('googleLoginBtn').disabled = false;
     if(e.code==='auth/popup-closed-by-user') err.textContent='Popup geschlossen.';
     else if(e.code==='auth/popup-blocked')   err.textContent='⚠ Popup blockiert — Blocker deaktivieren.';
@@ -3253,17 +3254,7 @@ async function doGoogleLg(){
   }
 }
 
-// Logout auch Google signOut
-const _origDoLogout = doLogout;
-function doLogout(){
-  _origDoLogout();
-  window._curIsGoogleOwner = false;
-  window._curGooglePerms   = null;
-  if(window._mncAuth && window._mncGA){
-    window._mncGA.signOut(window._mncAuth).catch(()=>{});
-  }
-  window._viaGoogle = false;
-}
+// Google signOut wird direkt in doLogout (oben) aufgerufen – kein Override nötig
 
 // ── GOOGLE NUTZER VERWALTUNG ────────────────────────────────────────────
 function _eKey(email){ return email.toLowerCase().replace(/@/g,'__at__').replace(/\./g,'_'); }
@@ -3282,7 +3273,7 @@ async function glLoad(){
       el.innerHTML='<div style="color:var(--g3);font-family:\'Share Tech Mono\';font-size:12px;padding:8px 0">Noch keine Google-Konten eingetragen.</div>'; return;
     }
     el.innerHTML=entries.map(([k,u])=>{
-      const email=k.replace(/__at__/g,'@').replace(/_/g,'.');
+      const email=(()=>{ const parts=k.split('__at__'); if(parts.length===2){ return parts[0]+'@'+parts[1].replace(/_/g,'.'); } return k.replace(/__at__/g,'@').replace(/_/g,'.'); })();
       const roleLabel=u.role==='owner'?'OWNER':u.role==='admin'?'ADMIN':'GAST';
       const roleClass=u.role==='owner'?'role-google-owner':u.role==='admin'?'role-google-admin':'role-google-guest';
       const banned=!!u.banned;
