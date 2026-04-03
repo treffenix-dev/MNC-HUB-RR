@@ -530,6 +530,7 @@ if(FB_CONFIGURED){
     </div>
     <div class="lgft">
       <button class="bpri" style="width:100%" onclick="doLg()">EINLOGGEN</button>
+      <button class="glink" onclick="resetOwnerPwToDefault()" style="color:var(--gold3);font-size:11px;margin-top:4px">🔑 Owner-Passwort auf Standard zurücksetzen (MNC2025!)</button>
       <button class="glink" onclick="closeLg()">Schließen · weiter als Gast</button>
     </div>
   </div>
@@ -1551,6 +1552,20 @@ async function doLg(){
   rfrak(); rmem();
   toast(`Willkommen, ${document.getElementById('ubname').textContent}!`);
 }
+function resetOwnerPwToDefault(){
+  if(!confirm('Owner-Passwort auf "MNC2025!" zurücksetzen?\nDies löscht ein eventuell geändertes Passwort!')) return;
+  try{
+    const d = getRD();
+    d.op = 'MNC2025!';
+    saveRD(d);
+    clearRateLimit();
+    document.getElementById('lgerr').textContent = '✓ Passwort zurückgesetzt auf: MNC2025!';
+    document.getElementById('lgerr').style.color = 'var(--green)';
+    document.getElementById('lgu').value = 'Owner';
+    document.getElementById('lgp').value = '';
+    setTimeout(()=>{ document.getElementById('lgerr').style.color=''; }, 3000);
+  }catch(e){ alert('Fehler: '+e.message); }
+}
 function openLg(){
   document.getElementById('lgov').classList.add('open');
   setTimeout(()=>document.getElementById('lgu').focus(), 80);
@@ -2281,7 +2296,17 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  if(!localStorage.getItem(RK)) saveRD({op:'MNC2025!', adm:[]});
+  // Passwort-Reset: falls localStorage leer oder Owner-PW nicht gesetzt, Standardwert setzen
+  const _existingRD = localStorage.getItem(RK);
+  if(!_existingRD){
+    saveRD({op:'MNC2025!', adm:[]});
+  } else {
+    // Sicherstellen dass das op-Feld vorhanden ist
+    try{
+      const _rd = JSON.parse(_existingRD);
+      if(!_rd.op){ _rd.op = 'MNC2025!'; saveRD(_rd); }
+    }catch{ saveRD({op:'MNC2025!', adm:[]}); }
+  }
   applyRole('viewer','Gast');
   fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
   fraks = fraks.map(f=>{
