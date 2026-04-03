@@ -1582,6 +1582,10 @@ function doLogout(){
   applyRole('viewer','Gast');
   closeLg();
   rfrak(); rmem();
+  // Immer zur Homepage nach Logout
+  goHome();
+  // History ersetzen damit Zurück-Taste nicht zur geschützten Seite führt
+  history.replaceState({page:'home'}, '', location.href);
   toast('Abgemeldet','w');
 }
 
@@ -2314,6 +2318,8 @@ function init(){
   rfrak(); rmem(); hs();
   updateHomeStats();
   startKickPoll();
+  // Initialen History-State setzen (Homepage)
+  history.replaceState({page:'home'}, '', location.href);
 }
 function save(){
   localStorage.setItem(FK, JSON.stringify(fraks));
@@ -2340,9 +2346,9 @@ function goHome(e){
   document.querySelectorAll('.page, .homepage').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
   document.getElementById('page-home').classList.add('on');
+  history.pushState({page:'home'}, '', location.href);
 }
 function navTo(id){
-  // finde den passenden Nav-Button anhand des onclick-Inhalts
   let btn = null;
   document.querySelectorAll('.nb').forEach(b=>{
     if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) btn = b;
@@ -2357,7 +2363,34 @@ function showPage(id, btn){
   if(btn) btn.classList.add('on');
   if(id==='member') rmem();
   if(id==='ctrl') renderCtrl();
+  history.pushState({page:id}, '', location.href);
 }
+
+// Zurück-Taste abfangen: wenn ausgeloggt → immer Homepage zeigen, nie geschützte Seite
+window.addEventListener('popstate', function(e){
+  const page = (e.state && e.state.page) ? e.state.page : 'home';
+  // Wenn Gast versucht Control Panel zu erreichen → redirect zu Home
+  if(page === 'ctrl' && curRole === 'viewer'){
+    goHome();
+    return;
+  }
+  if(page === 'home'){
+    document.querySelectorAll('.page, .homepage').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+    document.getElementById('page-home').classList.add('on');
+    return;
+  }
+  const pg = document.getElementById('page-'+page);
+  if(pg){
+    document.querySelectorAll('.page, .homepage').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+    pg.classList.add('on');
+    if(page==='member') rmem();
+    if(page==='ctrl'){ if(curRole==='viewer'){ goHome(); return; } renderCtrl(); }
+  } else {
+    goHome();
+  }
+});
 
 /* ── FRAK GRID ──────────────────────────────────────────────────────── */
 function setFF(btn){
