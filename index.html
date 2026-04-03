@@ -1121,14 +1121,38 @@ async function fbPullAll(){
       return f;
     });
     localStorage.setItem(FK, JSON.stringify(fraks));
+  } else {
+    // Keine Daten in Firebase → lokale hochladen
+    const localFraks = JSON.parse(localStorage.getItem(FK)||'null');
+    if(localFraks && localFraks.length > 0) await fbWrite(FB_PATH.fraks, localFraks);
   }
   if(fbMems && Array.isArray(fbMems)){
     mems = fbMems;
     localStorage.setItem(MK, JSON.stringify(mems));
+  } else {
+    // Keine Daten in Firebase → lokale hochladen
+    const localMems = JSON.parse(localStorage.getItem(MK)||'null');
+    if(localMems && localMems.length > 0) await fbWrite(FB_PATH.mems, localMems);
   }
   if(fbRoles && fbRoles.op){
     saveRD(fbRoles);
+  } else if(!fbRoles) {
+    const local = getRD();
+    if(local.op) await fbWrite(FB_PATH.roles, local);
   }
+
+  // Logs aus Firebase laden
+  const fbLog = await fbRead(FB_PATH.log);
+  if(fbLog && Array.isArray(fbLog) && fbLog.length > 0){
+    // Firebase-Logs mit lokalen mergen (neueste zuerst, max 500)
+    const localLog = getLog();
+    const merged = [...fbLog, ...localLog]
+      .filter((v,i,a) => a.findIndex(x=>x.ts===v.ts&&x.action===v.action)===i)
+      .sort((a,b)=>b.ts.localeCompare(a.ts))
+      .slice(0,500);
+    localStorage.setItem(LOG_KEY, JSON.stringify(merged));
+  }
+
   rfrak(); rmem(); hs(); updateHomeStats();
   showSyncIndicator('✓ Aktuell');
 }
@@ -1159,15 +1183,22 @@ function fbSetupListeners(){
     showSyncIndicator('↻ Mitglieder aktualisiert');
   });
 
-  // Rollen/Passwörter live (nur für Kick-Sync, KEIN Passwort-Overwrite)
+  // Rollen/Passwörter live — Firebase ist die einzige Wahrheit
+  // So können alle Nutzer von überall mit denselben Daten einloggen
   fbListen(FB_PATH.roles, data=>{
     if(!data || !data.op) return;
-    // Nur Admin-Liste syncen, niemals das Owner-Passwort überschreiben
-    // (Passwort-Änderungen gehen von lokal → Firebase, nie andersrum)
-    const local = getRD();
-    const merged = {...data, op: local.op}; // Lokales PW behalten
-    // _origSaveRD direkt aufrufen um keinen Firebase-Echo auszulösen
-    localStorage.setItem(RK, JSON.stringify(merged));
+    localStorage.setItem(RK, JSON.stringify(data));
+  });
+
+  // Logs live synchronisieren
+  fbListen(FB_PATH.log, data=>{
+    if(!data || !Array.isArray(data)) return;
+    const localLog = getLog();
+    const merged = [...data, ...localLog]
+      .filter((v,i,a) => a.findIndex(x=>x.ts===v.ts&&x.action===v.action)===i)
+      .sort((a,b)=>b.ts.localeCompare(a.ts))
+      .slice(0,500);
+    localStorage.setItem(LOG_KEY, JSON.stringify(merged));
   });
 
   // Kick-Signal live
@@ -1316,6 +1347,8 @@ function logAction(action, detail=''){
     log.unshift({ts: new Date().toISOString(), user, role: curRole, action, detail});
     if(log.length > 500) log.length = 500;
     localStorage.setItem(LOG_KEY, JSON.stringify(log));
+    // Firebase-Sync: Logs auch online speichern
+    if(_fbOnline){ fbWrite(FB_PATH.log, log.slice(0,200)).catch(()=>{}); }
   }catch(e){}
 }
 function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }catch{ return []; } }
@@ -1476,7 +1509,21 @@ async function doLg(){
   const p = document.getElementById('lgp').value || '';
   if(!u || !p){ err.textContent = 'Bitte alle Felder ausfüllen.'; return; }
   if(u.length > 40 || p.length > 128){ err.textContent = 'Eingabe zu lang.'; return; }
-  const d = getRD();
+
+  // Wenn Firebase online: immer frisch aus Firebase laden (für mehrere Nutzer von verschiedenen IPs)
+  let d = getRD();
+  if(_fbOnline && window._mncDB){
+    err.textContent = '↻ Verbinde…';
+    try {
+      const fbData = await fbRead(FB_PATH.roles);
+      if(fbData && fbData.op){
+        saveRD(fbData);
+        d = fbData;
+      }
+    } catch(e){ /* Fallback auf lokal */ }
+    err.textContent = '';
+  }
+
   const ph = await sha256(p);
   // Check owner
   let authed = false;
@@ -2220,41 +2267,18 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Passwort-Reset: falls localStorage leer oder Owner-PW nicht gesetzt, Standardwert setzen
+  // Sicherstellen dass Rollen-Datensatz existiert (lokaler Fallback)
   const _existingRD = localStorage.getItem(RK);
   if(!_existingRD){
-    saveRD({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]});
+    localStorage.setItem(RK, JSON.stringify({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]}));
   } else {
-    // Sicherstellen dass das op-Feld vorhanden ist
     try{
       const _rd = JSON.parse(_existingRD);
-      if(!_rd.op){ _rd.op = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; saveRD(_rd); }
-    }catch{ saveRD({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]}); }
+      if(!_rd.op){ _rd.op = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; localStorage.setItem(RK, JSON.stringify(_rd)); }
+    }catch{ localStorage.setItem(RK, JSON.stringify({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]})); }
   }
 
-  // Session aus sessionStorage wiederherstellen (lokale Owner/Admin bleiben nach Reload eingeloggt)
-  const _sess = getSession();
-  if(_sess.role && _sess.user && _sess.role !== 'viewer'){
-    // Prüfen ob der Account noch existiert und nicht gebannt ist
-    const d = getRD();
-    let valid = false;
-    if(_sess.role === 'owner'){
-      valid = true; // Owner immer gültig
-    } else if(_sess.role === 'admin'){
-      const adm = (d.adm||[]).find(a => a.n === _sess.user);
-      valid = adm && !adm.banned;
-    }
-    if(valid){
-      curRole = _sess.role;
-      applyRole(_sess.role, _sess.user);
-      resetSessionTimer();
-    } else {
-      applyRole('viewer','Gast');
-    }
-  } else {
-    applyRole('viewer','Gast');
-  }
-
+  // Lokale Daten sofort anzeigen (optimistic UI)
   fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
   fraks = fraks.map(f=>{
     if(f.unterboden===undefined) f.unterboden='';
@@ -2262,8 +2286,24 @@ function init(){
     return f;
   });
   mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
-  rfrak(); rmem(); hs();
-  updateHomeStats();
+  rfrak(); rmem(); hs(); updateHomeStats();
+
+  // Session aus sessionStorage wiederherstellen
+  const _sess = getSession();
+  if(_sess.role && _sess.user && _sess.role !== 'viewer'){
+    const d = getRD();
+    let valid = false;
+    if(_sess.role === 'owner') valid = true;
+    else if(_sess.role === 'admin'){
+      const adm = (d.adm||[]).find(a => a.n === _sess.user);
+      valid = adm && !adm.banned;
+    }
+    if(valid){ curRole = _sess.role; applyRole(_sess.role, _sess.user); resetSessionTimer(); }
+    else applyRole('viewer','Gast');
+  } else {
+    applyRole('viewer','Gast');
+  }
+
   startKickPoll();
 }
 function save(){
@@ -2271,6 +2311,11 @@ function save(){
   localStorage.setItem(MK, JSON.stringify(mems));
   hs();
   updateHomeStats();
+  // Firebase: immer synchronisieren wenn online
+  if(_fbOnline){
+    fbWrite(FB_PATH.fraks, fraks).catch(()=>{});
+    fbWrite(FB_PATH.mems, mems).catch(()=>{});
+  }
 }
 function hs(){
   document.getElementById('hcf').textContent = fraks.length;
@@ -2880,6 +2925,8 @@ function runDailyBackup(){
     if(backups.length > 7) backups = backups.slice(0,7);
     localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
     localStorage.setItem(BACKUP_LAST_KEY, today);
+    // Firebase-Backup ebenfalls speichern
+    if(_fbOnline){ fbWrite('mnc/backups', backups).catch(()=>{}); }
     console.info(`[MNC HUB] Tages-Backup erstellt: ${today} (${fraks.length} Fraktionen, ${mems.length} Mitglieder)`);
   }catch(e){
     console.warn('[MNC HUB] Backup fehlgeschlagen:', e);
