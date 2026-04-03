@@ -1501,37 +1501,41 @@ function applyRole(role, user){
 }
 
 async function doLg(){
+  // Sperre immer zuerst clearen (verhindert Phantom-Sperren)
+  clearRateLimit();
   const err = document.getElementById('lgerr');
   err.textContent = '';
-  const rl = checkRateLimit();
-  if(rl.locked){ err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`; return; }
   const u = (document.getElementById('lgu').value || '').trim().toLowerCase();
   const p = document.getElementById('lgp').value || '';
   if(!u || !p){ err.textContent = 'Bitte alle Felder ausfüllen.'; return; }
-  if(u.length > 40 || p.length > 128){ err.textContent = 'Eingabe zu lang.'; return; }
 
-  // Zugangsdaten holen: Firebase hat immer Priorität
+  // Passwort hashen
+  let ph;
+  try{
+    ph = await sha256(p);
+  }catch(e){
+    err.textContent = 'Fehler beim Hashen — HTTPS erforderlich.';
+    return;
+  }
+
+  // Zugangsdaten holen: Firebase zuerst, dann lokal
   let d = getRD();
   if(_fbOnline && window._mncDB){
-    try {
+    try{
       const fbData = await fbRead(FB_PATH.roles);
       if(fbData && fbData.op){
         localStorage.setItem(RK, JSON.stringify(fbData));
         d = fbData;
       }
-    } catch(e){}
+    }catch(e){}
   }
 
-  const ph = await sha256(p);
   let authed = false;
 
-  // Owner-Check: Benutzername case-insensitiv, Passwort exakt
   if(u === 'owner'){
     const storedHash = isHash(d.op) ? d.op : await sha256(d.op);
     authed = (ph === storedHash);
     if(authed){ applyRole('owner','Owner'); startSession('owner','Owner'); }
-
-  // Admin-Check
   } else {
     const adm = (d.adm||[]).find(a => a.n.toLowerCase() === u);
     if(adm && !adm.banned){
@@ -1540,17 +1544,14 @@ async function doLg(){
       if(authed){ applyRole('admin', adm.n); startSession('admin', adm.n); }
     }
   }
+
   if(!authed){
-    const res = recordFailedAttempt();
-    logAction('LOGIN-FAIL', `Fehlversuch für "${esc(u)}"`);
-    if(res === 'lockout') err.textContent = 'Zu viele Versuche. 5 Minuten gesperrt.';
-    else if(res === 'cooldown') err.textContent = 'Zu viele Versuche. 30s Wartezeit.';
-    else err.textContent = `Falscher Benutzername oder Passwort. (${loginAttempts})`;
+    err.textContent = 'Falscher Benutzername oder Passwort.';
     document.getElementById('lgp').value = '';
     return;
   }
-  logAction('LOGIN', `Erfolgreich eingeloggt als "${esc(curRole)}"`);
-  clearRateLimit();
+
+  logAction('LOGIN', `Eingeloggt als "${esc(curRole)}"`);
   closeLg();
   rfrak(); rmem();
   toast(`Willkommen, ${document.getElementById('ubname').textContent}!`);
@@ -2270,11 +2271,12 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Rollen-Datensatz immer auf DEFAULT_PW zurücksetzen wenn kein gültiger Eintrag
-  // Firebase überschreibt das beim ersten Login automatisch
+  // Rollen-Datensatz: DEFAULT_PW setzen wenn kein gültiger Hash vorhanden
   try{
     const _rd = JSON.parse(localStorage.getItem(RK)||'{}');
-    if(!_rd.op) localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:[]}));
+    if(!_rd.op || !isHash(_rd.op)){
+      localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:(_rd.adm||[])}));
+    }
   }catch{ localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:[]})); }
 
   // Lokale Daten sofort anzeigen (optimistic UI)
