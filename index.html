@@ -7,7 +7,7 @@
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -523,9 +523,9 @@ if(FB_CONFIGURED){
       </button>
       <div class="lg-divider"><span>Owner / Admin Login</span></div>
       <label class="lglbl" for="lgu">Benutzername</label>
-      <input class="fi" id="lgu" type="text" placeholder="owner" autocomplete="username" spellcheck="false">
+      <input class="fi" id="lgu" type="text" placeholder="owner" autocomplete="off" spellcheck="false" maxlength="64">
       <label class="lglbl" for="lgp">Passwort</label>
-      <input class="fi" id="lgp" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLg()">
+      <input class="fi" id="lgp" type="password" placeholder="••••••••" autocomplete="off" maxlength="128" onkeydown="if(event.key==='Enter')doLg()">
       <div class="lgerr" id="lgerr" role="alert" aria-live="polite"></div>
     </div>
     <div class="lgft">
@@ -536,7 +536,7 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- ── ADMIN PANEL ── -->
-<div class="apov" id="apov" role="dialog" aria-modal="true">
+<div class="apov" id="apov" role="dialog" aria-modal="true" aria-label="Benutzerverwaltung">
   <div class="apmod">
     <div class="aphd">
       <div class="aptit">⚙ BENUTZER VERWALTUNG</div>
@@ -560,7 +560,7 @@ if(FB_CONFIGURED){
         <div style="padding:12px 14px;border-top:1px solid var(--border);background:var(--s1)">
           <div class="apsh" style="margin-bottom:10px">Passwort ändern</div>
           <div class="adinl">
-            <input class="fi" id="opw" type="password" placeholder="Neues Passwort (mind. 6 Zeichen)" style="flex:1" autocomplete="new-password">
+            <input class="fi" id="opw" type="password" placeholder="Neues Passwort (mind. 6 Zeichen)" style="flex:1" autocomplete="new-password" maxlength="128">
             <button class="abtn" onclick="changeOwnerPw()" style="padding:13px 14px">ÄNDERN</button>
           </div>
           <div class="apsh" style="margin-top:16px;margin-bottom:10px">Standard Session-Timeout</div>
@@ -580,8 +580,8 @@ if(FB_CONFIGURED){
       <!-- Neuen Admin hinzufügen -->
       <div class="apsh" style="margin-top:20px">Neuen Admin hinzufügen</div>
       <div class="adinl" style="margin-bottom:12px">
-        <input class="fi" id="apn" type="text" placeholder="Benutzername" style="flex:2" autocomplete="off" spellcheck="false">
-        <input class="fi" id="app" type="password" placeholder="Passwort" style="flex:2" autocomplete="new-password">
+        <input class="fi" id="apn" type="text" placeholder="Benutzername" style="flex:2" autocomplete="off" spellcheck="false" maxlength="64">
+        <input class="fi" id="app" type="password" placeholder="Passwort" style="flex:2" autocomplete="new-password" maxlength="128">
         <button class="abtn" onclick="addAdmin()" style="padding:13px 14px">+ ADD</button>
       </div>
       <div class="kick-info" id="ap-kick-info">⚠ Gelöschte/gesperrte Konten werden beim nächsten Tick (≤5s) automatisch ausgeloggt.</div>
@@ -594,8 +594,8 @@ if(FB_CONFIGURED){
           Hier kannst du Google-Konten als Admin oder Owner eintragen und Rechte vergeben.
         </div>
         <div class="adinl" style="margin-bottom:10px;flex-wrap:wrap">
-          <input class="fi" id="gl-email" type="email" placeholder="google@gmail.com" style="flex:3;min-width:180px" autocomplete="off" spellcheck="false">
-          <input class="fi" id="gl-name"  type="text"  placeholder="Anzeigename"      style="flex:2;min-width:120px" autocomplete="off">
+          <input class="fi" id="gl-email" type="email" placeholder="google@gmail.com" style="flex:3;min-width:180px" autocomplete="off" spellcheck="false" maxlength="254">
+          <input class="fi" id="gl-name"  type="text"  placeholder="Anzeigename"      style="flex:2;min-width:120px" autocomplete="off" maxlength="80">
           <select class="fsel" id="gl-role" style="padding:13px 10px;flex:1.2;min-width:90px">
             <option value="admin">Admin</option>
             <option value="owner">Owner</option>
@@ -813,7 +813,7 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- DETAIL MODAL -->
-<div class="ov" id="detov" role="dialog" aria-modal="true">
+<div class="ov" id="detov" role="dialog" aria-modal="true" aria-label="Lackierung Details">
   <div class="detm">
     <div class="detbar" id="detbar"></div>
     <div class="dethead">
@@ -840,7 +840,7 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- FRAKTION FORM -->
-<div class="fov" id="fmov" role="dialog" aria-modal="true">
+<div class="fov" id="fmov" role="dialog" aria-modal="true" aria-label="Fraktion bearbeiten">
   <div class="fmod">
     <div class="fmh">
       <div class="fmtitle" id="fmtitle">NEUE FRAKTION</div>
@@ -873,7 +873,7 @@ Sonstiges:'></textarea>
       <div class="fgr">
         <div class="fg fful">
           <label class="flbl" for="fn">Fraktionsname *</label>
-          <input class="fi" id="fn" type="text" placeholder="z.B. Ballas" oninput="upPv()" autocomplete="off">
+          <input class="fi" id="fn" type="text" placeholder="z.B. Ballas" oninput="upPv()" autocomplete="off" maxlength="80">
         </div>
         <div class="fg">
           <label class="flbl" for="fp">Primärfarbe</label>
@@ -931,7 +931,7 @@ Sonstiges:'></textarea>
 </div>
 
 <!-- MITGLIED FORM -->
-<div class="fov" id="mmov" role="dialog" aria-modal="true">
+<div class="fov" id="mmov" role="dialog" aria-modal="true" aria-label="Mitglied bearbeiten">
   <div class="fmod">
     <div class="fmh">
       <div class="fmtitle" id="mmtitle">NEUES MITGLIED</div>
@@ -939,7 +939,7 @@ Sonstiges:'></textarea>
     </div>
     <div class="fmb">
       <div class="fgr">
-        <div class="fg fful"><label class="flbl" for="mn">Name *</label><input class="fi" id="mn" type="text" placeholder="Vor- und Nachname" autocomplete="off"></div>
+        <div class="fg fful"><label class="flbl" for="mn">Name *</label><input class="fi" id="mn" type="text" placeholder="Vor- und Nachname" autocomplete="off" maxlength="80"></div>
         <div class="fg">
           <label class="flbl" for="mr">Rang</label>
           <select class="fsel" id="mr">
@@ -952,7 +952,7 @@ Sonstiges:'></textarea>
           </select>
         </div>
         <div class="fg"><label class="flbl" for="mst">Status</label><select class="fsel" id="mst"><option value="AKTIV">Aktiv</option><option value="INAKTIV">Inaktiv</option><option value="URLAUB">Urlaub</option></select></div>
-        <div class="fg fful"><label class="flbl" for="mno">Notiz</label><input class="fi" id="mno" type="text" placeholder="Optional" autocomplete="off"></div>
+        <div class="fg fful"><label class="flbl" for="mno">Notiz</label><input class="fi" id="mno" type="text" placeholder="Optional" autocomplete="off" maxlength="200"></div>
       </div>
     </div>
     <div class="fmf"><button class="bsec" onclick="closeMM()">ABBRECHEN</button><button class="bpri" onclick="saveMem()">SPEICHERN</button></div>
@@ -1020,13 +1020,13 @@ Sonstiges:'></textarea>
 </div>
 
 <!-- CONFIRM MODAL -->
-<div class="cfov" id="cfov" role="dialog" aria-modal="true">
+<div class="cfov" id="cfov" role="dialog" aria-modal="true" aria-label="Bestätigung">
   <div class="cfmod">
     <div class="cfhead">
       <div class="cficon">✕</div>
-      <div class="cftitle">EINTRAG LÖSCHEN</div>
+      <div class="cftitle" id="cftitle">BESTÄTIGUNG</div>
     </div>
-    <div class="cfbody">Soll <span class="cfname" id="cfname">dieser Eintrag</span> wirklich permanent gelöscht werden?</div>
+    <div class="cfbody" id="cfbody">Soll <span class="cfname" id="cfname">dieser Eintrag</span> wirklich permanent gelöscht werden?</div>
     <div class="cff">
       <button class="cfcancel" onclick="closeCF()">ABBRECHEN</button>
       <button class="cfconfirm" id="cfconfirm">LÖSCHEN</button>
@@ -1068,12 +1068,13 @@ let _localMutex = false; // verhindert Echo-Updates
 
 // Firebase Paths
 const FB_PATH = {
-  fraks:   'mnc/fraks',
-  mems:    'mnc/mems',
-  roles:   'mnc/roles',
-  log:     'mnc/log',
-  kick:    'mnc/kick',
-  version: 'mnc/version',
+  fraks:      'mnc/fraks',
+  mems:       'mnc/mems',
+  roles:      'mnc/roles',
+  log:        'mnc/log',
+  kick:       'mnc/kick',
+  version:    'mnc/version',
+  ratelimit:  'mnc/ratelimit',
 };
 
 function fbSetStatus(state, text){
@@ -1198,15 +1199,22 @@ function fbSetupListeners(){
     showSyncIndicator('↻ Mitglieder aktualisiert');
   });
 
-  // Rollen/Passwörter live (nur für Kick-Sync, KEIN Passwort-Overwrite)
+  // Rollen/Passwörter live — Firebase ist die einzige Quelle der Wahrheit
   fbListen(FB_PATH.roles, data=>{
     if(!data || !data.op) return;
-    // Nur Admin-Liste syncen, niemals das Owner-Passwort überschreiben
-    // (Passwort-Änderungen gehen von lokal → Firebase, nie andersrum)
-    const local = getRD();
-    const merged = {...data, op: local.op}; // Lokales PW behalten
-    // _origSaveRD direkt aufrufen um keinen Firebase-Echo auszulösen
-    localStorage.setItem(RK, JSON.stringify(merged));
+    // Firebase-Passwort ist master — direkt in localStorage schreiben
+    // KEIN saveRD() aufrufen (wuerde Echo zurueck nach Firebase ausloesen)
+    localStorage.setItem(RK, JSON.stringify(data));
+  });
+
+  // Rate-Limit live syncen (Sperre von einem Browser gilt für alle)
+  fbListen(FB_PATH.ratelimit, data=>{
+    if(!data){ localStorage.removeItem(RL_KEY); hideLockBanner(); return; }
+    if(data.until && Date.now() < data.until){
+      localStorage.setItem(RL_KEY, JSON.stringify(data));
+      const rem = Math.ceil((data.until - Date.now()) / 1000);
+      showLockBanner(rem);
+    }
   });
 
   // Kick-Signal live
@@ -1369,11 +1377,17 @@ function logAction(action, detail=''){
 }
 function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }catch{ return []; } }
 function clearLog(){
-  if(!confirm('Aktivitätsprotokoll wirklich löschen?')) return;
-  localStorage.removeItem(LOG_KEY);
-  logAction('SECURITY','Aktivitätsprotokoll gelöscht');
-  renderCtrl();
-  toast('Log gelöscht','w');
+  document.getElementById('cftitle').textContent='LOG LÖSCHEN';
+  document.getElementById('cfname').textContent='das Aktivitätsprotokoll';
+  document.getElementById('cfconfirm').textContent='LÖSCHEN';
+  document.getElementById('cfconfirm').onclick=()=>{
+    closeCF();
+    localStorage.removeItem(LOG_KEY);
+    logAction('SECURITY','Aktivitätsprotokoll gelöscht');
+    renderCtrl();
+    toast('Log gelöscht','w');
+  };
+  document.getElementById('cfov').classList.add('open');
 }
 function exportLog(){
   const log = getLog();
@@ -1389,7 +1403,22 @@ function exportLog(){
   toast('Log exportiert');
 }
 
-/* ── RATE LIMITING ──────────────────────────────────────────────────── */
+/* ── RATE LIMITING (browser-übergreifend via Firebase wenn online) ───── */
+// Schreibt Rate-Limit-Status nach Firebase damit Sperren für alle Browser gelten
+function _rlSyncToFb(rl){
+  if(_fbOnline && window._mncDB){
+    fbWrite(FB_PATH.ratelimit, rl).catch(()=>{});
+  }
+}
+// Liest Rate-Limit aus Firebase (async, nur beim Login-Start)
+async function _rlFetchFromFb(){
+  if(!_fbOnline || !window._mncDB) return null;
+  try{
+    const data = await fbRead(FB_PATH.ratelimit);
+    if(data && data.until){ localStorage.setItem(RL_KEY, JSON.stringify(data)); }
+    return data;
+  }catch{ return null; }
+}
 function checkRateLimit(){
   try{
     const rl = JSON.parse(localStorage.getItem(RL_KEY) || '{}');
@@ -1408,23 +1437,44 @@ function recordFailedAttempt(){
     const rl = JSON.parse(localStorage.getItem(RL_KEY) || '{}');
     rl.count = (rl.count||0) + 1;
     rl.last = Date.now();
+    // Progressives Lockout: je mehr Fehlversuche, desto laenger die Sperre
     if(rl.count >= 10){
       rl.until = Date.now() + 5*60*1000;
       rl.count = 0;
       localStorage.setItem(RL_KEY, JSON.stringify(rl));
+      _rlSyncToFb(rl);
       showLockBanner(5*60);
       return 'lockout';
-    } else if(loginAttempts >= 5){
+    } else if(rl.count >= 7){
+      rl.until = Date.now() + 120*1000;
+      localStorage.setItem(RL_KEY, JSON.stringify(rl));
+      _rlSyncToFb(rl);
+      showLockBanner(120);
+      return 'cooldown';
+    } else if(rl.count >= 5){
+      rl.until = Date.now() + 60*1000;
+      localStorage.setItem(RL_KEY, JSON.stringify(rl));
+      _rlSyncToFb(rl);
+      showLockBanner(60);
+      return 'cooldown';
+    } else if(rl.count >= 3){
       rl.until = Date.now() + 30*1000;
       localStorage.setItem(RL_KEY, JSON.stringify(rl));
+      _rlSyncToFb(rl);
       showLockBanner(30);
       return 'cooldown';
     }
     localStorage.setItem(RL_KEY, JSON.stringify(rl));
+    _rlSyncToFb(rl);
   }catch{}
   return 'warn';
 }
-function clearRateLimit(){ localStorage.removeItem(RL_KEY); loginAttempts = 0; hideLockBanner(); }
+function clearRateLimit(){
+  localStorage.removeItem(RL_KEY);
+  loginAttempts = 0;
+  hideLockBanner();
+  if(_fbOnline && window._mncDB) fbWrite(FB_PATH.ratelimit, null).catch(()=>{});
+}
 
 let lockInterval = null;
 function showLockBanner(seconds){
@@ -1519,12 +1569,21 @@ function applyRole(role, user){
 async function doLg(){
   const err = document.getElementById('lgerr');
   err.textContent = '';
+  // Rate-Limit zuerst aus Firebase holen (falls andere Browser bereits gesperrt haben)
+  await _rlFetchFromFb();
   const rl = checkRateLimit();
   if(rl.locked){ err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`; return; }
   const u = (document.getElementById('lgu').value || '').trim().toLowerCase();
   const p = document.getElementById('lgp').value || '';
   if(!u || !p){ err.textContent = 'Bitte alle Felder ausfüllen.'; return; }
   if(u.length > 40 || p.length > 128){ err.textContent = 'Eingabe zu lang.'; return; }
+  // Wenn Firebase konfiguriert aber noch nicht fertig geladen: kurz warten
+  // damit das Passwort aus der Cloud kommt und nicht das veraltete lokale
+  if(window._fbReady && !_fbOnline){
+    err.textContent = '⏳ Verbinde mit Server…';
+    await new Promise(r => setTimeout(r, 1500));
+    err.textContent = '';
+  }
   const d = getRD();
   const ph = await sha256(p);
   // Check owner
@@ -1859,8 +1918,14 @@ async function addAdmin(){
   toast(`Admin "${n}" erstellt`);
   renderAdminPanel();
 }
-function removeAdmin(name){
-  if(!confirm(`Admin "${name}" wirklich permanent löschen?`)) return;
+async function removeAdmin(name){
+  await new Promise(resolve=>{
+    document.getElementById('cftitle').textContent='ADMIN LÖSCHEN';
+    document.getElementById('cfname').textContent='"'+name+'" (Admin)';
+    document.getElementById('cfconfirm').textContent='LÖSCHEN';
+    document.getElementById('cfconfirm').onclick=()=>{ closeCF(); resolve(); };
+    document.getElementById('cfov').classList.add('open');
+  });
   broadcastKick(name,'Konto wurde gelöscht');
   const d=getRD();
   d.adm=(d.adm||[]).filter(a=>a.n!==name);
@@ -2432,10 +2497,10 @@ function rfrak(){
     const bright = isBright(primHex);
     const txtCol = bright ? 'rgba(0,0,0,.85)' : 'rgba(255,255,255,.95)';
     const acts = (hasPerm('canEditFrak')||hasPerm('canDeleteFrak')) ? `<div class="fcact">
-      ${hasPerm('canEditFrak')?`<button class="actbtn" onclick="event.stopPropagation();openFM('${f.id}')">BEARBEITEN</button>`:''}
-      ${hasPerm('canDeleteFrak')?`<button class="actbtn del" onclick="event.stopPropagation();delFrak('${f.id}')">LÖSCHEN</button>`:''}
+      ${hasPerm('canEditFrak')?`<button class="actbtn" onclick="event.stopPropagation();openFM('${esc(f.id)}')">BEARBEITEN</button>`:''}
+      ${hasPerm('canDeleteFrak')?`<button class="actbtn del" onclick="event.stopPropagation();delFrak('${esc(f.id)}')">LÖSCHEN</button>`:''}
     </div>` : '';
-    return `<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${f.id}')" role="button" tabindex="0" aria-label="${esc(f.name)} Lackierung" onkeydown="if(event.key==='Enter')openDet('${f.id}')">
+    return `<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${esc(f.id)}')" role="button" tabindex="0" aria-label="${esc(f.name)} Lackierung" onkeydown="if(event.key==='Enter')openDet('${f.id}')">
       <div class="cblock">
         <div class="cblock-main" style="background:${primHex}"></div>
         <div class="cblock-txt" style="color:${txtCol}">${esc(f.name)}</div>
@@ -2521,6 +2586,7 @@ function openFM(id){
   }
   upPv();
   document.getElementById('fmov').classList.add('open');
+  setTimeout(()=>{ const el=document.getElementById('fn'); if(el) el.focus(); }, 80);
 }
 function closeFM(){ document.getElementById('fmov').classList.remove('open'); }
 function syncSw(textId,btnId){
@@ -2561,7 +2627,9 @@ function saveFrak(){
 }
 function delFrak(id){
   const f = fraks.find(x=>x.id===id); if(!f) return;
+  document.getElementById('cftitle').textContent = 'EINTRAG LÖSCHEN';
   document.getElementById('cfname').textContent = '"'+f.name+'"';
+  document.getElementById('cfconfirm').textContent = 'LÖSCHEN';
   document.getElementById('cfconfirm').onclick = ()=>{
     fraks = fraks.filter(f=>f.id!==id);
     save(); rfrak();
@@ -2831,7 +2899,7 @@ function rmem(){
     const num = String(idx+1).padStart(2,'0');
     const rc = RC[m.rang]||'rn', rl = m.rang||'—';
     const sc2 = m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
-    const acts = isAdmin ? `<span><button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button></span>` : '';
+    const acts = isAdmin ? `<span><button class="rabtn" onclick="openMM('${esc(m.id)}')">✎</button> <button class="rabtn del" onclick="delMem('${esc(m.id)}')">✕</button></span>` : '';
     return `<tr><td class="numc">${num}</td><td class="namc">➤ ${esc(m.name)}</td><td><span class="rb ${rc}">${esc(rl)}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${esc(m.note||'')}</td><td style="text-align:right;white-space:nowrap">${acts}</td></tr>`;
   }).join('');
 }
@@ -2851,6 +2919,7 @@ function openMM(id){
     }
   }
   document.getElementById('mmov').classList.add('open');
+  setTimeout(()=>{ const el=document.getElementById('mn'); if(el) el.focus(); }, 80);
 }
 function closeMM(){ document.getElementById('mmov').classList.remove('open'); }
 function saveMem(){
@@ -2875,7 +2944,9 @@ function saveMem(){
 }
 function delMem(id){
   const m = mems.find(x=>x.id===id); if(!m) return;
+  document.getElementById('cftitle').textContent = 'MITGLIED LÖSCHEN';
   document.getElementById('cfname').textContent = '"'+m.name+'"';
+  document.getElementById('cfconfirm').textContent = 'LÖSCHEN';
   document.getElementById('cfconfirm').onclick = ()=>{
     mems = mems.filter(m=>m.id!==id);
     save(); rmem();
@@ -2985,8 +3056,14 @@ function downloadBackup(dateStr){
   toast(`Backup ${dateStr} heruntergeladen`);
 }
 
-function restoreBackup(dateStr){
-  if(!confirm(`Backup vom ${dateStr} wirklich wiederherstellen?\nAlle aktuellen Daten werden überschrieben!`)) return;
+async function restoreBackup(dateStr){
+  await new Promise(resolve=>{
+    document.getElementById('cftitle').textContent='BACKUP WIEDERHERSTELLEN';
+    document.getElementById('cfname').textContent='Backup vom '+dateStr+' (alle Daten werden überschrieben!)';
+    document.getElementById('cfconfirm').textContent='WIEDERHERSTELLEN';
+    document.getElementById('cfconfirm').onclick=()=>{ closeCF(); resolve(); };
+    document.getElementById('cfov').classList.add('open');
+  });
   const backups = getBackups();
   const b = backups.find(x=>x.date===dateStr);
   if(!b){ toast('Backup nicht gefunden','e'); return; }
@@ -3036,7 +3113,7 @@ function renderFbPanel(){
         <div style="font-family:'Share Tech Mono';font-size:12px;color:var(--white);letter-spacing:1px;line-height:2">
           Alle Daten werden nur in diesem Browser gespeichert.<br>
           Um echte Online-Synchronisierung zu aktivieren:<br><br>
-          <span style="color:var(--gold2)">1.</span> Gehe zu <a href="https://console.firebase.google.com" target="_blank" rel="noopener" style="color:var(--gold2);text-decoration:underline">console.firebase.google.com</a><br>
+          <span style="color:var(--gold2)">1.</span> Gehe zu <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer" style="color:var(--gold2);text-decoration:underline">console.firebase.google.com</a><br>
           <span style="color:var(--gold2)">2.</span> Neues kostenloses Projekt erstellen<br>
           <span style="color:var(--gold2)">3.</span> Realtime Database → Erstellen → Testmodus<br>
           <span style="color:var(--gold2)">4.</span> Projekteinstellungen → Web-App → Config kopieren<br>
@@ -3046,8 +3123,8 @@ function renderFbPanel(){
         </div>
       </div>
       <div style="display:flex;gap:12px;flex-wrap:wrap">
-        <a href="https://console.firebase.google.com" target="_blank" rel="noopener" class="abtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">🔥 FIREBASE CONSOLE ÖFFNEN</a>
-        <a href="https://firebase.google.com/docs/database/web/start" target="_blank" rel="noopener" class="fbtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">📖 DOKUMENTATION</a>
+        <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer" class="abtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">🔥 FIREBASE CONSOLE ÖFFNEN</a>
+        <a href="https://firebase.google.com/docs/database/web/start" target="_blank" rel="noopener noreferrer" class="fbtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">📖 DOKUMENTATION</a>
       </div>`;
     return;
   }
@@ -3157,6 +3234,21 @@ window._curIsGoogleOwner = false;
 window._curGooglePerms   = null;
 window._viaGoogle        = false;
 window._pendingGoogleUser = null;
+
+/* ── FIREBASE CONFIG ─────────────────────────────────────────────────────
+   HIER die eigene Firebase-Konfiguration eintragen.
+   Werte findest du in der Firebase Console:
+   console.firebase.google.com → Projekteinstellungen → Deine Apps → SDK-Konfiguration
+   ────────────────────────────────────────────────────────────────────── */
+const FB_CONFIG = {
+  apiKey:            "AIzaSyBDBXVpKSLCQWasScX9wvS7jZoIBNKvUvA",
+  authDomain:        "mnc-hub-rr.firebaseapp.com",
+  databaseURL:       "https://mnc-hub-rr-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "mnc-hub-rr",
+  storageBucket:     "mnc-hub-rr.firebasestorage.app",
+  messagingSenderId: "134160037882",
+  appId:             "1:134160037882:web:5940264c467c59be27d643"
+};
 
 // Firebase SDK laden
 (function(){
@@ -3377,7 +3469,13 @@ async function glSetPerm(key,permId,val){
 }
 
 async function glRemove(key,name){
-  if(!confirm(`"${name}" entfernen?\nDieser Nutzer bekommt dann wieder Gast-Rolle.`)) return;
+  await new Promise(resolve=>{
+    document.getElementById('cftitle').textContent='KONTO ENTFERNEN';
+    document.getElementById('cfname').textContent='"'+name+'" aus Google-Konten';
+    document.getElementById('cfconfirm').textContent='ENTFERNEN';
+    document.getElementById('cfconfirm').onclick=()=>{ closeCF(); resolve(); };
+    document.getElementById('cfov').classList.add('open');
+  });
   try{
     const {ref,set}=window._mncFB;
     await set(ref(window._mncDB,`mnc/googleUsers/${key}`),null);
