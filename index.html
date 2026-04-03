@@ -1321,7 +1321,7 @@ function esc(str){
 }
 
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
-const DEFAULT_PW = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; // Einmal-PW (bereits gehasht)
+const DEFAULT_PW = '32036d74fe7d857c09f9f52c15db6f3193914a531c7144d52b44d18f62e25371'; // Standard-Passwort: mnc2026 // Einmal-PW (bereits gehasht)
 function getRD(){
   try{
     const v2 = localStorage.getItem(RK);
@@ -1510,33 +1510,35 @@ async function doLg(){
   if(!u || !p){ err.textContent = 'Bitte alle Felder ausfüllen.'; return; }
   if(u.length > 40 || p.length > 128){ err.textContent = 'Eingabe zu lang.'; return; }
 
-  // Wenn Firebase online: immer frisch aus Firebase laden (für mehrere Nutzer von verschiedenen IPs)
-  let d = getRD();
+  // Immer frisch aus Firebase laden wenn online — so können alle von überall einloggen
+  let d;
   if(_fbOnline && window._mncDB){
     err.textContent = '↻ Verbinde…';
     try {
       const fbData = await fbRead(FB_PATH.roles);
       if(fbData && fbData.op){
-        saveRD(fbData);
+        // Nur lokal cachen, NICHT saveRD (kein Firebase-Echo)
+        localStorage.setItem(RK, JSON.stringify(fbData));
         d = fbData;
+      } else {
+        d = getRD();
       }
-    } catch(e){ /* Fallback auf lokal */ }
+    } catch(e){ d = getRD(); }
     err.textContent = '';
+  } else {
+    d = getRD();
   }
 
   const ph = await sha256(p);
-  // Check owner
   let authed = false;
   if(u === 'owner'){
     const storedPw = isHash(d.op) ? d.op : await sha256(d.op);
-    if(!isHash(d.op)){ d.op = storedPw; saveRD(d); }
     authed = (ph === storedPw);
     if(authed){ applyRole('owner','Owner'); startSession('owner','Owner'); }
   } else {
     const adm = (d.adm||[]).find(a => a.n.toLowerCase() === u);
     if(adm){
       const storedPw = isHash(adm.p) ? adm.p : await sha256(adm.p);
-      if(!isHash(adm.p)){ adm.p = storedPw; saveRD(d); }
       authed = (ph === storedPw);
       if(authed){ applyRole('admin', adm.n); startSession('admin', adm.n); }
     }
@@ -1848,6 +1850,8 @@ async function addAdmin(){
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
   saveRD(d);
+  // Sofort zu Firebase pushen
+  if(_fbOnline){ try{ await fbWrite(FB_PATH.roles, d); }catch(e){} }
   document.getElementById('apn').value='';
   document.getElementById('app').value='';
   logAction('SECURITY',`Admin "${esc(n)}" erstellt`);
@@ -1869,6 +1873,8 @@ async function changeOwnerPw(){
   if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
   const ph=await sha256(p);
   const d=getRD(); d.op=ph; saveRD(d);
+  // Sofort zu Firebase pushen
+  if(_fbOnline){ try{ await fbWrite(FB_PATH.roles, d); }catch(e){} }
   document.getElementById('opw').value='';
   logAction('SECURITY','Owner-Passwort geändert');
   toast('Owner-Passwort geändert ✓');
@@ -2270,12 +2276,12 @@ function init(){
   // Sicherstellen dass Rollen-Datensatz existiert (lokaler Fallback)
   const _existingRD = localStorage.getItem(RK);
   if(!_existingRD){
-    localStorage.setItem(RK, JSON.stringify({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]}));
+    localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:[]}));
   } else {
     try{
       const _rd = JSON.parse(_existingRD);
-      if(!_rd.op){ _rd.op = '0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec'; localStorage.setItem(RK, JSON.stringify(_rd)); }
-    }catch{ localStorage.setItem(RK, JSON.stringify({op:'0a0759af63d3dd96cee7b08c6c54a4f0ce661f24384255da2b29c4fbc1605aec', adm:[]})); }
+      if(!_rd.op){ _rd.op = DEFAULT_PW; localStorage.setItem(RK, JSON.stringify(_rd)); }
+    }catch{ localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:[]})); }
   }
 
   // Lokale Daten sofort anzeigen (optimistic UI)
