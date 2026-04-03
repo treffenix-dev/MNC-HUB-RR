@@ -7,7 +7,7 @@
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline'; connect-src 'none'; img-src 'self' data:; frame-src 'none'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -50,6 +50,16 @@ body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;f
 .ubrole.ro{border-color:var(--gold);color:var(--gold2);}
 .logoutbtn{padding:7px 13px;background:none;border:1px solid rgba(224,80,64,.4);color:var(--red);font-family:'Rajdhani';font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .15s;}
 .logoutbtn:hover{background:var(--red);color:#fff;border-color:var(--red);}
+/* ── GOOGLE LOGIN ── */
+.google-btn{width:100%;padding:12px 20px;background:#fff;border:1px solid #d0d0d0;color:#333;font-family:'Rajdhani';font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .18s;margin-bottom:4px;}
+.google-btn:hover{background:#f5f5f5;border-color:#aaa;}
+.google-btn:disabled{opacity:.5;cursor:not-allowed;}
+.lg-divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:var(--g3);font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;}
+.lg-divider::before,.lg-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+/* ── ROLE BADGES ── */
+.role-google-owner{color:var(--gold2);font-family:'Share Tech Mono';font-size:9px;padding:2px 6px;border:1px solid var(--gold);letter-spacing:1px;}
+.role-google-admin{color:#88bbee;font-family:'Share Tech Mono';font-size:9px;padding:2px 6px;border:1px solid #4488cc;letter-spacing:1px;}
+.role-google-guest{color:var(--g3);font-family:'Share Tech Mono';font-size:9px;padding:2px 6px;border:1px solid var(--border);letter-spacing:1px;}
 
 /* ── HOMEPAGE ────────────────────────────────────────────────────────── */
 .homepage{display:none;padding:48px 36px;max-width:1200px;margin:0 auto;}
@@ -437,6 +447,58 @@ tbody tr:hover{background:var(--s2);}
   .fful{grid-column:1;}
 }
 </style>
+
+<!-- ── FIREBASE SDK (modular, CDN) ── -->
+<script type="module">
+/* ══════════════════════════════════════════════════════════════════════
+   FIREBASE CONFIG — MNC HUB
+   Anleitung: https://console.firebase.google.com
+   1. Neues Projekt erstellen (kostenlos)
+   2. Realtime Database aktivieren (Testmodus)
+   3. Deine Config unten eintragen
+   ══════════════════════════════════════════════════════════════════════ */
+import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, get, onValue, push, remove, update }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+// ── DEINE FIREBASE CONFIG HIER EINTRAGEN ──────────────────────────────
+// Gehe zu: console.firebase.google.com → Projekteinstellungen → Deine Apps → Web
+// Dann copy-paste deine firebaseConfig:
+const FB_CONFIG = {
+  apiKey:            "AIzaSyBDBXVpKSLCQWasScX9wvS7jZoIBNKvUvA",
+  authDomain:        "mnc-hub-rr.firebaseapp.com",
+  databaseURL:       "https://mnc-hub-rr-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "mnc-hub-rr",
+  storageBucket:     "mnc-hub-rr.firebasestorage.app",
+  messagingSenderId: "134160037882",
+  appId:             "1:134160037882:web:5940264c467c59be27d643"
+};
+// ─────────────────────────────────────────────────────────────────────
+
+// Prüfen ob Config eingetragen wurde
+const FB_CONFIGURED = !FB_CONFIG.apiKey.includes('DEIN_');
+
+let app = null, db = null;
+
+if(FB_CONFIGURED){
+  try{
+    app = initializeApp(FB_CONFIG);
+    db  = getDatabase(app);
+    window._mncDB = db;
+    window._mncFB = { ref, set, get, onValue, push, remove, update };
+    console.info('[MNC FIREBASE] ✓ Verbunden');
+    window._fbReady = true;
+    window.dispatchEvent(new CustomEvent('fbReady'));
+  }catch(e){
+    console.error('[MNC FIREBASE] ✗ Verbindung fehlgeschlagen:', e);
+    window._fbReady = false;
+    window.dispatchEvent(new CustomEvent('fbError', {detail: e.message}));
+  }
+} else {
+  console.warn('[MNC FIREBASE] ⚠ Nicht konfiguriert — lokaler Modus aktiv');
+  window._fbReady = false;
+}
+</script>
 </head>
 <body>
 
@@ -455,8 +517,13 @@ tbody tr:hover{background:var(--s2);}
       <button class="xbtn" onclick="closeLg()" aria-label="Schließen">✕</button>
     </div>
     <div class="lgbd">
+      <button class="google-btn" id="googleLoginBtn" onclick="doGoogleLg()">
+        <svg width="18" height="18" viewBox="0 0 48 48" style="flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        MIT GOOGLE ANMELDEN
+      </button>
+      <div class="lg-divider"><span>Owner / Admin Login</span></div>
       <label class="lglbl" for="lgu">Benutzername</label>
-      <input class="fi" id="lgu" type="text" placeholder="z.B. owner" autocomplete="username" spellcheck="false">
+      <input class="fi" id="lgu" type="text" placeholder="owner" autocomplete="username" spellcheck="false">
       <label class="lglbl" for="lgp">Passwort</label>
       <input class="fi" id="lgp" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLg()">
       <div class="lgerr" id="lgerr" role="alert" aria-live="polite"></div>
@@ -472,7 +539,7 @@ tbody tr:hover{background:var(--s2);}
 <div class="apov" id="apov" role="dialog" aria-modal="true">
   <div class="apmod">
     <div class="aphd">
-      <div class="aptit">⚙ ADMIN VERWALTUNG</div>
+      <div class="aptit">⚙ BENUTZER VERWALTUNG</div>
       <button class="xbtn" onclick="closeAP()" aria-label="Schließen">✕</button>
     </div>
     <div class="apbd">
@@ -506,6 +573,15 @@ tbody tr:hover{background:var(--s2);}
         </div>
       </div>
 
+      <!-- 2. Owner Berechtigungen (nur sichtbar wenn Google-Owner eingeloggt) -->
+      <div id="owner-perm-wrap" style="display:none;padding:14px;border-top:1px solid var(--border);background:var(--s1)">
+        <div class="apsh" style="margin-bottom:10px;color:var(--gold2)">Berechtigungen des 2. Owners (owner/Passwort)</div>
+        <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--g3);margin-bottom:10px">
+          Schalte frei was der lokale Owner-Account darf. Standardmäßig alles gesperrt.
+        </div>
+        <div class="perm-grid" id="owner-perm-boxes"></div>
+      </div>
+
       <!-- Admin Konten Liste -->
       <div class="apsh" style="margin-top:20px">Admin-Konten <span id="ap-admin-count" style="color:var(--white)"></span></div>
       <div id="adminlist"></div>
@@ -518,6 +594,26 @@ tbody tr:hover{background:var(--s2);}
         <button class="abtn" onclick="addAdmin()" style="padding:13px 14px">+ ADD</button>
       </div>
       <div class="kick-info" id="ap-kick-info">⚠ Gelöschte/gesperrte Konten werden beim nächsten Tick (≤5s) automatisch ausgeloggt.</div>
+
+      <!-- ── GOOGLE NUTZER VERWALTUNG ── -->
+      <div style="border-top:2px solid var(--border2);margin-top:24px;padding-top:20px">
+        <div class="apsh" style="margin-bottom:4px">Google-Konten verwalten</div>
+        <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--g3);margin-bottom:14px;line-height:1.7">
+          Google-Nutzer ohne Eintrag = automatisch Gast-Rolle.<br>
+          Hier kannst du Google-Konten als Admin oder Owner eintragen und Rechte vergeben.
+        </div>
+        <div class="adinl" style="margin-bottom:10px;flex-wrap:wrap">
+          <input class="fi" id="gl-email" type="email" placeholder="google@gmail.com" style="flex:3;min-width:180px" autocomplete="off" spellcheck="false">
+          <input class="fi" id="gl-name"  type="text"  placeholder="Anzeigename"      style="flex:2;min-width:120px" autocomplete="off">
+          <select class="fsel" id="gl-role" style="padding:13px 10px;flex:1.2;min-width:90px">
+            <option value="admin">Admin</option>
+            <option value="owner">Owner</option>
+          </select>
+          <button class="abtn" onclick="glAdd()" style="padding:13px 14px;flex-shrink:0">+ ADD</button>
+        </div>
+        <div id="gl-list"><div style="color:var(--g3);font-family:'Share Tech Mono';font-size:12px;padding:8px 0;letter-spacing:1px">Wird geladen…</div></div>
+        <button class="fbtn" onclick="glLoad()" style="margin-top:8px;padding:7px 14px;font-size:12px">↺ AKTUALISIEREN</button>
+      </div>
     </div>
   </div>
 </div>
@@ -540,13 +636,16 @@ tbody tr:hover{background:var(--s2);}
     <div class="schip">Fraktionen <b id="hcf">—</b></div>
     <div class="schip">Mitglieder <b id="hcm">—</b></div>
   </div>
+  <div class="fb-status" id="fb-status-badge" title="Firebase Sync-Status">
+    <div class="fb-dot local" id="fb-dot"></div>
+    <span class="fb-label" id="fb-label">LOKAL</span>
+  </div>
   <button class="lgbtn" id="lgBtn" onclick="openLg()" aria-label="Einloggen">🔒 LOGIN</button>
   <div class="ubadge" id="ubadge" aria-label="Benutzer-Status">
     <div>
       <div class="ubname" id="ubname">—</div>
       <span class="ubrole rv" id="ubrole">GAST</span>
     </div>
-    <button class="abtn own-only" onclick="openAP()" style="padding:8px 14px;font-size:12px">⚙ ADMINS</button>
     <button class="logoutbtn" onclick="doLogout()">✕ Logout</button>
   </div>
 </header>
@@ -639,7 +738,10 @@ tbody tr:hover{background:var(--s2);}
 <!-- CONTROL PANEL -->
 <div class="page" id="page-ctrl">
   <button class="back-home" onclick="goHome()">Startseite</button>
-  <div class="stitle"><div><h2>Control Panel</h2><small>Echtzeit-Überwachung · Sicherheit · Benutzerverwaltung</small></div></div>
+  <div class="stitle" style="justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div><h2>Control Panel</h2><small>Echtzeit-Überwachung · Sicherheit · Benutzerverwaltung</small></div>
+    <button class="abtn own-only" onclick="openAP()" style="padding:12px 24px;font-size:15px;letter-spacing:2px;align-self:center">⚙ BENUTZER VERWALTEN</button>
+  </div>
   <div class="cpgrid">
     <div class="cpcard">
       <div class="cpcard-title">◉ Aktive Session</div>
@@ -706,6 +808,16 @@ tbody tr:hover{background:var(--s2);}
       <button class="fbtn" onclick="renderBackupPanel()">↺ AKTUALISIEREN</button>
     </div>
     <div id="backup-list"></div>
+  </div>
+
+  <!-- FIREBASE STATUS PANEL -->
+  <div style="margin-top:28px;display:none" id="fb-panel-wrap">
+    <div class="stitle" style="margin-bottom:18px">
+      <div><h2>🔥 Firebase Sync</h2><small>Echtzeit-Cloud-Synchronisierung · GitHub Pages kompatibel</small></div>
+    </div>
+    <div id="fb-panel-content">
+      <div style="color:var(--white);font-family:'Share Tech Mono';font-size:12px;padding:12px 0;letter-spacing:1px">Wird geladen…</div>
+    </div>
   </div>
 </div>
 
@@ -932,12 +1044,13 @@ Sonstiges:'></textarea>
 </div>
 
 <div class="tc" id="tc" aria-live="polite"></div>
+<div class="sync-indicator" id="sync-indicator"><span class="spin">↻</span> <span id="sync-msg">Synchronisiere…</span></div>
 
 <script>
 'use strict';
 /* ══════════════════════════════════════════════════════════════════════
-   MNC HUB — v3.0 GOLD EDITION
-   Keine externen Scripts · SHA-256 Auth · CSP · Vorlage-Import
+   MNC HUB — v4.0 ONLINE EDITION
+   Firebase Sync · SHA-256 Auth · CSP · Realtime · GitHub Pages
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── CONSTANTS ──────────────────────────────────────────────────────── */
@@ -949,6 +1062,244 @@ const HASH_SALT = 'MNC_SECURE_HUB_2026_v3';
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
 let curRole = 'viewer';
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIREBASE SYNC ENGINE — v1.0
+   Echtzeit-Sync für Fraktionen, Mitglieder, Rollen & Logs.
+   Fällt automatisch auf localStorage-Modus zurück wenn Firebase nicht
+   konfiguriert oder offline ist.
+   ══════════════════════════════════════════════════════════════════════ */
+
+let _fbOnline = false;
+let _fbListeners = [];   // zum Cleanup
+let _localMutex = false; // verhindert Echo-Updates
+
+// Firebase Paths
+const FB_PATH = {
+  fraks:   'mnc/fraks',
+  mems:    'mnc/mems',
+  roles:   'mnc/roles',
+  log:     'mnc/log',
+  kick:    'mnc/kick',
+  version: 'mnc/version',
+};
+
+function fbSetStatus(state, text){
+  const dot = document.getElementById('fb-dot');
+  const lbl = document.getElementById('fb-label');
+  if(!dot||!lbl) return;
+  dot.className = 'fb-dot ' + state;
+  lbl.textContent = text;
+}
+
+function showSyncIndicator(msg){
+  const el = document.getElementById('sync-indicator');
+  const msgEl = document.getElementById('sync-msg');
+  if(!el) return;
+  if(msgEl) msgEl.textContent = msg||'Synchronisiere…';
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+/* ── FIREBASE WRITE ─────────────────────────────────────────────── */
+async function fbWrite(path, data){
+  if(!_fbOnline || !window._mncDB) return false;
+  try{
+    const { ref, set } = window._mncFB;
+    await set(ref(window._mncDB, path), data);
+    return true;
+  }catch(e){
+    console.warn('[FB] Write failed:', e.message);
+    return false;
+  }
+}
+
+/* ── FIREBASE READ (einmalig) ───────────────────────────────────── */
+async function fbRead(path){
+  if(!_fbOnline || !window._mncDB) return null;
+  try{
+    const { ref, get } = window._mncFB;
+    const snap = await get(ref(window._mncDB, path));
+    return snap.exists() ? snap.val() : null;
+  }catch(e){
+    console.warn('[FB] Read failed:', e.message);
+    return null;
+  }
+}
+
+/* ── FIREBASE LISTEN (Realtime) ─────────────────────────────────── */
+function fbListen(path, cb){
+  if(!_fbOnline || !window._mncDB) return;
+  const { ref, onValue } = window._mncFB;
+  const r = ref(window._mncDB, path);
+  const unsub = onValue(r, snap=>{
+    if(_localMutex) return;
+    cb(snap.exists() ? snap.val() : null);
+  }, err=>{ console.warn('[FB] Listen error:', err.message); });
+  _fbListeners.push(unsub);
+}
+
+/* ── DATEN NACH FIREBASE HOCHLADEN ──────────────────────────────── */
+async function fbPushAll(){
+  if(!_fbOnline) return;
+  _localMutex = true;
+  showSyncIndicator('Lade Daten hoch…');
+  await fbWrite(FB_PATH.fraks, fraks);
+  await fbWrite(FB_PATH.mems,  mems);
+  await fbWrite(FB_PATH.roles, getRD());
+  _localMutex = false;
+  showSyncIndicator('✓ Synchronisiert');
+}
+
+/* ── DATEN AUS FIREBASE LADEN ───────────────────────────────────── */
+async function fbPullAll(){
+  if(!_fbOnline) return;
+  showSyncIndicator('Lade Daten…');
+  const [fbFraks, fbMems, fbRoles] = await Promise.all([
+    fbRead(FB_PATH.fraks),
+    fbRead(FB_PATH.mems),
+    fbRead(FB_PATH.roles),
+  ]);
+  if(fbFraks && Array.isArray(fbFraks)){
+    fraks = fbFraks.map(f=>{
+      if(f.unterboden===undefined) f.unterboden='';
+      if(f.reifenqualm===undefined) f.reifenqualm='';
+      return f;
+    });
+    localStorage.setItem(FK, JSON.stringify(fraks));
+  }
+  if(fbMems && Array.isArray(fbMems)){
+    mems = fbMems;
+    localStorage.setItem(MK, JSON.stringify(mems));
+  }
+  if(fbRoles && fbRoles.op){
+    saveRD(fbRoles);
+  }
+  rfrak(); rmem(); hs(); updateHomeStats();
+  showSyncIndicator('✓ Aktuell');
+}
+
+/* ── REALTIME LISTENERS EINRICHTEN ─────────────────────────────── */
+function fbSetupListeners(){
+  if(!_fbOnline) return;
+
+  // Fraktionen live
+  fbListen(FB_PATH.fraks, data=>{
+    if(!data || !Array.isArray(data)) return;
+    fraks = data.map(f=>{
+      if(f.unterboden===undefined) f.unterboden='';
+      if(f.reifenqualm===undefined) f.reifenqualm='';
+      return f;
+    });
+    localStorage.setItem(FK, JSON.stringify(fraks));
+    rfrak(); hs(); updateHomeStats();
+    showSyncIndicator('↻ Fraktionen aktualisiert');
+  });
+
+  // Mitglieder live
+  fbListen(FB_PATH.mems, data=>{
+    if(!data || !Array.isArray(data)) return;
+    mems = data;
+    localStorage.setItem(MK, JSON.stringify(mems));
+    rmem(); hs(); updateHomeStats();
+    showSyncIndicator('↻ Mitglieder aktualisiert');
+  });
+
+  // Rollen/Passwörter live (nur für Kick-Sync relevant)
+  fbListen(FB_PATH.roles, data=>{
+    if(!data || !data.op) return;
+    saveRD(data);
+  });
+
+  // Kick-Signal live
+  fbListen(FB_PATH.kick, sig=>{
+    if(!sig) return;
+    if(curRole==='viewer') return;
+    const s = getSession();
+    if(!s.user) return;
+    if(sig.target===s.user && (Date.now()-sig.ts)<10000 && sig.reason!=='__timeout_update__'){
+      logAction('FORCE-LOGOUT',`Ausgeloggt via Cloud: ${sig.reason}`);
+      doLogout();
+      toast(`⚠ ${sig.reason}`,'e');
+    }
+  });
+}
+
+/* ── FIREBASE-OVERRIDE FÜR SAVE() ──────────────────────────────── */
+// Wird nach init() aufgerufen um save() zu überschreiben
+function fbHookSave(){
+  const _origSave = save;
+  window.save = function(){
+    _origSave();
+    if(_fbOnline){
+      _localMutex = true;
+      Promise.all([
+        fbWrite(FB_PATH.fraks, fraks),
+        fbWrite(FB_PATH.mems, mems),
+      ]).then(()=>{
+        _localMutex = false;
+        showSyncIndicator('✓ Cloud gespeichert');
+      }).catch(()=>{ _localMutex = false; });
+    }
+  };
+}
+
+/* ── FIREBASE-OVERRIDE FÜR ROLLEN ──────────────────────────────── */
+function fbHookRoles(){
+  const _origSaveRD = saveRD;
+  window.saveRD = function(d){
+    _origSaveRD(d);
+    if(_fbOnline){
+      fbWrite(FB_PATH.roles, d).catch(()=>{});
+    }
+  };
+}
+
+/* ── FIREBASE KICK OVERRIDE ─────────────────────────────────────── */
+function fbHookKick(){
+  const _origBroadcast = broadcastKick;
+  window.broadcastKick = function(name, reason){
+    _origBroadcast(name, reason); // localStorage-Kick beibehalten
+    if(_fbOnline){
+      fbWrite(FB_PATH.kick, {target:name, reason, ts:Date.now()})
+        .catch(()=>{});
+    }
+  };
+}
+
+/* ── FIREBASE INIT ──────────────────────────────────────────────── */
+function initFirebase(){
+  if(!window._fbReady){
+    fbSetStatus('local', 'LOKAL');
+    return;
+  }
+  _fbOnline = true;
+  fbSetStatus('sync', 'VERBINDET…');
+
+  // Daten laden und Listener starten
+  fbPullAll().then(()=>{
+    fbSetupListeners();
+    fbHookSave();
+    fbHookRoles();
+    fbHookKick();
+    fbSetStatus('online', 'ONLINE ✓');
+    toast('🔥 Firebase verbunden · Echtzeit-Sync aktiv');
+  }).catch(e=>{
+    _fbOnline = false;
+    fbSetStatus('offline', 'OFFLINE');
+    console.error('[FB] Init failed:', e);
+    toast('⚠ Firebase Fehler — lokaler Modus','w');
+  });
+}
+
+/* ── FIREBASE SETUP PANEL ───────────────────────────────────────── */
+function fbGetConfigStatus(){
+  return window._fbReady ? 'configured' : (window._fbReady === false && !window._mncDB ? 'unconfigured' : 'error');
+}
+
+
 let loginAttempts = 0;
 let sessionTimer = null;
 let sessionStart = null;
@@ -973,13 +1324,21 @@ function esc(str){
 }
 
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
+const DEFAULT_PW = 'MNC2025!';
 function getRD(){
   try{
     const v2 = localStorage.getItem(RK);
     if(v2) return JSON.parse(v2);
-    const v1 = JSON.parse(localStorage.getItem('mnc_roles') || '{"op":"MNC2025!","adm":[]}');
-    return v1;
-  }catch{ return {op:'MNC2025!', adm:[]}; }
+    // Migration v1->v2 oder Erststart: sofort persistieren
+    const raw = localStorage.getItem('mnc_roles');
+    const d = raw ? JSON.parse(raw) : {op: DEFAULT_PW, adm:[]};
+    saveRD(d);
+    return d;
+  }catch{
+    const fresh = {op: DEFAULT_PW, adm:[]};
+    try{ saveRD(fresh); }catch{}
+    return fresh;
+  }
 }
 function saveRD(d){ localStorage.setItem(RK, JSON.stringify(d)); }
 
@@ -1118,6 +1477,9 @@ function applyRole(role, user){
   rc.className = 'ubrole ' + (isOwner ? 'ro' : isAdmin ? 'ra' : 'rv');
   document.querySelectorAll('.adm-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
   document.querySelectorAll('.own-only').forEach(el => el.style.display = isOwner ? '' : 'none');
+  // Firebase Sync Panel: NUR für Google-Owner (treffe69nix@gmail.com)
+  const fbPanel = document.getElementById('fb-panel-wrap');
+  if(fbPanel) fbPanel.style.display = window._curIsGoogleOwner ? '' : 'none';
   // Perm-basierte Buttons
   const addFrakBtn = document.getElementById('btn-add-frak');
   if(addFrakBtn) addFrakBtn.style.display = hasPerm('canAddFrak') ? '' : 'none';
@@ -1217,9 +1579,22 @@ function getAdminPerms(name){
   return {...DEFAULT_PERMS,...(adm&&adm.perms||{})};
 }
 function hasPerm(perm){
-  if(curRole==='owner') return true;
-  if(curRole!=='admin') return false;
-  return getAdminPerms(getSession().user||'')[perm]===true;
+  if(curRole==='owner'){
+    // Google-Owner hat immer alle Rechte
+    if(window._curIsGoogleOwner) return true;
+    // Lokaler "owner" (2. Owner): prüft seine freigeschalteten Rechte
+    const d = getRD();
+    const ownerPerms = d.ownerPerms || {};
+    // Wenn ownerPerms leer → noch gar nichts freigeschaltet (neuer 2. Owner)
+    return ownerPerms[perm] === true;
+  }
+  if(curRole==='admin'){
+    // Google-Admin: Rechte aus Firebase-Eintrag
+    if(window._curGooglePerms) return window._curGooglePerms[perm] === true;
+    // Lokaler Admin: Rechte aus localStorage
+    return getAdminPerms(getSession().user||'')[perm]===true;
+  }
+  return false;
 }
 
 function broadcastKick(name, reason){
@@ -1269,21 +1644,44 @@ function renderAdminPanel(){
   const d = getRD();
   const s = getSession();
   const ownerOnline = s.role==='owner';
+  const isGoogleOwner = !!window._curIsGoogleOwner;
+
   document.getElementById('ap-owner-dot').className='acard-dot '+(ownerOnline?'online':'offline');
   const os=document.getElementById('ap-owner-status');
   os.textContent=ownerOnline?'ONLINE':'OFFLINE';
   os.style.borderColor=ownerOnline?'var(--green)':'var(--border2)';
   os.style.color=ownerOnline?'var(--green)':'var(--white)';
+
+  // Zeige Hinweis ob Google-Owner oder lokaler Owner gerade aktiv
+  const ownerMeta = document.querySelector('#apov .acard-meta');
+  if(ownerMeta) ownerMeta.textContent = isGoogleOwner
+    ? 'Google-Owner · Haupt-Owner · Alle Rechte'
+    : 'Lokaler Owner (2.) · Rechte vom Haupt-Owner gesteuert · SHA-256';
+
   const ownerTO=d.ownerTimeout||30;
   document.getElementById('owner-timeout-slider').value=ownerTO;
   document.getElementById('owner-timeout-val').textContent=ownerTO+' Min';
+
+  // Nur Google-Owner sieht 2. Owner Berechtigungs-Panel
+  const ownerPermWrap = document.getElementById('owner-perm-wrap');
+  if(ownerPermWrap) ownerPermWrap.style.display = isGoogleOwner ? '' : 'none';
+  if(isGoogleOwner){
+    const ownerPerms = d.ownerPerms || {};
+    const boxes = PERM_DEFS.map(p=>`
+      <label class="perm-item">
+        <input type="checkbox" ${ownerPerms[p.id]?'checked':''} onchange="toggleOwnerPerm('${p.id}',this.checked)">
+        <div><div class="perm-item-lbl">${p.label}</div><div class="perm-item-desc">${p.desc}</div></div>
+      </label>`).join('');
+    const el = document.getElementById('owner-perm-boxes');
+    if(el) el.innerHTML = boxes;
+  }
+
   const admins=d.adm||[];
   document.getElementById('ap-admin-count').textContent=`(${admins.length})`;
   if(admins.length>0) document.getElementById('ap-kick-info').classList.add('show');
   if(!admins.length){
     document.getElementById('adminlist').innerHTML='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Keine Admins.</div>';
-    return;
-  }
+  } else {
   const log=getLog();
   document.getElementById('adminlist').innerHTML=admins.map((a,idx)=>{
     const isOnline=s.role==='admin'&&s.user===a.n;
@@ -1338,6 +1736,10 @@ function renderAdminPanel(){
       </div>
     </div>`;
   }).join('');
+  } // end else (admins.length)
+
+  // Google-Nutzer Liste laden
+  glLoad();
 }
 
 function toggleAcard(name){
@@ -1353,6 +1755,16 @@ function saveOwnerTimeout(){
   logAction('SECURITY',`Standard-Timeout auf ${v}min gesetzt`);
   toast(`Timeout: ${v} Min gespeichert`);
   resetSessionTimer();
+}
+// 2. Owner Berechtigungen (nur Google-Owner kann diese setzen)
+function toggleOwnerPerm(permId, val){
+  if(!window._curIsGoogleOwner){ toast('Nur Google-Owner kann das ändern','e'); return; }
+  const d=getRD();
+  d.ownerPerms = d.ownerPerms || {};
+  d.ownerPerms[permId] = val;
+  saveRD(d);
+  logAction('SECURITY',`2.Owner Recht "${permId}" ${val?'AN':'AUS'}`);
+  applyRole(curRole, document.getElementById('ubname').textContent); // Buttons neu rendern
 }
 function saveAdminTimeout(name){
   const v=parseInt(document.getElementById('to-'+name).value);
@@ -1516,6 +1928,8 @@ function renderCtrl(){
   document.getElementById('log-footer').textContent = `${filtered.length} Einträge${filtered.length>max?' (zeige '+max+')':''} · Gesamt: ${log.length}`;
   // Backup-Panel aktualisieren
   renderBackupPanel();
+  // Firebase-Status-Panel aktualisieren
+  renderFbPanel();
 }
 
 setInterval(()=>{
@@ -2531,6 +2945,57 @@ function renderBackupPanel(){
    SICHERHEITS-AUDIT
    Prüft auf bekannte Angriffsmuster im localStorage und im DOM.
    ══════════════════════════════════════════════════════════════════════ */
+function renderFbPanel(){
+  const el = document.getElementById('fb-panel-content');
+  if(!el) return;
+  const configured = window._fbReady !== undefined;
+  const online = _fbOnline;
+
+  if(!configured || window._fbReady === false){
+    el.innerHTML = `
+      <div style="background:var(--s2);border:1px solid var(--border2);padding:22px 26px;margin-bottom:16px">
+        <div style="font-family:'Bebas Neue';font-size:22px;color:var(--gold2);letter-spacing:3px;margin-bottom:12px">⚠ NICHT KONFIGURIERT — LOKALER MODUS</div>
+        <div style="font-family:'Share Tech Mono';font-size:12px;color:var(--white);letter-spacing:1px;line-height:2">
+          Alle Daten werden nur in diesem Browser gespeichert.<br>
+          Um echte Online-Synchronisierung zu aktivieren:<br><br>
+          <span style="color:var(--gold2)">1.</span> Gehe zu <a href="https://console.firebase.google.com" target="_blank" rel="noopener" style="color:var(--gold2);text-decoration:underline">console.firebase.google.com</a><br>
+          <span style="color:var(--gold2)">2.</span> Neues kostenloses Projekt erstellen<br>
+          <span style="color:var(--gold2)">3.</span> Realtime Database → Erstellen → Testmodus<br>
+          <span style="color:var(--gold2)">4.</span> Projekteinstellungen → Web-App → Config kopieren<br>
+          <span style="color:var(--gold2)">5.</span> In der HTML-Datei <code style="background:var(--s3);padding:2px 6px;color:var(--gold2)">FB_CONFIG</code> ausfüllen<br>
+          <span style="color:var(--gold2)">6.</span> Datei wieder auf GitHub hochladen<br><br>
+          <span style="color:var(--green)">✓ Danach werden alle Daten automatisch für alle Besucher synchronisiert.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="https://console.firebase.google.com" target="_blank" rel="noopener" class="abtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">🔥 FIREBASE CONSOLE ÖFFNEN</a>
+        <a href="https://firebase.google.com/docs/database/web/start" target="_blank" rel="noopener" class="fbtn" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px">📖 DOKUMENTATION</a>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="cpgrid" style="margin-bottom:16px">
+      <div class="cpcard">
+        <div class="cpcard-title">🔥 Verbindung</div>
+        <div class="cpstat-row"><span class="cpstat-key">Status</span><span class="cpstat-val ${online?'ok':'err'}">${online?'ONLINE ✓':'OFFLINE ✗'}</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Projekt</span><span class="cpstat-val" style="font-size:12px">${esc(window._mncDB?.app?.options?.projectId||'—')}</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Datenbank</span><span class="cpstat-val ok" style="font-size:11px">Realtime DB</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Echtzeit-Sync</span><span class="cpstat-val ${online?'ok':'err'}">${online?'Aktiv':'Inaktiv'}</span></div>
+      </div>
+      <div class="cpcard">
+        <div class="cpcard-title">📊 Cloud-Daten</div>
+        <div class="cpstat-row"><span class="cpstat-key">Fraktionen</span><span class="cpstat-val ok">${fraks.length}</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Mitglieder</span><span class="cpstat-val ok">${mems.length}</span></div>
+        <div class="cpstat-row"><span class="cpstat-key">Letzte Sync</span><span class="cpstat-val" id="fb-last-sync" style="font-size:12px">${new Date().toLocaleTimeString('de-DE')} Uhr</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="abtn" onclick="fbPushAll();toast('☁ Alle Daten hochgeladen ✓')">☁ JETZT HOCHLADEN</button>
+      <button class="fbtn" onclick="fbPullAll();toast('↓ Daten aus Cloud geladen ✓')">↓ JETZT HERUNTERLADEN</button>
+    </div>`;
+}
+
 function runSecurityAudit(){
   const issues = [];
 
@@ -2538,9 +3003,13 @@ function runSecurityAudit(){
   const TRUSTED_DOMAINS = [
     'fonts.googleapis.com',
     'fonts.gstatic.com',
-    'cdnjs.cloudflare.com',   // Claude.ai nutzt das für HTML-Vorschau
+    'cdnjs.cloudflare.com',
     'cdn.jsdelivr.net',
     'unpkg.com',
+    'www.gstatic.com',        // Firebase SDK
+    'apis.google.com',        // Firebase Auth
+    'firebaseio.com',         // Firebase Database
+    'firebasedatabase.app',   // Firebase Database v2
   ];
   const isTrustedSrc = (src) => TRUSTED_DOMAINS.some(d => src.includes(d));
 
@@ -2600,6 +3069,262 @@ function runSecurityAudit(){
 }
 
 init();
+
+/* ══════════════════════════════════════════════════════════════════════
+   FIREBASE AUTH — MNC HUB v4.0
+   ─────────────────────────────────────────────────────────────────────
+   ROLLEN:
+   • Google-Owner  → Email in Firebase /mnc/googleUsers/{key} mit role:"owner"
+                     → Haupt-Owner, alle Rechte, steuert 2. Owner
+   • Lokaler Owner → Benutzername "owner" + Passwort (2. Owner)
+                     → Rechte vom Google-Owner einzeln freigeschaltet
+   • Google-Admin  → Email in Firebase /mnc/googleUsers/{key} mit role:"admin"
+                     → Rechte einzeln steuerbar
+   • Google-Gast   → Email NICHT eingetragen → viewer (Gast-Rolle)
+   • Gast          → kein Login → viewer
+   ══════════════════════════════════════════════════════════════════════ */
+
+const FB_CONFIG = {
+  apiKey:            "AIzaSyBDBXVpKSLCQWasScX9wvS7jZoIBNKvUvA",
+  authDomain:        "mnc-hub-rr.firebaseapp.com",
+  databaseURL:       "https://mnc-hub-rr-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "mnc-hub-rr",
+  storageBucket:     "mnc-hub-rr.firebasestorage.app",
+  messagingSenderId: "134160037882",
+  appId:             "1:134160037882:web:5940264c467c59be27d643"
+};
+
+window._curIsGoogleOwner = false;
+window._curGooglePerms   = null;
+window._viaGoogle        = false;
+
+// Firebase SDK laden
+(function(){
+  const s = document.createElement('script');
+  s.type  = 'module';
+  s.textContent = `
+    import { initializeApp }                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getDatabase, ref, set, get, onValue }        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+    import { getAuth, signInWithPopup, GoogleAuthProvider,
+             signOut, onAuthStateChanged }                 from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    const app  = initializeApp(${JSON.stringify(FB_CONFIG)});
+    const db   = getDatabase(app);
+    const auth = getAuth(app);
+    window._mncDB   = db;
+    window._mncAuth = auth;
+    window._mncFB   = { ref, set, get, onValue };
+    window._mncGA   = { signInWithPopup, GoogleAuthProvider, signOut };
+    window._fbReady = true;
+    onAuthStateChanged(auth, user => {
+      if(user) window.dispatchEvent(new CustomEvent('fbGoogleUser', {detail: user}));
+      else     window.dispatchEvent(new CustomEvent('fbGoogleOut'));
+    });
+    window.dispatchEvent(new Event('fbReady'));
+  `;
+  document.head.appendChild(s);
+})();
+
+window.addEventListener('fbReady',  ()=>{ initFirebase(); });
+window.addEventListener('fbError',  e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
+setTimeout(()=>{ if(!_fbOnline) fbSetStatus('local','LOKAL'); }, 5000);
+
+// ── GOOGLE AUTH ─────────────────────────────────────────────────────────
+window.addEventListener('fbGoogleUser', async e => {
+  await _handleGoogleUser(e.detail);
+});
+window.addEventListener('fbGoogleOut', ()=>{
+  if(window._viaGoogle){
+    window._viaGoogle        = false;
+    window._curIsGoogleOwner = false;
+    window._curGooglePerms   = null;
+    doLogout();
+  }
+});
+
+async function _handleGoogleUser(user){
+  const email = (user.email||'').toLowerCase();
+  const name  = user.displayName || email.split('@')[0];
+  const key   = email.replace(/@/g,'__at__').replace(/\./g,'_');
+
+  let role        = 'viewer';
+  let displayName = name;
+  let perms       = null;
+  let isGOwner    = false;
+
+  // Google-Nutzerliste aus Firebase lesen
+  if(_fbOnline && window._mncDB){
+    try{
+      const {ref,get} = window._mncFB;
+      const snap = await get(ref(window._mncDB,'mnc/googleUsers'));
+      if(snap.exists()){
+        const entry = snap.val()[key];
+        if(entry && !entry.banned){
+          role        = entry.role || 'viewer';
+          displayName = entry.name || name;
+          perms       = entry.perms || null;
+          isGOwner    = role === 'owner';
+        }
+      }
+    }catch(e){ console.warn('[AUTH] googleUsers read failed',e); }
+  }
+
+  window._viaGoogle        = true;
+  window._curIsGoogleOwner = isGOwner;
+  window._curGooglePerms   = role==='admin' ? {...DEFAULT_PERMS,...(perms||{})} : null;
+
+  applyRole(role, displayName);
+  startSession(role, displayName);
+  closeLg();
+  rfrak(); rmem();
+  logAction('LOGIN', `Google: ${email} → ${role}`);
+  toast(`✓ Willkommen, ${displayName}!`);
+
+  const gb = document.getElementById('googleLoginBtn');
+  if(gb) gb.disabled = false;
+}
+
+async function doGoogleLg(){
+  const err = document.getElementById('lgerr');
+  err.textContent = '';
+  if(!window._mncAuth || !window._mncGA){
+    err.textContent = 'Firebase lädt noch — kurz warten.'; return;
+  }
+  const rl = checkRateLimit();
+  if(rl.locked){ err.textContent = `Gesperrt. Noch ${rl.remaining}s.`; return; }
+  document.getElementById('googleLoginBtn').disabled = true;
+  try{
+    const p = new window._mncGA.GoogleAuthProvider();
+    p.setCustomParameters({prompt:'select_account'});
+    await window._mncGA.signInWithPopup(window._mncAuth, p);
+  }catch(e){
+    document.getElementById('googleLoginBtn').disabled = false;
+    if(e.code==='auth/popup-closed-by-user') err.textContent='Popup geschlossen.';
+    else if(e.code==='auth/popup-blocked')   err.textContent='⚠ Popup blockiert — Blocker deaktivieren.';
+    else err.textContent='Google Fehler: '+(e.code||e.message);
+  }
+}
+
+// Logout auch Google signOut
+const _origDoLogout = doLogout;
+function doLogout(){
+  _origDoLogout();
+  window._curIsGoogleOwner = false;
+  window._curGooglePerms   = null;
+  if(window._mncAuth && window._mncGA){
+    window._mncGA.signOut(window._mncAuth).catch(()=>{});
+  }
+  window._viaGoogle = false;
+}
+
+// ── GOOGLE NUTZER VERWALTUNG ────────────────────────────────────────────
+function _eKey(email){ return email.toLowerCase().replace(/@/g,'__at__').replace(/\./g,'_'); }
+
+async function glLoad(){
+  const el = document.getElementById('gl-list'); if(!el) return;
+  if(!_fbOnline||!window._mncDB){
+    el.innerHTML='<div style="color:var(--g3);font-family:\'Share Tech Mono\';font-size:12px;padding:8px 0">Firebase nicht verbunden.</div>'; return;
+  }
+  try{
+    const {ref,get}=window._mncFB;
+    const snap=await get(ref(window._mncDB,'mnc/googleUsers'));
+    const users=snap.exists()?snap.val():{};
+    const entries=Object.entries(users);
+    if(!entries.length){
+      el.innerHTML='<div style="color:var(--g3);font-family:\'Share Tech Mono\';font-size:12px;padding:8px 0">Noch keine Google-Konten eingetragen.</div>'; return;
+    }
+    el.innerHTML=entries.map(([k,u])=>{
+      const email=k.replace(/__at__/g,'@').replace(/_/g,'.');
+      const roleLabel=u.role==='owner'?'OWNER':u.role==='admin'?'ADMIN':'GAST';
+      const roleClass=u.role==='owner'?'role-google-owner':u.role==='admin'?'role-google-admin':'role-google-guest';
+      const banned=!!u.banned;
+      const perms={...DEFAULT_PERMS,...(u.perms||{})};
+      const permBoxes=PERM_DEFS.map(p=>`
+        <label class="perm-item" style="opacity:${u.role==='owner'?'.4':'1'}">
+          <input type="checkbox" ${perms[p.id]?'checked':''} ${u.role==='owner'?'disabled':''} onchange="glSetPerm('${esc(k)}','${p.id}',this.checked)">
+          <div><div class="perm-item-lbl">${p.label}</div><div class="perm-item-desc">${p.desc}</div></div>
+        </label>`).join('');
+      return `<div class="acard" id="gacard-${esc(k)}" style="${banned?'border-color:rgba(224,80,64,.4);opacity:.6':''}">
+        <div class="acard-head" onclick="toggleAcard('g${esc(k)}')">
+          <div class="acard-left">
+            <div class="acard-dot ${!banned?'online':'offline'}"></div>
+            <div>
+              <div class="acard-name">${esc(u.name||'—')}${banned?' 🔒':''} <span class="${roleClass}">${roleLabel}</span></div>
+              <div class="acard-meta">${esc(email)}</div>
+            </div>
+          </div>
+          <span style="color:var(--white);font-size:16px">▾</span>
+        </div>
+        <div class="acard-body" id="abody-g${esc(k)}">
+          <div class="apsh" style="margin-bottom:8px">Berechtigungen ${u.role==='owner'?'(Owner = alle Rechte)':''}</div>
+          <div class="perm-grid">${permBoxes}</div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="fbtn" onclick="glToggleBan('${esc(k)}',${banned})" style="padding:7px 12px;font-size:12px;${banned?'border-color:var(--green);color:var(--green)':'border-color:rgba(224,80,64,.4);color:var(--red)'}">${banned?'✓ FREIGEBEN':'🔒 SPERREN'}</button>
+            <button class="actbtn del" onclick="glRemove('${esc(k)}','${esc(u.name||email)}')" style="padding:7px 12px;font-size:12px">✕ ENTFERNEN</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    el.innerHTML=`<div style="color:var(--red);font-family:'Share Tech Mono';font-size:12px">${esc(e.message)}</div>`;
+  }
+}
+
+async function glAdd(){
+  const email=(document.getElementById('gl-email').value||'').trim().toLowerCase();
+  const name=(document.getElementById('gl-name').value||'').trim();
+  const role=document.getElementById('gl-role').value||'admin';
+  if(!email||!email.includes('@')){ toast('Gültige Email eingeben','e'); return; }
+  if(!name){ toast('Anzeigename eingeben','e'); return; }
+  if(!_fbOnline||!window._mncDB){ toast('Firebase nicht verbunden','e'); return; }
+  try{
+    const {ref,set}=window._mncFB;
+    const entry={email,name,role,perms:{...DEFAULT_PERMS},banned:false,addedAt:new Date().toISOString()};
+    if(role==='owner') entry.perms=Object.fromEntries(PERM_DEFS.map(p=>[p.id,true]));
+    await set(ref(window._mncDB,`mnc/googleUsers/${_eKey(email)}`),entry);
+    document.getElementById('gl-email').value='';
+    document.getElementById('gl-name').value='';
+    logAction('SECURITY',`Google-Konto: ${email} → ${role}`);
+    toast(`✓ ${name} (${role}) hinzugefügt`);
+    glLoad();
+  }catch(e){ toast('Fehler: '+e.message,'e'); }
+}
+
+async function glSetPerm(key,permId,val){
+  if(!_fbOnline||!window._mncDB) return;
+  try{
+    const {ref,get,set}=window._mncFB;
+    const snap=await get(ref(window._mncDB,`mnc/googleUsers/${key}`));
+    if(!snap.exists()) return;
+    const u={...snap.val()};
+    u.perms={...DEFAULT_PERMS,...(u.perms||{})};
+    u.perms[permId]=val;
+    await set(ref(window._mncDB,`mnc/googleUsers/${key}`),u);
+    logAction('SECURITY',`Google ${key}: "${permId}" ${val?'AN':'AUS'}`);
+  }catch(e){ toast('Fehler: '+e.message,'e'); }
+}
+
+async function glRemove(key,name){
+  if(!confirm(`"${name}" entfernen?\nDieser Nutzer bekommt dann wieder Gast-Rolle.`)) return;
+  try{
+    const {ref,set}=window._mncFB;
+    await set(ref(window._mncDB,`mnc/googleUsers/${key}`),null);
+    logAction('SECURITY',`Google-Konto entfernt: ${key}`);
+    toast(`${name} entfernt`,'w'); glLoad();
+  }catch(e){ toast('Fehler: '+e.message,'e'); }
+}
+
+async function glToggleBan(key,banned){
+  try{
+    const {ref,get,set}=window._mncFB;
+    const snap=await get(ref(window._mncDB,`mnc/googleUsers/${key}`));
+    if(!snap.exists()) return;
+    const u={...snap.val(),banned:!banned};
+    await set(ref(window._mncDB,`mnc/googleUsers/${key}`),u);
+    logAction('SECURITY',`Google ${key}: ${!banned?'gesperrt':'freigeschaltet'}`);
+    toast(`${u.name}: ${!banned?'gesperrt':'freigeschaltet'}`); glLoad();
+  }catch(e){ toast('Fehler: '+e.message,'e'); }
+}
+
 // Sicherheitsaudit beim Start
 setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); }, 500);
 </script>
