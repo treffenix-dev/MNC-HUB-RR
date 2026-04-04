@@ -445,8 +445,6 @@ tbody tr:hover{background:var(--s2);}
 .sync-indicator{display:none;position:fixed;bottom:20px;left:20px;z-index:9000;background:var(--s3);border:1px solid var(--border2);padding:8px 16px;font-family:'Share Tech Mono';font-size:11px;color:var(--white);letter-spacing:1px;align-items:center;gap:8px;}
 .sync-indicator.show{display:flex;}
 </style>
-
-<!-- ── FIREBASE SDK (modular, CDN) ── -->
 <script type="module">
 /* ══════════════════════════════════════════════════════════════════════
    FIREBASE CONFIG — MNC HUB
@@ -1013,682 +1011,25 @@ Sonstiges:'></textarea>
 
 <script>
 'use strict';
-/* ══════════════════════════════════════════════════════════════════════
-   MNC HUB — v4.0 ONLINE EDITION
-   Firebase Sync · SHA-256 Auth · CSP · Realtime · GitHub Pages
-   ══════════════════════════════════════════════════════════════════════ */
 
-/* ── CONSTANTS ──────────────────────────────────────────────────────── */
-const RK        = 'mnc_roles_v2';
-const LOG_KEY   = 'mnc_actlog';
-const RL_KEY    = 'mnc_ratelimit';
-const SESS_KEY  = 'mnc_session';
-const HASH_SALT = 'MNC_SECURE_HUB_2026_v3';
-const SESSION_TIMEOUT = 30 * 60 * 1000;
+/* ════════════════════════════════════════════════════════════════════════════
+   MNC HUB — Los Santos  |  Komplett neu geschrieben  |  Firebase-First
+   Kein async bei Passwörtern · Pure-JS SHA-256 · Alle Browser identisch
+   ════════════════════════════════════════════════════════════════════════════ */
 
-let curRole = 'viewer';
-
-
-/* ══════════════════════════════════════════════════════════════════════
-   FIREBASE SYNC ENGINE — v1.0
-   Echtzeit-Sync für Fraktionen, Mitglieder, Rollen & Logs.
-   Fällt automatisch auf localStorage-Modus zurück wenn Firebase nicht
-   konfiguriert oder offline ist.
-   ══════════════════════════════════════════════════════════════════════ */
-
-let _fbOnline = false;
-let _fbListeners = [];   // zum Cleanup
-let _localMutex = false; // verhindert Echo-Updates
-
-// Firebase Paths
-const FB_PATH = {
-  fraks:   'mnc/fraks',
-  mems:    'mnc/mems',
-  roles:   'mnc/roles',
-  log:     'mnc/log',
-  kick:    'mnc/kick',
-  version: 'mnc/version',
-};
-
-function fbSetStatus(state, text){
-  const dot = document.getElementById('fb-dot');
-  const lbl = document.getElementById('fb-label');
-  if(!dot||!lbl) return;
-  dot.className = 'fb-dot ' + state;
-  lbl.textContent = text;
-}
-
-function showSyncIndicator(msg){
-  const el = document.getElementById('sync-indicator');
-  const msgEl = document.getElementById('sync-msg');
-  if(!el) return;
-  if(msgEl) msgEl.textContent = msg||'Synchronisiere…';
-  el.classList.add('show');
-  clearTimeout(el._t);
-  el._t = setTimeout(()=>el.classList.remove('show'), 2200);
-}
-
-/* ── FIREBASE WRITE ─────────────────────────────────────────────── */
-async function fbWrite(path, data){
-  if(!_fbOnline || !window._mncDB) return false;
-  try{
-    const { ref, set } = window._mncFB;
-    await set(ref(window._mncDB, path), data);
-    return true;
-  }catch(e){
-    console.warn('[FB] Write failed:', e.message);
-    return false;
-  }
-}
-
-/* ── FIREBASE READ (einmalig) ───────────────────────────────────── */
-async function fbRead(path){
-  if(!_fbOnline || !window._mncDB) return null;
-  try{
-    const { ref, get } = window._mncFB;
-    const snap = await get(ref(window._mncDB, path));
-    return snap.exists() ? snap.val() : null;
-  }catch(e){
-    console.warn('[FB] Read failed:', e.message);
-    return null;
-  }
-}
-
-/* ── FIREBASE LISTEN (Realtime) ─────────────────────────────────── */
-function fbListen(path, cb){
-  if(!_fbOnline || !window._mncDB) return;
-  const { ref, onValue } = window._mncFB;
-  const r = ref(window._mncDB, path);
-  const unsub = onValue(r, snap=>{
-    if(_localMutex) return;
-    cb(snap.exists() ? snap.val() : null);
-  }, err=>{ console.warn('[FB] Listen error:', err.message); });
-  _fbListeners.push(unsub);
-}
-
-/* ── DATEN NACH FIREBASE HOCHLADEN ──────────────────────────────── */
-async function fbPushAll(){
-  if(!_fbOnline) return;
-  _localMutex = true;
-  showSyncIndicator('Lade Daten hoch…');
-  await fbWrite(FB_PATH.fraks, fraks);
-  await fbWrite(FB_PATH.mems,  mems);
-  await fbWrite(FB_PATH.roles, getRD());
-  _localMutex = false;
-  showSyncIndicator('✓ Synchronisiert');
-}
-
-/* ── DATEN AUS FIREBASE LADEN ───────────────────────────────────── */
-async function fbPullAll(){
-  if(!_fbOnline) return;
-  showSyncIndicator('Lade Daten…');
-
-  const [fbFraks, fbMems, fbRoles, fbLog] = await Promise.all([
-    fbRead(FB_PATH.fraks),
-    fbRead(FB_PATH.mems),
-    fbRead(FB_PATH.roles),
-    fbRead(FB_PATH.log),
-  ]);
-
-  // Fraktionen — Firebase ist die Wahrheit
-  if(fbFraks && Array.isArray(fbFraks)){
-    fraks = fbFraks.map(f=>{
-      if(f.unterboden===undefined) f.unterboden='';
-      if(f.reifenqualm===undefined) f.reifenqualm='';
-      return f;
-    });
-    localStorage.setItem(FK, JSON.stringify(fraks));
-  }
-  // Falls Firebase leer ist: Standarddaten hochladen (einmalig bei erstem Start)
-  else if(!fbFraks){
-    fraks = JSON.parse(JSON.stringify(PF));
-    await fbWrite(FB_PATH.fraks, fraks);
-    localStorage.setItem(FK, JSON.stringify(fraks));
-  }
-
-  // Mitglieder — Firebase ist die Wahrheit
-  if(fbMems && Array.isArray(fbMems)){
-    mems = fbMems;
-    localStorage.setItem(MK, JSON.stringify(mems));
-  } else if(!fbMems){
-    mems = JSON.parse(JSON.stringify(PM));
-    await fbWrite(FB_PATH.mems, mems);
-    localStorage.setItem(MK, JSON.stringify(mems));
-  }
-
-  // Rollen/Passwörter — Firebase ist die Wahrheit, KEIN saveRD() (vermeidet Loop)
-  if(fbRoles && fbRoles.op){
-    localStorage.setItem(RK, JSON.stringify(fbRoles));
-  } else if(!fbRoles){
-    // Erste Einrichtung: Default-Passwort zu Firebase schreiben
-    const defaultRD = {op: DEFAULT_PW, adm:[]};
-    await fbWrite(FB_PATH.roles, defaultRD);
-    localStorage.setItem(RK, JSON.stringify(defaultRD));
-  }
-
-  // Logs
-  if(fbLog && Array.isArray(fbLog)){
-    localStorage.setItem(LOG_KEY, JSON.stringify(fbLog.slice(0,500)));
-  }
-
-  rfrak(); rmem(); hs(); updateHomeStats();
-  showSyncIndicator('✓ Aktuell');
-}
-
-/* ── REALTIME LISTENERS EINRICHTEN ─────────────────────────────── */
-function fbSetupListeners(){
-  if(!_fbOnline) return;
-
-  // Fraktionen live
-  fbListen(FB_PATH.fraks, data=>{
-    if(!data || !Array.isArray(data)) return;
-    fraks = data.map(f=>{
-      if(f.unterboden===undefined) f.unterboden='';
-      if(f.reifenqualm===undefined) f.reifenqualm='';
-      return f;
-    });
-    localStorage.setItem(FK, JSON.stringify(fraks));
-    rfrak(); hs(); updateHomeStats();
-    showSyncIndicator('↻ Fraktionen aktualisiert');
-  });
-
-  // Mitglieder live
-  fbListen(FB_PATH.mems, data=>{
-    if(!data || !Array.isArray(data)) return;
-    mems = data;
-    localStorage.setItem(MK, JSON.stringify(mems));
-    rmem(); hs(); updateHomeStats();
-    showSyncIndicator('↻ Mitglieder aktualisiert');
-  });
-
-  // Rollen/Passwörter live — Firebase ist die einzige Wahrheit
-  fbListen(FB_PATH.roles, data=>{
-    if(!data || !data.op) return;
-    // Nur Cache aktualisieren, KEIN saveRD() (würde Loop verursachen)
-    localStorage.setItem(RK, JSON.stringify(data));
-  });
-
-  // Logs live — Firebase ist die Wahrheit
-  fbListen(FB_PATH.log, data=>{
-    if(_localMutex) return;
-    if(!data || !Array.isArray(data)) return;
-    localStorage.setItem(LOG_KEY, JSON.stringify(data.slice(0,500)));
-  });
-
-  // Kick-Signal live
-  fbListen(FB_PATH.kick, sig=>{
-    if(!sig) return;
-    if(curRole==='viewer') return;
-    const s = getSession();
-    if(!s.user) return;
-    if(sig.target===s.user && (Date.now()-sig.ts)<10000 && sig.reason!=='__timeout_update__'){
-      logAction('FORCE-LOGOUT',`Ausgeloggt via Cloud: ${sig.reason}`);
-      doLogout();
-      toast(`⚠ ${sig.reason}`,'e');
-    }
-  });
-}
-
-/* ── FIREBASE-OVERRIDE FÜR SAVE() ──────────────────────────────── */
-// save() ruft Firebase jetzt direkt auf — kein Override mehr nötig
-function fbHookSave(){
-  // Kein Überschreiben nötig — save() schreibt direkt zu Firebase
-}
-
-/* ── FIREBASE-OVERRIDE FÜR ROLLEN ──────────────────────────────── */
-// saveRD() schreibt direkt zu Firebase — kein Override nötig
-function fbHookRoles(){
-  // Kein Überschreiben nötig — saveRD() synchronisiert direkt
-}
-
-/* ── FIREBASE KICK OVERRIDE ─────────────────────────────────────── */
-function fbHookKick(){
-  const _origBroadcast = broadcastKick;
-  window.broadcastKick = function(name, reason){
-    _origBroadcast(name, reason); // localStorage-Kick beibehalten
-    if(_fbOnline){
-      fbWrite(FB_PATH.kick, {target:name, reason, ts:Date.now()})
-        .catch(()=>{});
-    }
-  };
-}
-
-/* ── FIREBASE INIT ──────────────────────────────────────────────── */
-function initFirebase(){
-  if(_fbOnline) return; // Doppelaufruf verhindern
-  if(!window._fbReady){
-    fbSetStatus('local', 'KEIN FIREBASE');
-    toast('⚠ Firebase nicht konfiguriert — Daten können nicht geladen werden!','e');
-    return;
-  }
-  _fbOnline = true;
-  fbSetStatus('sync', 'VERBINDET…');
-
-  fbPullAll().then(async ()=>{
-    fbSetupListeners();
-    fbHookSave();
-    fbHookRoles();
-    fbHookKick();
-    fbSetStatus('online', 'ONLINE ✓');
-    toast('🔥 Firebase verbunden');
-
-    // Session JETZT validieren — mit echten Firebase-Daten
-    const _sess = getSession();
-    if(_sess.role && _sess.user && _sess.role !== 'viewer'){
-      const d = getRD();
-      let valid = false;
-      if(_sess.role === 'owner') valid = true;
-      else if(_sess.role === 'admin'){
-        const adm = (d.adm||[]).find(a => a.n === _sess.user);
-        valid = adm && !adm.banned;
-      }
-      if(valid){ curRole = _sess.role; applyRole(_sess.role, _sess.user); resetSessionTimer(); }
-      else { applyRole('viewer','Gast'); }
-    }
-
-  }).catch(e=>{
-    _fbOnline = false;
-    fbSetStatus('offline', 'OFFLINE');
-    console.error('[FB] Init failed:', e);
-    toast('⚠ Firebase nicht erreichbar — bitte Seite neu laden!','e');
-  });
-}
-
-/* ── FIREBASE SETUP PANEL ───────────────────────────────────────── */
-function fbGetConfigStatus(){
-  return window._fbReady ? 'configured' : (window._fbReady === false && !window._mncDB ? 'unconfigured' : 'error');
-}
-
-
-let loginAttempts = 0;
-let sessionTimer = null;
-let sessionStart = null;
-
-// Rate Limit beim Start clearen wenn abgelaufen
-(function(){
-  try{
-    const rl = JSON.parse(localStorage.getItem('mnc_ratelimit') || '{}');
-    if(!rl.until || Date.now() >= rl.until){
-      localStorage.removeItem('mnc_ratelimit');
-    }
-  }catch{
-    localStorage.removeItem('mnc_ratelimit');
-  }
-})();
-
-/* ── SHA-256 HASHING ────────────────────────────────────────────────── */
-// Pure-JS SHA-256 für Fallback (wenn kein HTTPS / crypto.subtle nicht verfügbar)
-function _sha256pure(str){
-  function rightRotate(v,a){return(v>>>a)|(v<<(32-a));}
-  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
-    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
-    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
-    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
-    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
-    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
-    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
-    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
-  let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
-  const bytes=[...new TextEncoder().encode(str)];
-  bytes.push(0x80);
-  while((bytes.length%64)!==56) bytes.push(0);
-  const bitLen=str.length*8;
-  for(let i=7;i>=0;i--) bytes.push((bitLen/Math.pow(2,i*8))&0xff);
-  for(let chunk=0;chunk<bytes.length;chunk+=64){
-    const w=[];
-    for(let i=0;i<16;i++) w.push((bytes[chunk+i*4]<<24)|(bytes[chunk+i*4+1]<<16)|(bytes[chunk+i*4+2]<<8)|bytes[chunk+i*4+3]);
-    for(let i=16;i<64;i++){const s0=rightRotate(w[i-15],7)^rightRotate(w[i-15],18)^(w[i-15]>>>3);const s1=rightRotate(w[i-2],17)^rightRotate(w[i-2],19)^(w[i-2]>>>10);w.push((w[i-16]+s0+w[i-7]+s1)>>>0);}
-    let [a,b,c,d,e,f,g,hh]=h;
-    for(let i=0;i<64;i++){const S1=rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25);const ch=(e&f)^(~e&g);const t1=(hh+S1+ch+K[i]+w[i])>>>0;const S0=rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22);const maj=(a&b)^(a&c)^(b&c);const t2=(S0+maj)>>>0;hh=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;}
-    h=[h[0]+a,h[1]+b,h[2]+c,h[3]+d,h[4]+e,h[5]+f,h[6]+g,h[7]+hh].map(v=>v>>>0);
-  }
-  return h.map(v=>v.toString(16).padStart(8,'0')).join('');
-}
-
-async function sha256(str) {
-  const input = str + HASH_SALT;
-  // Versuche crypto.subtle (nur HTTPS/localhost)
-  if(window.crypto && window.crypto.subtle){
-    try{
-      const enc = new TextEncoder();
-      const buf = await window.crypto.subtle.digest('SHA-256', enc.encode(input));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-    }catch(e){
-      // Fallback auf pure JS
-    }
-  }
-  // Pure-JS Fallback (funktioniert auf file:// und http://)
-  return _sha256pure(input);
-}
-function isHash(s){ return /^[0-9a-f]{64}$/.test(s); }
-
-/* ── SANITIZE (XSS prevention) ──────────────────────────────────────── */
-function esc(str){
-  if(!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#x27;');
-}
-
-/* ── ROLE DATA ──────────────────────────────────────────────────────── */
-const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'; // Owner-Passwort: MNC2025!
-
-/* SUPEROWNER — Verstecktes God-Konto */
-const SUPEROWNER_USER = 'superadmin';
-/* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
-function getRD(){
-  // Firebase-Cache aus localStorage lesen (wird von Realtime Listener live aktualisiert)
-  try{
-    const v2 = localStorage.getItem(RK);
-    if(v2){
-      const d = JSON.parse(v2);
-      if(d && isHash(d.op)) return d;
-    }
-  }catch{}
-  // Fallback: Default
-  return {op: DEFAULT_PW, adm:[]};
-}
-function saveRD(d){
-  // Sofort in localStorage (synchron) — damit getRD() immer aktuell ist
-  localStorage.setItem(RK, JSON.stringify(d));
-  // Firebase async drüber — Fehler nur loggen
-  if(_fbOnline){
-    fbWrite(FB_PATH.roles, d).catch(()=>{
-      toast('⚠ Firebase-Sync fehlgeschlagen','e');
-    });
-  }
-}
-
-/* ── ACTIVITY LOG — Firebase als einziger Speicher ──────────────────── */
-function logAction(action, detail=''){
-  try{
-    // Superowner hinterlässt keine Spuren im Log
-    const sess = getSession();
-    if(sess._superowner) return;
-
-    const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
-    const user = curRole === 'viewer' ? 'GAST' : (document.getElementById('ubname').textContent || '?');
-    log.unshift({ts: new Date().toISOString(), user, role: curRole, action, detail});
-    if(log.length > 500) log.length = 500;
-    // Cache aktualisieren
-    localStorage.setItem(LOG_KEY, JSON.stringify(log));
-    // Firebase ist die Wahrheit
-    if(_fbOnline){ fbWrite(FB_PATH.log, log.slice(0,500)).catch(()=>{}); }
-  }catch(e){}
-}
-function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }catch{ return []; } }
-function clearLog(){
-  if(!confirm('Aktivitätsprotokoll wirklich löschen?')) return;
-  // _localMutex verhindert dass der Realtime-Listener sofort wieder befüllt
-  _localMutex = true;
-  localStorage.removeItem(LOG_KEY);
-  if(_fbOnline){
-    fbWrite(FB_PATH.log, []).then(()=>{
-      setTimeout(()=>{ _localMutex = false; }, 1000);
-    }).catch(()=>{ _localMutex = false; });
-  } else {
-    setTimeout(()=>{ _localMutex = false; }, 500);
-  }
-  renderCtrl();
-  toast('Log gelöscht','w');
-}
-function exportLog(){
-  const log = getLog();
-  const csv = ['Zeitstempel,Benutzer,Rolle,Aktion,Details',
-    ...log.map(e => `"${e.ts}","${e.user}","${e.role}","${e.action}","${(e.detail||'').replace(/"/g,"'")}"`)
-  ].join('\n');
-  const b = new Blob([csv], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(b);
-  a.download = 'mnc_activity_log.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('Log exportiert');
-}
-
-/* ── RATE LIMITING ──────────────────────────────────────────────────── */
-function checkRateLimit(){
-  try{
-    const rl = JSON.parse(localStorage.getItem(RL_KEY) || '{}');
-    if(rl.until && Date.now() < rl.until){
-      const rem = Math.ceil((rl.until - Date.now()) / 1000);
-      return {locked:true, remaining:rem, count:rl.count||0};
-    }
-    // Sperre abgelaufen → automatisch clearen
-    if(rl.until && Date.now() >= rl.until) clearRateLimit();
-    return {locked:false, remaining:0, count:rl.count||0};
-  }catch{ return {locked:false, remaining:0, count:0}; }
-}
-function recordFailedAttempt(){
-  loginAttempts++;
-  try{
-    const rl = JSON.parse(localStorage.getItem(RL_KEY) || '{}');
-    rl.count = (rl.count||0) + 1;
-    rl.last = Date.now();
-    if(rl.count >= 10){
-      rl.until = Date.now() + 5*60*1000;
-      rl.count = 0;
-      localStorage.setItem(RL_KEY, JSON.stringify(rl));
-      showLockBanner(5*60);
-      return 'lockout';
-    } else if(loginAttempts >= 5){
-      rl.until = Date.now() + 30*1000;
-      localStorage.setItem(RL_KEY, JSON.stringify(rl));
-      showLockBanner(30);
-      return 'cooldown';
-    }
-    localStorage.setItem(RL_KEY, JSON.stringify(rl));
-  }catch{}
-  return 'warn';
-}
-function clearRateLimit(){ localStorage.removeItem(RL_KEY); loginAttempts = 0; hideLockBanner(); }
-
-let lockInterval = null;
-function showLockBanner(seconds){
-  const b = document.getElementById('lockbanner');
-  const c = document.getElementById('lockCountdown');
-  if(!b) return;
-  b.classList.add('show');
-  clearInterval(lockInterval);
-  let rem = seconds;
-  // Sofort anzeigen
-  c.textContent = `Noch ${rem}s gesperrt`;
-  // Fehlerfeld auch aktualisieren
-  const err = document.getElementById('lgerr');
-  lockInterval = setInterval(()=>{
-    rem--;
-    if(rem <= 0){
-      hideLockBanner();
-      clearInterval(lockInterval);
-      if(err) err.textContent = '';
-      clearRateLimit();
-    } else {
-      c.textContent = `Noch ${rem}s gesperrt`;
-      if(err && err.textContent.includes('Gesperrt')) err.textContent = `Gesperrt. Noch ${rem}s warten.`;
-    }
-  }, 1000);
-}
-function hideLockBanner(){
-  const b = document.getElementById('lockbanner');
-  if(b) b.classList.remove('show');
-  clearInterval(lockInterval);
-}
-
-/* ── SESSION MANAGEMENT ─────────────────────────────────────────────── */
-function startSession(role, user){
-  sessionStart = Date.now();
-  sessionStorage.setItem(SESS_KEY, JSON.stringify({role, user, start: sessionStart, last: Date.now()}));
-  resetSessionTimer();
-}
-function touchSession(){
-  try{
-    const s = JSON.parse(sessionStorage.getItem(SESS_KEY) || '{}');
-    if(s.user){ s.last = Date.now(); sessionStorage.setItem(SESS_KEY, JSON.stringify(s)); }
-    resetSessionTimer();
-  }catch{}
-}
-function getSession(){
-  try{ return JSON.parse(sessionStorage.getItem(SESS_KEY) || '{}'); }catch{ return {}; }
-}
-function resetSessionTimer(){
-  clearTimeout(sessionTimer);
-  if(curRole === 'viewer') return;
-  const s = getSession();
-  const timeout = getAdminTimeout(s.user || curRole);
-  sessionTimer = setTimeout(()=>{
-    logAction('AUTO-LOGOUT',`Session-Timeout (${Math.round(timeout/60000)} Min. Inaktivität)`);
-    doLogout();
-    toast(`Automatisch abgemeldet nach ${Math.round(timeout/60000)} Min.`, 'w');
-  }, timeout);
-}
-// Touch session on user activity
-['click','keydown','mousemove','touchstart'].forEach(ev =>
-  document.addEventListener(ev, ()=>{ if(curRole !== 'viewer') touchSession(); }, {passive:true})
-);
-
-/* ── AUTH / LOGIN ───────────────────────────────────────────────────── */
-function applyRole(role, user){
-  curRole = role;
-  const isGuest = role === 'viewer';
-  const isAdmin = role === 'admin' || role === 'owner';
-  const isOwner = role === 'owner';
-  document.getElementById('lgBtn').style.display = isGuest ? '' : 'none';
-  const ub = document.getElementById('ubadge');
-  ub.classList.toggle('show', !isGuest);
-  // Superowner zeigt sich als normaler "Owner" — keine sichtbare Spur
-  const sess = getSession();
-  const displayName = (sess._superowner) ? 'Owner' : (user || '—');
-  document.getElementById('ubname').textContent = displayName;
-  const rc = document.getElementById('ubrole');
-  rc.textContent = (role || 'GAST').toUpperCase();
-  rc.className = 'ubrole ' + (isOwner ? 'ro' : isAdmin ? 'ra' : 'rv');
-  document.querySelectorAll('.adm-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
-  document.querySelectorAll('.own-only').forEach(el => el.style.display = isOwner ? '' : 'none');
-  // Firebase Status Badge + Sync: NUR für Google-Owner
-  const fbBadge = document.getElementById('fb-status-badge');
-  if(fbBadge) fbBadge.style.display = (isOwner||isAdmin) ? 'flex' : 'none';
-  const fbPanel = document.getElementById('fb-panel-wrap');
-  if(fbPanel) fbPanel.style.display = isOwner ? '' : 'none';
-  const syncEl = document.getElementById('sync-indicator');
-  if(syncEl) syncEl.style.display = isOwner ? '' : 'none';
-  // Perm-basierte Buttons
-  const addFrakBtn = document.getElementById('btn-add-frak');
-  if(addFrakBtn) addFrakBtn.style.display = hasPerm('canAddFrak') ? '' : 'none';
-}
-
-function doLg(){
-  const err = document.getElementById('lgerr');
-  err.textContent = '';
-
-  // Rate Limiting
-  const rl = checkRateLimit();
-  if(rl.locked){
-    err.textContent = 'Gesperrt. Noch ' + rl.remaining + 's warten.';
-    showLockBanner(rl.remaining);
-    return;
-  }
-
-  const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
-  const p = (document.getElementById('lgp').value||'').trim();
-  if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
-
-  // Hash synchron berechnen — _sha256pure braucht kein async
-  const ph = _sha256pure(p + HASH_SALT);
-
-  // SUPERADMIN
-  if(u==='superadmin'){
-    if(ph==='d673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
-      applyRole('owner','Owner');
-      startSession('owner','Owner');
-      try{
-        const ss=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-        ss._superowner=true;
-        sessionStorage.setItem(SESS_KEY,JSON.stringify(ss));
-      }catch{}
-      clearRateLimit();
-      err.textContent='';
-      closeLg(); rfrak(); rmem();
-      toast('Willkommen!');
-      return;
-    }
-    recordFailedAttempt();
-    err.textContent='Falscher Benutzername oder Passwort.';
-    document.getElementById('lgp').value='';
-    return;
-  }
-
-  // OWNER
-  if(u==='owner'){
-    // Passwort aus getRD() (cache von Firebase) oder DEFAULT_PW
-    let stored = DEFAULT_PW;
-    const cached = getRD();
-    if(cached && isHash(cached.op)) stored = cached.op;
-
-    if(ph===stored){
-      applyRole('owner','Owner');
-      startSession('owner','Owner');
-      err.textContent='';
-      clearRateLimit();
-      logAction('LOGIN','Owner eingeloggt');
-      closeLg(); rfrak(); rmem();
-      toast('Willkommen, Owner!');
-      // Firebase-Daten im Hintergrund aktualisieren
-      if(_fbOnline){ fbRead(FB_PATH.roles).then(d=>{ if(d&&isHash(d.op)) saveRD(d); }).catch(()=>{}); }
-      return;
-    }
-    recordFailedAttempt();
-    err.textContent='Falsches Passwort.';
-    document.getElementById('lgp').value='';
-    return;
-  }
-
-  // ADMIN
-  const d = getRD();
-  const adm = (d.adm||[]).find(a=>a.n.toLowerCase()===u);
-  if(adm && !adm.banned){
-    const sh = isHash(adm.p) ? adm.p : _sha256pure(adm.p + HASH_SALT);
-    if(ph===sh){
-      applyRole('admin',adm.n);
-      startSession('admin',adm.n);
-      err.textContent='';
-      clearRateLimit();
-      logAction('LOGIN','Admin '+adm.n+' eingeloggt');
-      closeLg(); rfrak(); rmem();
-      toast('Willkommen, '+adm.n+'!');
-      return;
-    }
-  }
-  recordFailedAttempt();
-  err.textContent='Falscher Benutzername oder Passwort.';
-  document.getElementById('lgp').value='';
-}
-function openLg(){
-  document.getElementById('lgov').classList.add('open');
-  setTimeout(()=>document.getElementById('lgu').focus(), 80);
-}
-function closeLg(){
-  document.getElementById('lgov').classList.remove('open');
-  document.getElementById('lgerr').textContent = '';
-  document.getElementById('lgp').value = '';
-}
-function doLogout(){
-  logAction('LOGOUT');
-  sessionStorage.removeItem(SESS_KEY);
-  clearTimeout(sessionTimer);
-  // Google signOut
-
-  applyRole('viewer','Gast');
-  closeLg();
-  rfrak(); rmem();
-  toast('Abgemeldet','w');
-}
-
-/* ══════════════════════════════════════════════════════════════════════
-   ADMIN MANAGEMENT — PERMISSIONS · TIMEOUT · REAL-TIME KICK
-   ══════════════════════════════════════════════════════════════════════ */
+/* ── KONSTANTEN ─────────────────────────────────────────────────────────── */
+const RK              = 'mnc_roles_v2';
+const LOG_KEY         = 'mnc_actlog';
+const RL_KEY          = 'mnc_ratelimit';
+const SESS_KEY        = 'mnc_session';
+const FK              = 'mnc_f6';
+const MK              = 'mnc_m4';
+const KICK_KEY        = 'mnc_kick_v1';
+const BACKUP_KEY      = 'mnc_daily_backups_v1';
+const BACKUP_LAST_KEY = 'mnc_backup_last_date';
+const HASH_SALT       = 'MNC_SECURE_HUB_2026_v3';
+const DEFAULT_PW      = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da';
+const _SUPER_H        = 'd673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e';
 
 const PERM_DEFS = [
   {id:'canAddFrak',    label:'Fraktion hinzufügen', desc:'Neue Einträge erstellen'},
@@ -1700,120 +1041,559 @@ const PERM_DEFS = [
   {id:'canViewLog',    label:'Log einsehen',         desc:'Aktivitätsprotokoll lesen'},
 ];
 const DEFAULT_PERMS = {
-  canAddFrak:true, canEditFrak:true, canDeleteFrak:true,
-  canAddMem:true,  canEditMem:true,  canDeleteMem:true,
-  canViewLog:true,
+  canAddFrak:true,canEditFrak:true,canDeleteFrak:true,
+  canAddMem:true,canEditMem:true,canDeleteMem:true,canViewLog:true,
 };
-const KICK_KEY = 'mnc_kick_v1';
 
-function getAdminTimeout(name){
-  const d = getRD();
-  if(name === 'owner' || name === 'Owner') return (d.ownerTimeout||30)*60*1000;
-  const adm = (d.adm||[]).find(a=>a.n===name);
-  return ((adm&&adm.timeout)||d.ownerTimeout||30)*60*1000;
+/* ── STATE ──────────────────────────────────────────────────────────────── */
+let curRole='viewer', fraks=[], mems=[], eFid=null, eMid=null, mf='all';
+let loginAttempts=0, sessionTimer=null, kickPollInterval=null;
+let _fbOnline=false, _localMutex=false;
+const FB_PATH={fraks:'mnc/fraks',mems:'mnc/mems',roles:'mnc/roles',log:'mnc/log',kick:'mnc/kick'};
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SHA-256 — PURE JAVASCRIPT, SYNCHRON
+   Identisch in Chrome · Firefox · Safari · Edge · GitHub Pages · überall
+   Kein crypto.subtle · Kein async · Kein await · Keine Abhängigkeiten
+   ════════════════════════════════════════════════════════════════════════════ */
+function sha256sync(msg) {
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bytes=[...new TextEncoder().encode(msg)];
+  bytes.push(0x80);
+  while((bytes.length%64)!==56)bytes.push(0);
+  const bl=msg.length*8;
+  for(let i=7;i>=0;i--)bytes.push((bl/Math.pow(2,i*8))&0xff);
+  const rr=(v,a)=>(v>>>a)|(v<<(32-a));
+  for(let chunk=0;chunk<bytes.length;chunk+=64){
+    const w=[];
+    for(let i=0;i<16;i++)w.push((bytes[chunk+i*4]<<24)|(bytes[chunk+i*4+1]<<16)|(bytes[chunk+i*4+2]<<8)|bytes[chunk+i*4+3]);
+    for(let i=16;i<64;i++){
+      const s0=rr(w[i-15],7)^rr(w[i-15],18)^(w[i-15]>>>3);
+      const s1=rr(w[i-2],17)^rr(w[i-2],19)^(w[i-2]>>>10);
+      w.push((w[i-16]+s0+w[i-7]+s1)>>>0);
+    }
+    let [a,b,c,d,e,f,g,hh]=h;
+    for(let i=0;i<64;i++){
+      const S1=rr(e,6)^rr(e,11)^rr(e,25);
+      const ch=(e&f)^(~e&g);
+      const t1=(hh+S1+ch+K[i]+w[i])>>>0;
+      const S0=rr(a,2)^rr(a,13)^rr(a,22);
+      const maj=(a&b)^(a&c)^(b&c);
+      const t2=(S0+maj)>>>0;
+      [hh,g,f,e,d,c,b,a]=[g,f,e,(d+t1)>>>0,c,b,a,(t1+t2)>>>0];
+    }
+    h=[h[0]+a,h[1]+b,h[2]+c,h[3]+d,h[4]+e,h[5]+f,h[6]+g,h[7]+hh].map(v=>v>>>0);
+  }
+  return h.map(v=>v.toString(16).padStart(8,'0')).join('');
 }
-function getAdminPerms(name){
-  if(name === 'owner' || name === 'Owner') return Object.fromEntries(PERM_DEFS.map(p=>[p.id,true]));
-  const d = getRD();
-  const adm = (d.adm||[]).find(a=>a.n===name);
-  return {...DEFAULT_PERMS,...(adm&&adm.perms||{})};
+function pwHash(pw){ return sha256sync(pw + HASH_SALT); }
+function isHash(s){ return /^[0-9a-f]{64}$/.test(s); }
+function esc(str){
+  if(str==null)return'';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FIREBASE ENGINE
+   ════════════════════════════════════════════════════════════════════════════ */
+function fbSetStatus(state, text){
+  const dot=document.getElementById('fb-dot');
+  const lbl=document.getElementById('fb-label');
+  if(dot)dot.className='fb-dot '+state;
+  if(lbl)lbl.textContent=text;
+}
+function showSyncIndicator(msg){
+  const el=document.getElementById('sync-indicator');
+  const me=document.getElementById('sync-msg');
+  if(!el)return;
+  if(me)me.textContent=msg||'Synchronisiere…';
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2200);
+}
+async function fbWrite(path, data){
+  if(!_fbOnline||!window._mncDB)return false;
+  try{
+    const{ref,set}=window._mncFB;
+    await set(ref(window._mncDB,path),data);
+    return true;
+  }catch(e){console.warn('[FB] Write:',e.message);return false;}
+}
+async function fbRead(path){
+  if(!_fbOnline||!window._mncDB)return null;
+  try{
+    const{ref,get}=window._mncFB;
+    const snap=await get(ref(window._mncDB,path));
+    return snap.exists()?snap.val():null;
+  }catch(e){console.warn('[FB] Read:',e.message);return null;}
+}
+function fbListen(path, cb){
+  if(!_fbOnline||!window._mncDB)return;
+  const{ref,onValue}=window._mncFB;
+  onValue(ref(window._mncDB,path), snap=>{
+    if(_localMutex)return;
+    cb(snap.exists()?snap.val():null);
+  }, err=>console.warn('[FB] Listen:',err.message));
+}
+async function fbPullAll(){
+  if(!_fbOnline)return;
+  showSyncIndicator('Lade Daten…');
+  const[fbF,fbM,fbR,fbL]=await Promise.all([
+    fbRead(FB_PATH.fraks),fbRead(FB_PATH.mems),
+    fbRead(FB_PATH.roles),fbRead(FB_PATH.log),
+  ]);
+  if(fbF&&Array.isArray(fbF)){
+    fraks=fbF.map(f=>Object.assign({unterboden:'',reifenqualm:''},f));
+    localStorage.setItem(FK,JSON.stringify(fraks));
+  }else if(!fbF){
+    fraks=JSON.parse(JSON.stringify(PF));
+    await fbWrite(FB_PATH.fraks,fraks);
+    localStorage.setItem(FK,JSON.stringify(fraks));
+  }
+  if(fbM&&Array.isArray(fbM)){
+    mems=fbM;
+    localStorage.setItem(MK,JSON.stringify(mems));
+  }else if(!fbM){
+    mems=JSON.parse(JSON.stringify(PM));
+    await fbWrite(FB_PATH.mems,mems);
+    localStorage.setItem(MK,JSON.stringify(mems));
+  }
+  if(fbR&&fbR.op){
+    localStorage.setItem(RK,JSON.stringify(fbR));
+  }else if(!fbR){
+    const d={op:DEFAULT_PW,adm:[]};
+    await fbWrite(FB_PATH.roles,d);
+    localStorage.setItem(RK,JSON.stringify(d));
+  }
+  if(fbL&&Array.isArray(fbL)){
+    localStorage.setItem(LOG_KEY,JSON.stringify(fbL.slice(0,500)));
+  }
+  rfrak();rmem();hs();updateHomeStats();
+  showSyncIndicator('✓ Aktuell');
+}
+async function fbPushAll(){
+  if(!_fbOnline)return;
+  _localMutex=true;
+  showSyncIndicator('Hochladen…');
+  await fbWrite(FB_PATH.fraks,fraks);
+  await fbWrite(FB_PATH.mems,mems);
+  await fbWrite(FB_PATH.roles,getRD());
+  _localMutex=false;
+  showSyncIndicator('✓ Synchronisiert');
+}
+function fbSetupListeners(){
+  if(!_fbOnline)return;
+  fbListen(FB_PATH.fraks, data=>{
+    if(!data||!Array.isArray(data))return;
+    fraks=data.map(f=>Object.assign({unterboden:'',reifenqualm:''},f));
+    localStorage.setItem(FK,JSON.stringify(fraks));
+    rfrak();hs();updateHomeStats();
+    showSyncIndicator('↻ Fraktionen');
+  });
+  fbListen(FB_PATH.mems, data=>{
+    if(!data||!Array.isArray(data))return;
+    mems=data;
+    localStorage.setItem(MK,JSON.stringify(mems));
+    rmem();hs();updateHomeStats();
+    showSyncIndicator('↻ Mitglieder');
+  });
+  fbListen(FB_PATH.roles, data=>{
+    if(!data||!data.op)return;
+    localStorage.setItem(RK,JSON.stringify(data));
+  });
+  fbListen(FB_PATH.log, data=>{
+    if(_localMutex)return;
+    if(!data||!Array.isArray(data))return;
+    localStorage.setItem(LOG_KEY,JSON.stringify(data.slice(0,500)));
+  });
+  fbListen(FB_PATH.kick, sig=>{
+    if(!sig||curRole==='viewer')return;
+    const s=getSession();
+    if(!s.user)return;
+    if(sig.target===s.user&&(Date.now()-sig.ts)<10000&&sig.reason!=='__timeout_update__'){
+      doLogout();
+      toast('⚠ '+sig.reason,'e');
+    }
+  });
+}
+function initFirebase(){
+  if(_fbOnline)return;
+  if(!window._fbReady){
+    fbSetStatus('local','KEIN FIREBASE');
+    return;
+  }
+  _fbOnline=true;
+  fbSetStatus('sync','VERBINDET…');
+  fbPullAll().then(()=>{
+    fbSetupListeners();
+    fbSetStatus('online','ONLINE ✓');
+    toast('🔥 Firebase verbunden');
+    // Session nach Firebase validieren
+    const s=getSession();
+    if(s.role&&s.user&&s.role!=='viewer'){
+      const d=getRD();
+      let valid=false;
+      if(s.role==='owner')valid=true;
+      else if(s.role==='admin'){
+        const a=(d.adm||[]).find(x=>x.n===s.user);
+        valid=a&&!a.banned;
+      }
+      if(valid){curRole=s.role;applyRole(s.role,s.user);resetSessionTimer();}
+      else{sessionStorage.removeItem(SESS_KEY);applyRole('viewer','Gast');}
+    }
+  }).catch(()=>{
+    _fbOnline=false;
+    fbSetStatus('offline','OFFLINE');
+    toast('⚠ Firebase nicht erreichbar!','e');
+  });
+}
+function fbGetConfigStatus(){return window._fbReady?'configured':'unconfigured';}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ROLLEN & PASSWÖRTER — aus Firebase (localStorage als Cache)
+   ════════════════════════════════════════════════════════════════════════════ */
+function getRD(){
+  try{
+    const v=localStorage.getItem(RK);
+    if(v){const d=JSON.parse(v);if(d&&isHash(d.op))return d;}
+  }catch{}
+  return{op:DEFAULT_PW,adm:[]};
+}
+function saveRD(d){
+  localStorage.setItem(RK,JSON.stringify(d));
+  if(_fbOnline)fbWrite(FB_PATH.roles,d).catch(()=>{});
 }
 function hasPerm(perm){
-  if(curRole==='owner'){
-    // Owner hat immer ALLE Rechte — keine Einschränkung
-    return true;
-  }
+  if(curRole==='owner')return true;
   if(curRole==='admin'){
-    return getAdminPerms(getSession().user||'')[perm]===true;
+    const d=getRD(),s=getSession();
+    const a=(d.adm||[]).find(x=>x.n===(s.user||''));
+    return a?({...DEFAULT_PERMS,...(a.perms||{})})[perm]===true:false;
   }
   return false;
 }
-
-function broadcastKick(name, reason){
-  const sig = {target:name, reason, ts:Date.now()};
-  localStorage.setItem(KICK_KEY, JSON.stringify(sig));
-  setTimeout(()=>localStorage.removeItem(KICK_KEY), 8000);
+function getAdminTimeout(name){
+  const d=getRD();
+  if(name==='owner'||name==='Owner')return(d.ownerTimeout||30)*60*1000;
+  const a=(d.adm||[]).find(x=>x.n===name);
+  return((a&&a.timeout)||d.ownerTimeout||30)*60*1000;
 }
 
-let kickPollInterval = null;
+/* ════════════════════════════════════════════════════════════════════════════
+   AKTIVITÄTS-LOG
+   ════════════════════════════════════════════════════════════════════════════ */
+function logAction(action, detail=''){
+  try{
+    const s=getSession();
+    if(s._superowner)return;
+    const log=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');
+    const user=curRole==='viewer'?'GAST':(document.getElementById('ubname').textContent||'?');
+    log.unshift({ts:new Date().toISOString(),user,role:curRole,action,detail});
+    if(log.length>500)log.length=500;
+    localStorage.setItem(LOG_KEY,JSON.stringify(log));
+    if(_fbOnline)fbWrite(FB_PATH.log,log.slice(0,500)).catch(()=>{});
+  }catch{}
+}
+function getLog(){try{return JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch{return[];}}
+function clearLog(){
+  if(!confirm('Aktivitätsprotokoll wirklich löschen?'))return;
+  _localMutex=true;
+  localStorage.removeItem(LOG_KEY);
+  if(_fbOnline){
+    fbWrite(FB_PATH.log,[]).then(()=>setTimeout(()=>{_localMutex=false;},1500)).catch(()=>{_localMutex=false;});
+  }else{
+    setTimeout(()=>{_localMutex=false;},500);
+  }
+  renderCtrl();
+  toast('Log gelöscht','w');
+}
+function exportLog(){
+  const log=getLog();
+  const csv=['Zeitstempel,Benutzer,Rolle,Aktion,Details',
+    ...log.map(e=>`"${e.ts}","${e.user}","${e.role}","${e.action}","${(e.detail||'').replace(/"/g,"'")}"`)
+  ].join('\n');
+  const b=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='mnc_log.csv';a.click();URL.revokeObjectURL(a.href);
+  toast('Log exportiert');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   RATE LIMITING
+   ════════════════════════════════════════════════════════════════════════════ */
+(function(){
+  try{
+    const rl=JSON.parse(localStorage.getItem(RL_KEY)||'{}');
+    if(!rl.until||Date.now()>=rl.until)localStorage.removeItem(RL_KEY);
+  }catch{localStorage.removeItem(RL_KEY);}
+})();
+function checkRateLimit(){
+  try{
+    const rl=JSON.parse(localStorage.getItem(RL_KEY)||'{}');
+    if(rl.until&&Date.now()<rl.until)return{locked:true,remaining:Math.ceil((rl.until-Date.now())/1000)};
+    if(rl.until)localStorage.removeItem(RL_KEY);
+    return{locked:false,remaining:0};
+  }catch{return{locked:false,remaining:0};}
+}
+function recordFailedAttempt(){
+  loginAttempts++;
+  try{
+    const rl=JSON.parse(localStorage.getItem(RL_KEY)||'{}');
+    rl.count=(rl.count||0)+1;
+    rl.last=Date.now();
+    if(rl.count>=10){rl.until=Date.now()+5*60*1000;rl.count=0;}
+    else if(loginAttempts>=5){rl.until=Date.now()+30*1000;}
+    localStorage.setItem(RL_KEY,JSON.stringify(rl));
+    if(rl.until)showLockBanner(Math.ceil((rl.until-Date.now())/1000));
+  }catch{}
+}
+function clearRateLimit(){localStorage.removeItem(RL_KEY);loginAttempts=0;hideLockBanner();}
+let _lockIv=null;
+function showLockBanner(seconds){
+  const b=document.getElementById('lockbanner');
+  const c=document.getElementById('lockCountdown');
+  if(!b)return;
+  b.classList.add('show');
+  clearInterval(_lockIv);
+  let rem=seconds;
+  if(c)c.textContent='Noch '+rem+'s gesperrt';
+  _lockIv=setInterval(()=>{
+    rem--;
+    if(rem<=0){hideLockBanner();clearInterval(_lockIv);clearRateLimit();}
+    else if(c)c.textContent='Noch '+rem+'s gesperrt';
+  },1000);
+}
+function hideLockBanner(){
+  const b=document.getElementById('lockbanner');
+  if(b)b.classList.remove('show');
+  clearInterval(_lockIv);
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SESSION
+   ════════════════════════════════════════════════════════════════════════════ */
+function startSession(role, user, extra){
+  const now=Date.now();
+  sessionStorage.setItem(SESS_KEY,JSON.stringify({role,user,start:now,last:now,...(extra||{})}));
+  resetSessionTimer();
+}
+function touchSession(){
+  try{
+    const s=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+    if(s.user){s.last=Date.now();sessionStorage.setItem(SESS_KEY,JSON.stringify(s));}
+    resetSessionTimer();
+  }catch{}
+}
+function getSession(){try{return JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');}catch{return{};}}
+function resetSessionTimer(){
+  clearTimeout(sessionTimer);
+  if(curRole==='viewer')return;
+  const s=getSession();
+  const timeout=getAdminTimeout(s.user||curRole);
+  sessionTimer=setTimeout(()=>{logAction('AUTO-LOGOUT','Session-Timeout');doLogout();toast('Automatisch abgemeldet','w');},timeout);
+}
+['click','keydown','mousemove','touchstart'].forEach(ev=>
+  document.addEventListener(ev,()=>{if(curRole!=='viewer')touchSession();},{passive:true})
+);
+
+/* ════════════════════════════════════════════════════════════════════════════
+   KICK SYSTEM
+   ════════════════════════════════════════════════════════════════════════════ */
+function broadcastKick(name, reason){
+  const sig={target:name,reason,ts:Date.now()};
+  localStorage.setItem(KICK_KEY,JSON.stringify(sig));
+  if(_fbOnline)fbWrite(FB_PATH.kick,sig).catch(()=>{});
+  setTimeout(()=>localStorage.removeItem(KICK_KEY),8000);
+}
 function startKickPoll(){
-  if(kickPollInterval) clearInterval(kickPollInterval);
-  kickPollInterval = setInterval(()=>{
-    if(curRole==='viewer') return;
-    const s = getSession();
-    if(!s.user) return;
-    // Superowner ist immun gegen alle Kicks
-    if(s._superowner) return;
-    // Kick-Signal
+  if(kickPollInterval)clearInterval(kickPollInterval);
+  kickPollInterval=setInterval(()=>{
+    if(curRole==='viewer')return;
+    const s=getSession();
+    if(!s.user||s._superowner)return;
     try{
-      const sig = JSON.parse(localStorage.getItem(KICK_KEY)||'null');
-      if(sig && sig.target===s.user && (Date.now()-sig.ts)<10000 && sig.reason!=='__timeout_update__'){
-        logAction('FORCE-LOGOUT',`Ausgeloggt: ${sig.reason}`);
-        doLogout();
-        toast(`⚠ ${sig.reason}`,'e');
-        return;
+      const sig=JSON.parse(localStorage.getItem(KICK_KEY)||'null');
+      if(sig&&sig.target===s.user&&(Date.now()-sig.ts)<10000&&sig.reason!=='__timeout_update__'){
+        doLogout();toast('⚠ '+sig.reason,'e');return;
       }
     }catch{}
-    // Account existiert noch?
     if(curRole==='admin'){
-      const d = getRD();
-      const my = (d.adm||[]).find(a=>a.n===s.user);
-      if(!my){ logAction('FORCE-LOGOUT','Konto gelöscht'); doLogout(); toast('⚠ Konto wurde gelöscht.','e'); return; }
-      if(my.banned){ logAction('FORCE-LOGOUT','Konto gesperrt'); doLogout(); toast('⚠ Konto gesperrt.','e'); return; }
-      // Timeout geändert?
-      const newTO = getAdminTimeout(s.user);
-      if(s._knownTO && s._knownTO!==newTO){ resetSessionTimer(); }
-      try{
-        const ss=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-        if(ss._knownTO!==newTO){ ss._knownTO=newTO; sessionStorage.setItem(SESS_KEY,JSON.stringify(ss)); resetSessionTimer(); }
-      }catch{}
+      const d=getRD();
+      const my=(d.adm||[]).find(a=>a.n===s.user);
+      if(!my){doLogout();toast('⚠ Konto gelöscht','e');return;}
+      if(my.banned){doLogout();toast('⚠ Konto gesperrt','e');return;}
     }
-  }, 3000);
+  },3000);
 }
 
-function openAP(){ renderAdminPanel(); document.getElementById('apov').classList.add('open'); }
-function closeAP(){ document.getElementById('apov').classList.remove('open'); }
+/* ════════════════════════════════════════════════════════════════════════════
+   AUTH / LOGIN
+   ════════════════════════════════════════════════════════════════════════════ */
+function applyRole(role, user){
+  curRole=role;
+  const isGuest=role==='viewer';
+  const isAdmin=role==='admin'||role==='owner';
+  const isOwner=role==='owner';
+  document.getElementById('lgBtn').style.display=isGuest?'':'none';
+  const ub=document.getElementById('ubadge');
+  ub.classList.toggle('show',!isGuest);
+  const s=getSession();
+  document.getElementById('ubname').textContent=s._superowner?'Owner':(user||'—');
+  const rc=document.getElementById('ubrole');
+  rc.textContent=(role||'GAST').toUpperCase();
+  rc.className='ubrole '+(isOwner?'ro':isAdmin?'ra':'rv');
+  document.querySelectorAll('.adm-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.own-only').forEach(el=>el.style.display=isOwner?'':'none');
+  const fbBadge=document.getElementById('fb-status-badge');
+  if(fbBadge)fbBadge.style.display=(isOwner||isAdmin)?'flex':'none';
+  const fbPanel=document.getElementById('fb-panel-wrap');
+  if(fbPanel)fbPanel.style.display=isOwner?'':'none';
+  const syncEl=document.getElementById('sync-indicator');
+  if(syncEl)syncEl.style.display=isOwner?'':'none';
+  // Perm-abhängige Buttons
+  const addFrakBtn=document.getElementById('btn-add-frak');
+  if(addFrakBtn)addFrakBtn.style.display=hasPerm('canAddFrak')?'':'none';
+  const addMemBtn=document.querySelector('.abtn.adm-only[onclick="openMM()"]');
+  if(addMemBtn)addMemBtn.style.display=hasPerm('canAddMem')?'':'none';
+}
+
+function doLg(){
+  const err=document.getElementById('lgerr');
+  err.textContent='';
+
+  // 1. Rate Limit
+  const rl=checkRateLimit();
+  if(rl.locked){
+    err.textContent='Gesperrt. Noch '+rl.remaining+'s warten.';
+    showLockBanner(rl.remaining);
+    return;
+  }
+
+  const u=(document.getElementById('lgu').value||'').trim().toLowerCase();
+  const p=(document.getElementById('lgp').value||'').trim();
+  if(!u||!p){err.textContent='Felder ausfüllen.';return;}
+
+  // 2. Passwort hashen — synchron, identisch in allen Browsern
+  const ph=pwHash(p);
+
+  // 3. Superadmin (verstecktes Konto)
+  if(u==='superadmin'){
+    if(ph===_SUPER_H){
+      applyRole('owner','Owner');
+      startSession('owner','Owner',{_superowner:true});
+      clearRateLimit();
+      closeLg();rfrak();rmem();
+      toast('Willkommen!');
+      return;
+    }
+    recordFailedAttempt();
+    err.textContent='Falscher Benutzername oder Passwort.';
+    document.getElementById('lgp').value='';
+    return;
+  }
+
+  // 4. Owner
+  if(u==='owner'){
+    let stored=DEFAULT_PW;
+    const cached=getRD();
+    if(cached&&isHash(cached.op))stored=cached.op;
+    if(ph===stored){
+      applyRole('owner','Owner');
+      startSession('owner','Owner');
+      clearRateLimit();
+      logAction('LOGIN','Owner eingeloggt');
+      closeLg();rfrak();rmem();
+      toast('Willkommen, Owner!');
+      if(_fbOnline)fbRead(FB_PATH.roles).then(d=>{if(d&&isHash(d.op))saveRD(d);}).catch(()=>{});
+      return;
+    }
+    recordFailedAttempt();
+    err.textContent='Falsches Passwort.';
+    document.getElementById('lgp').value='';
+    return;
+  }
+
+  // 5. Admin
+  const d=getRD();
+  const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
+  if(adm&&!adm.banned){
+    const sh=isHash(adm.p)?adm.p:pwHash(adm.p);
+    if(ph===sh){
+      applyRole('admin',adm.n);
+      startSession('admin',adm.n);
+      clearRateLimit();
+      logAction('LOGIN','Admin '+adm.n+' eingeloggt');
+      closeLg();rfrak();rmem();
+      toast('Willkommen, '+adm.n+'!');
+      return;
+    }
+  }
+  recordFailedAttempt();
+  err.textContent='Falscher Benutzername oder Passwort.';
+  document.getElementById('lgp').value='';
+}
+
+function openLg(){
+  document.getElementById('lgov').classList.add('open');
+  setTimeout(()=>document.getElementById('lgu').focus(),80);
+}
+function closeLg(){
+  document.getElementById('lgov').classList.remove('open');
+  document.getElementById('lgerr').textContent='';
+  document.getElementById('lgp').value='';
+}
+function doLogout(){
+  logAction('LOGOUT');
+  sessionStorage.removeItem(SESS_KEY);
+  clearTimeout(sessionTimer);
+  applyRole('viewer','Gast');
+  rfrak();rmem();
+  toast('Abgemeldet','w');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   ADMIN VERWALTUNG
+   ════════════════════════════════════════════════════════════════════════════ */
+function openAP(){renderAdminPanel();document.getElementById('apov').classList.add('open');}
+function closeAP(){document.getElementById('apov').classList.remove('open');}
 
 function renderAdminPanel(){
-  const d = getRD();
-  const s = getSession();
-  const ownerOnline = s.role==='owner';
-
+  const d=getRD(),s=getSession();
+  const ownerOnline=s.role==='owner';
   document.getElementById('ap-owner-dot').className='acard-dot '+(ownerOnline?'online':'offline');
   const os=document.getElementById('ap-owner-status');
   os.textContent=ownerOnline?'ONLINE':'OFFLINE';
   os.style.borderColor=ownerOnline?'var(--green)':'var(--border2)';
   os.style.color=ownerOnline?'var(--green)':'var(--white)';
-
-  // Zeige Hinweis ob Google-Owner oder lokaler Owner gerade aktiv
-  const ownerMeta = document.querySelector('#apov .acard-meta');
-  if(ownerMeta) ownerMeta.textContent = 'Reserviertes Konto · Alle Rechte · SHA-256';
-
   const ownerTO=d.ownerTimeout||30;
   document.getElementById('owner-timeout-slider').value=ownerTO;
   document.getElementById('owner-timeout-val').textContent=ownerTO+' Min';
-
   const admins=d.adm||[];
-  document.getElementById('ap-admin-count').textContent=`(${admins.length})`;
-  if(admins.length>0) document.getElementById('ap-kick-info').classList.add('show');
+  document.getElementById('ap-admin-count').textContent='('+admins.length+')';
+  if(admins.length>0)document.getElementById('ap-kick-info').classList.add('show');
+  const list=document.getElementById('adminlist');
   if(!admins.length){
-    document.getElementById('adminlist').innerHTML='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Keine Admins.</div>';
-  } else {
+    list.innerHTML='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0">Keine Admins.</div>';
+    return;
+  }
   const log=getLog();
-  document.getElementById('adminlist').innerHTML=admins.map((a,idx)=>{
+  list.innerHTML=admins.map(a=>{
     const isOnline=s.role==='admin'&&s.user===a.n;
     const lastLogin=log.find(e=>e.user===a.n&&e.action==='LOGIN');
     const perms={...DEFAULT_PERMS,...(a.perms||{})};
     const timeout=a.timeout||(d.ownerTimeout||30);
     const isBanned=!!a.banned;
-    const badgeHtml=PERM_DEFS.map(p=>`<span class="perm-badge ${perms[p.id]?'on':'off'}">${p.label.split(' ')[0]}</span>`).join('');
-    const permBoxes=PERM_DEFS.map(p=>`
-      <label class="perm-item">
-        <input type="checkbox" ${perms[p.id]?'checked':''} onchange="togglePerm('${esc(a.n)}','${p.id}',this.checked)">
-        <div><div class="perm-item-lbl">${p.label}</div><div class="perm-item-desc">${p.desc}</div></div>
-      </label>`).join('');
-    return `
-    <div class="acard" id="acard-${esc(a.n)}" style="${isBanned?'border-color:rgba(224,80,64,.4)':''}">
+    const badges=PERM_DEFS.map(p=>`<span class="perm-badge ${perms[p.id]?'on':'off'}">${p.label.split(' ')[0]}</span>`).join('');
+    const permBoxes=PERM_DEFS.map(p=>`<label class="perm-item"><input type="checkbox" ${perms[p.id]?'checked':''} onchange="togglePerm('${esc(a.n)}','${p.id}',this.checked)"><div><div class="perm-item-lbl">${p.label}</div><div class="perm-item-desc">${p.desc}</div></div></label>`).join('');
+    return `<div class="acard" id="acard-${esc(a.n)}" style="${isBanned?'border-color:rgba(224,80,64,.4)':''}">
       <div class="acard-head" onclick="toggleAcard('${esc(a.n)}')">
         <div class="acard-left">
           <div class="acard-dot ${isOnline&&!isBanned?'online':'offline'}"></div>
@@ -1822,24 +1602,23 @@ function renderAdminPanel(){
             <div class="acard-meta">${lastLogin?'Login: '+new Date(lastLogin.ts).toLocaleString('de-DE'):'Nie angemeldet'} · Timeout: ${timeout}min</div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px"><div class="acard-badges">${badgeHtml}</div><span style="color:var(--white);font-size:16px">▾</span></div>
+        <div style="display:flex;align-items:center;gap:8px"><div class="acard-badges">${badges}</div><span style="color:var(--white);font-size:16px">▾</span></div>
       </div>
       <div class="acard-body" id="abody-${esc(a.n)}">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
           <div>
             <div class="apsh" style="margin-bottom:8px">Session-Timeout</div>
             <div class="timeout-row" style="padding:0">
-              <input type="range" class="timeout-slider" id="to-${esc(a.n)}" min="5" max="120" step="5" value="${timeout}"
-                oninput="document.getElementById('toval-${esc(a.n)}').textContent=this.value+' Min'">
+              <input type="range" class="timeout-slider" id="to-${esc(a.n)}" min="5" max="120" step="5" value="${timeout}" oninput="document.getElementById('toval-${esc(a.n)}').textContent=this.value+' Min'">
               <span class="timeout-val" id="toval-${esc(a.n)}">${timeout} Min</span>
             </div>
-            <button class="bsec" onclick="saveAdminTimeout('${esc(a.n)}')" style="padding:7px 14px;font-size:12px;margin-top:8px">💾 Timeout speichern</button>
+            <button class="bsec" onclick="saveAdminTimeout('${esc(a.n)}')" style="padding:7px 14px;font-size:12px;margin-top:8px">💾 Speichern</button>
           </div>
           <div>
             <div class="apsh" style="margin-bottom:8px">Aktionen</div>
             <div style="display:flex;flex-direction:column;gap:6px">
               <button class="fbtn" onclick="toggleBanAdmin('${esc(a.n)}')" style="padding:8px 12px;font-size:12px;${isBanned?'border-color:var(--green);color:var(--green)':'border-color:rgba(224,80,64,.4);color:var(--red)'}">${isBanned?'🔓 ENTSPERREN':'🔒 SPERREN'}</button>
-              <button class="fbtn" onclick="kickAdmin('${esc(a.n)}')" style="padding:8px 12px;font-size:12px${!isOnline?';opacity:.4;cursor:default':''}">⚡ JETZT AUSLOGGEN</button>
+              <button class="fbtn" onclick="kickAdmin('${esc(a.n)}')" style="padding:8px 12px;font-size:12px${!isOnline?';opacity:.4;cursor:default':''}">⚡ AUSLOGGEN</button>
               <button class="actbtn del" onclick="removeAdmin('${esc(a.n)}')" style="padding:8px 12px;font-size:12px">✕ LÖSCHEN</button>
             </div>
           </div>
@@ -1847,245 +1626,479 @@ function renderAdminPanel(){
         <div class="apsh" style="margin-bottom:8px">Berechtigungen</div>
         <div class="perm-grid">${permBoxes}</div>
         <div class="acard-pwrow">
-          <input class="fi" type="password" id="newpw-${esc(a.n)}" placeholder="Neues Passwort setzen…" style="flex:1;padding:10px 12px;" autocomplete="new-password">
+          <input class="fi" type="password" id="newpw-${esc(a.n)}" placeholder="Neues Passwort…" style="flex:1;padding:10px 12px" autocomplete="new-password">
           <button class="abtn" onclick="changeAdminPw('${esc(a.n)}')" style="padding:10px 14px;font-size:12px">PW ÄNDERN</button>
         </div>
       </div>
     </div>`;
   }).join('');
-  } // end else (admins.length)
-
-  // Google-Nutzer Liste laden
 }
 
-function toggleAcard(name){
-  const b=document.getElementById('abody-'+name);
-  if(b) b.classList.toggle('open');
-}
-function updateOwnerTimeoutLabel(){
-  document.getElementById('owner-timeout-val').textContent=document.getElementById('owner-timeout-slider').value+' Min';
-}
+function toggleAcard(name){const b=document.getElementById('abody-'+name);if(b)b.classList.toggle('open');}
+function updateOwnerTimeoutLabel(){document.getElementById('owner-timeout-val').textContent=document.getElementById('owner-timeout-slider').value+' Min';}
 function saveOwnerTimeout(){
   const v=parseInt(document.getElementById('owner-timeout-slider').value);
-  const d=getRD(); d.ownerTimeout=v; saveRD(d);
-  logAction('SECURITY',`Standard-Timeout auf ${v}min gesetzt`);
-  toast(`Timeout: ${v} Min gespeichert`);
-  resetSessionTimer();
-}
-// 2. Owner Berechtigungen (nur Google-Owner kann diese setzen)
-function toggleOwnerPerm(permId, val){
-  const d=getRD();
-  d.ownerPerms = d.ownerPerms || {};
-  d.ownerPerms[permId] = val;
-  saveRD(d);
-  logAction('SECURITY',`2.Owner Recht "${permId}" ${val?'AN':'AUS'}`);
-  applyRole(curRole, document.getElementById('ubname').textContent); // Buttons neu rendern
+  const d=getRD();d.ownerTimeout=v;saveRD(d);
+  logAction('SECURITY','Timeout auf '+v+'min');
+  toast('Timeout: '+v+' Min');resetSessionTimer();
 }
 function saveAdminTimeout(name){
   const v=parseInt(document.getElementById('to-'+name).value);
   const d=getRD();
-  const adm=(d.adm||[]).find(a=>a.n===name);
-  if(!adm) return;
-  adm.timeout=v; saveRD(d);
+  const a=(d.adm||[]).find(x=>x.n===name);
+  if(!a)return;
+  a.timeout=v;saveRD(d);
   broadcastKick(name,'__timeout_update__');
-  logAction('SECURITY',`Timeout für "${esc(name)}" auf ${v}min`);
-  toast(`${name}: Timeout ${v} Min`);
+  logAction('SECURITY','Timeout für '+esc(name)+': '+v+'min');
+  toast(name+': Timeout '+v+' Min');
   renderAdminPanel();
 }
 function togglePerm(name, permId, val){
   const d=getRD();
-  const adm=(d.adm||[]).find(a=>a.n===name);
-  if(!adm) return;
-  adm.perms=adm.perms||{};
-  adm.perms[permId]=val;
+  const a=(d.adm||[]).find(x=>x.n===name);
+  if(!a)return;
+  a.perms=a.perms||{};
+  a.perms[permId]=val;
   saveRD(d);
-  logAction('SECURITY',`Recht "${permId}" für "${esc(name)}" ${val?'AN':'AUS'}`);
-  // KEIN renderAdminPanel() — würde Card schließen!
-  // Nur Badges in-place aktualisieren
-  const card = document.getElementById('acard-'+name);
+  logAction('SECURITY',permId+' für '+esc(name)+': '+(val?'AN':'AUS'));
+  // Badge im DOM sofort aktualisieren
+  const card=document.getElementById('acard-'+name);
   if(card){
-    const perms={...DEFAULT_PERMS,...(adm.perms||{})};
-    const badgesEl = card.querySelector('.acard-badges');
-    if(badgesEl) badgesEl.innerHTML = PERM_DEFS.map(p=>
-      `<span class="perm-badge ${perms[p.id]?'on':'off'}">${p.label.split(' ')[0]}</span>`
-    ).join('');
+    const perms={...DEFAULT_PERMS,...(a.perms||{})};
+    const b=card.querySelector('.acard-badges');
+    if(b)b.innerHTML=PERM_DEFS.map(p=>`<span class="perm-badge ${perms[p.id]?'on':'off'}">${p.label.split(' ')[0]}</span>`).join('');
   }
-  toast(`${val?'✓':'✗'} ${permId.replace('can','')} für ${name}`,'');
+  toast((val?'✓ ':'✗ ')+permId.replace('can','')+' für '+name);
 }
 function toggleBanAdmin(name){
   const d=getRD();
-  const adm=(d.adm||[]).find(a=>a.n===name);
-  if(!adm) return;
-  adm.banned=!adm.banned; saveRD(d);
-  if(adm.banned){ broadcastKick(name,'Konto gesperrt'); logAction('SECURITY',`Admin "${esc(name)}" gesperrt`); toast(`${name} gesperrt`,'w'); }
-  else{ logAction('SECURITY',`Admin "${esc(name)}" entsperrt`); toast(`${name} entsperrt`); }
+  const a=(d.adm||[]).find(x=>x.n===name);
+  if(!a)return;
+  a.banned=!a.banned;saveRD(d);
+  if(a.banned){broadcastKick(name,'Konto gesperrt');logAction('SECURITY',esc(name)+' gesperrt');toast(name+' gesperrt','w');}
+  else{logAction('SECURITY',esc(name)+' entsperrt');toast(name+' entsperrt');}
   renderAdminPanel();
 }
 function kickAdmin(name){
-  broadcastKick(name,'Manuell vom Owner ausgeloggt');
-  logAction('SECURITY',`Admin "${esc(name)}" manuell ausgeloggt`);
-  toast(`${name} wird ausgeloggt…`,'w');
+  broadcastKick(name,'Manuell ausgeloggt');
+  logAction('SECURITY',esc(name)+' ausgeloggt');
+  toast(name+' wird ausgeloggt…','w');
 }
-function changeAdminPw(name){
-  const pw=(document.getElementById('newpw-'+name).value||'').trim();
-  if(pw.length<6){ toast('Mind. 6 Zeichen','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
-  const ph=_sha256pure(pw+HASH_SALT);
-  const d=getRD();
-  const adm=(d.adm||[]).find(a=>a.n===name);
-  if(!adm) return;
-  adm.p=ph;
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-    document.getElementById('newpw-'+name).value='';
-    broadcastKick(name,'Passwort geändert – bitte neu einloggen');
-    logAction('SECURITY',`PW für "${esc(name)}" geändert`);
-    toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
-  }catch(e){
-    toast('⚠ Firebase-Fehler — Passwort nicht gespeichert!','e');
-  }
-}
-
 function addAdmin(){
   const n=(document.getElementById('apn').value||'').trim();
   const p=(document.getElementById('app').value||'').trim();
-  if(!n||!p){ toast('Name und Passwort erforderlich','w'); return; }
-  if(n.toLowerCase()==='owner'||n.toLowerCase()==='superadmin'){ toast('Name ist reserviert','e'); return; }
-  if(n.length>40||p.length>128){ toast('Eingabe zu lang','w'); return; }
-  if(!/^[a-zA-Z0-9_\-\.]+$/.test(n)){ toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w'); return; }
+  if(!n||!p){toast('Name und Passwort erforderlich','w');return;}
+  if(['owner','superadmin'].includes(n.toLowerCase())){toast('Name reserviert','e');return;}
+  if(n.length>40||p.length>128){toast('Eingabe zu lang','w');return;}
+  if(!/^[a-zA-Z0-9_\-.]+$/.test(n)){toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w');return;}
+  if(!_fbOnline){toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e');return;}
   const d=getRD();
-  if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){ toast('Admin existiert bereits','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
-  const ph=_sha256pure(p+HASH_SALT);
+  if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){toast('Admin existiert bereits','w');return;}
+  const ph=pwHash(p);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-  }catch(e){ toast('⚠ Firebase-Fehler beim Speichern','e'); return; }
+  saveRD(d);
   document.getElementById('apn').value='';
   document.getElementById('app').value='';
-  logAction('SECURITY',`Admin "${esc(n)}" erstellt`);
-  toast(`Admin "${n}" erstellt`);
+  logAction('SECURITY','Admin "'+esc(n)+'" erstellt');
+  toast('Admin "'+n+'" erstellt ✓');
   renderAdminPanel();
 }
 function removeAdmin(name){
-  if(!confirm(`Admin "${name}" wirklich permanent löschen?`)) return;
+  if(!confirm('Admin "'+name+'" wirklich löschen?'))return;
   broadcastKick(name,'Konto wurde gelöscht');
   const d=getRD();
   d.adm=(d.adm||[]).filter(a=>a.n!==name);
   saveRD(d);
-  logAction('SECURITY',`Admin "${esc(name)}" gelöscht`);
-  toast(`${name} gelöscht`,'w');
+  logAction('SECURITY','Admin "'+esc(name)+'" gelöscht');
+  toast(name+' gelöscht','w');
   renderAdminPanel();
 }
 function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
-  if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
-  const ph=_sha256pure(p+HASH_SALT);
-  const d=getRD(); d.op=ph;
-  // Direkt zu Firebase (saveRD ist Firebase-first)
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-    document.getElementById('opw').value='';
-    logAction('SECURITY','Owner-Passwort geändert');
-    toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
-  }catch(e){
-    toast('⚠ Fehler beim Speichern — Passwort nicht geändert!','e');
-  }
+  if(p.length<6){toast('Mind. 6 Zeichen','w');return;}
+  const ph=pwHash(p);
+  const d=getRD();d.op=ph;saveRD(d);
+  document.getElementById('opw').value='';
+  logAction('SECURITY','Owner-Passwort geändert');
+  toast('Passwort geändert ✓ — gilt sofort auf allen Geräten');
+}
+function changeAdminPw(name){
+  const pw=(document.getElementById('newpw-'+name).value||'').trim();
+  if(pw.length<6){toast('Mind. 6 Zeichen','w');return;}
+  const ph=pwHash(pw);
+  const d=getRD();
+  const a=(d.adm||[]).find(x=>x.n===name);
+  if(!a)return;
+  a.p=ph;saveRD(d);
+  document.getElementById('newpw-'+name).value='';
+  broadcastKick(name,'Passwort geändert – bitte neu einloggen');
+  logAction('SECURITY','PW für "'+esc(name)+'" geändert');
+  toast('PW für '+name+' geändert ✓');
 }
 
-/* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════════════
+   CONTROL PANEL
+   ════════════════════════════════════════════════════════════════════════════ */
 function renderCtrl(){
-  const s = getSession();
-  // Superowner zeigt sich als "Owner" — keine Spur der echten Identität
-  const displayUser = s._superowner ? 'Owner' : (s.user || '—');
-  document.getElementById('cp-sess-user').textContent = displayUser;
-  document.getElementById('cp-sess-role').textContent = (s.role || '—').toUpperCase();
-  document.getElementById('cp-sess-start').textContent = s.start ? new Date(s.start).toLocaleTimeString('de-DE') : '—';
-  document.getElementById('cp-sess-last').textContent = s.last ? new Date(s.last).toLocaleTimeString('de-DE') : '—';
-  const rl = checkRateLimit();
-  document.getElementById('cp-attempts').textContent = loginAttempts;
-  document.getElementById('cp-attempts').className = 'cpstat-val' + (loginAttempts > 0 ? ' warn' : '');
-  document.getElementById('cp-lockstatus').textContent = rl.locked ? `Gesperrt (${rl.remaining}s)` : 'Nicht aktiv';
-  document.getElementById('cp-lockstatus').className = 'cpstat-val' + (rl.locked ? ' err' : ' ok');
-  const log = getLog();
-  document.getElementById('cp-logcount').textContent = log.length;
-  const d = getRD();
-  const currentUser = s.user || '';
-  const currentRole = s.role || '';
-  // Admin-Konten
-  let admHtml = `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--gold2)">Owner</span><span style="font-family:'Share Tech Mono';font-size:10px;padding:2px 8px;border:1px solid ${currentRole==='owner'?'var(--green)':'var(--border2)'};color:${currentRole==='owner'?'var(--green)':'var(--white)'}">${currentRole==='owner'?'ONLINE':'OFFLINE'}</span></div>`;
+  const s=getSession();
+  document.getElementById('cp-sess-user').textContent=s._superowner?'Owner':(s.user||'—');
+  document.getElementById('cp-sess-role').textContent=(s.role||'—').toUpperCase();
+  document.getElementById('cp-sess-start').textContent=s.start?new Date(s.start).toLocaleTimeString('de-DE'):'—';
+  document.getElementById('cp-sess-last').textContent=s.last?new Date(s.last).toLocaleTimeString('de-DE'):'—';
+  const rl=checkRateLimit();
+  document.getElementById('cp-attempts').textContent=loginAttempts;
+  document.getElementById('cp-attempts').className='cpstat-val'+(loginAttempts>0?' warn':'');
+  document.getElementById('cp-lockstatus').textContent=rl.locked?'Gesperrt ('+rl.remaining+'s)':'Nicht aktiv';
+  document.getElementById('cp-lockstatus').className='cpstat-val'+(rl.locked?' err':' ok');
+  const log=getLog();
+  document.getElementById('cp-logcount').textContent=log.length;
+  const d=getRD(),cu=s.user||'',cr=s.role||'';
+  let ah=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--gold2)">Owner</span><span style="font-family:'Share Tech Mono';font-size:10px;padding:2px 8px;border:1px solid ${cr==='owner'?'var(--green)':'var(--border2)'};color:${cr==='owner'?'var(--green)':'var(--white)'}">${cr==='owner'?'ONLINE':'OFFLINE'}</span></div>`;
   if((d.adm||[]).length){
-    admHtml += (d.adm||[]).map(a=>{
-      const isOnline = currentRole==='admin' && currentUser===a.n;
-      const lastLogin = log.find(e=>e.user===a.n&&e.action==='LOGIN');
-      const lastFail = log.filter(e=>e.detail&&e.detail.includes(`"${a.n}"`)&&e.action==='LOGIN-FAIL').length;
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--white)">${esc(a.n)}</div><div style="font-family:'Share Tech Mono';font-size:10px;color:var(--white);margin-top:2px">${lastLogin?'Login: '+new Date(lastLogin.ts).toLocaleString('de-DE'):'Nie angemeldet'}${lastFail>0?' · <span style="color:var(--red)">'+lastFail+' Fehlv.</span>':''}</div></div><span style="font-family:'Share Tech Mono';font-size:10px;padding:2px 8px;border:1px solid ${isOnline?'var(--green)':'var(--border2)'};color:${isOnline?'var(--green)':'var(--white)'}">${isOnline?'ONLINE':'OFFLINE'}</span></div>`;
+    ah+=(d.adm||[]).map(a=>{
+      const on=cr==='admin'&&cu===a.n;
+      const ll=log.find(e=>e.user===a.n&&e.action==='LOGIN');
+      return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><div><div style="font-family:'Rajdhani';font-size:15px;font-weight:700;color:var(--white)">${esc(a.n)}</div><div style="font-family:'Share Tech Mono';font-size:10px;color:var(--white);margin-top:2px">${ll?'Login: '+new Date(ll.ts).toLocaleString('de-DE'):'Nie angemeldet'}</div></div><span style="font-family:'Share Tech Mono';font-size:10px;padding:2px 8px;border:1px solid ${on?'var(--green)':'var(--border2)'};color:${on?'var(--green)':'var(--white)'}">${on?'ONLINE':'OFFLINE'}</span></div>`;
     }).join('');
-  } else {
-    admHtml += '<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:10px 0">Keine Admins.</div>';
-  }
-  document.getElementById('cp-admins').innerHTML = admHtml;
-  const allUsers = ['Owner', ...(d.adm||[]).map(a=>a.n)];
-  document.getElementById('cp-lastlogins').innerHTML = allUsers.map(u=>{
-    const acts = log.filter(e=>e.user===u);
-    const last = acts[0];
-    const actionCount = acts.filter(e=>['ADD','EDIT','DELETE'].includes(e.action)).length;
-    const failCount = log.filter(e=>e.action==='LOGIN-FAIL'&&e.detail&&e.detail.includes(`"${u.toLowerCase()}`)).length;
-    return `<div class="cpstat-row"><span class="cpstat-key">${esc(u)}</span><span class="cpstat-val" style="font-size:13px;text-align:right"><span style="color:var(--white)">${last?new Date(last.ts).toLocaleString('de-DE'):'—'}</span>${actionCount>0?`<br><span style="color:#88bbee;font-size:11px">${actionCount} Änderung(en)</span>`:''}${failCount>0?`<br><span style="color:var(--red);font-size:11px">${failCount} Fehlversuch(e)</span>`:''}</span></div>`;
+  }else{ah+='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:10px 0">Keine Admins.</div>';}
+  document.getElementById('cp-admins').innerHTML=ah;
+  const allU=['Owner',...(d.adm||[]).map(a=>a.n)];
+  document.getElementById('cp-lastlogins').innerHTML=allU.map(u=>{
+    const ll=log.find(e=>e.user===u&&e.action==='LOGIN');
+    return`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-family:'Rajdhani';font-size:14px;font-weight:700">${esc(u)}</span><span style="font-family:'Share Tech Mono';font-size:11px;color:var(--white)">${ll?new Date(ll.ts).toLocaleString('de-DE'):'—'}</span></div>`;
   }).join('');
-  const uFilter = document.getElementById('log-filter-user');
-  const curUVal = uFilter.value;
-  uFilter.innerHTML = '<option value="">Alle Benutzer</option>' + [...new Set(log.map(e=>e.user))].map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
-  uFilter.value = curUVal;
-  const uF = uFilter.value;
-  const aF = document.getElementById('log-filter-action').value;
-  let filtered = log;
-  if(uF) filtered = filtered.filter(e=>e.user===uF);
-  if(aF) filtered = filtered.filter(e=>e.action.startsWith(aF));
-  const max = 200;
-  const shown = filtered.slice(0,max);
+  // Log-Tabelle
+  const uSel=document.getElementById('log-filter-user');
+  const uVal=uSel.value;
+  uSel.innerHTML='<option value="">Alle Benutzer</option>'+[...new Set(log.map(e=>e.user))].map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+  uSel.value=uVal;
+  const uF=uSel.value,aF=document.getElementById('log-filter-action').value;
+  let fl=log;
+  if(uF)fl=fl.filter(e=>e.user===uF);
+  if(aF)fl=fl.filter(e=>e.action.startsWith(aF));
+  const shown=fl.slice(0,200);
   if(!shown.length){
-    document.getElementById('log-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';
-  } else {
-    document.getElementById('log-tbody').innerHTML = shown.map(e=>{
-      const dt = new Date(e.ts);
-      const ts = dt.toLocaleDateString('de-DE')+' '+dt.toLocaleTimeString('de-DE');
-      const roleClass = e.role==='owner'?'log-role-owner':e.role==='admin'?'log-role-admin':'log-role-viewer';
-      const ac = e.action;
-      const acClass = ac==='LOGIN'?'login':ac==='LOGOUT'?'logout':ac==='LOGIN-FAIL'?'fail':ac==='ADD'?'add':ac==='EDIT'?'edit':ac==='DELETE'?'delete':ac==='SECURITY'?'security':'other';
-      return `<tr><td class="log-ts">${esc(ts)}</td><td class="log-user ${roleClass}">${esc(e.user)}</td><td><span class="log-role-${esc(e.role)}" style="font-family:'Share Tech Mono';font-size:10px;letter-spacing:1px">${esc((e.role||'').toUpperCase())}</span></td><td><span class="log-action ${acClass}">${esc(ac)}</span></td><td class="log-detail">${esc(e.detail||'—')}</td></tr>`;
+    document.getElementById('log-tbody').innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';
+  }else{
+    document.getElementById('log-tbody').innerHTML=shown.map(e=>{
+      const dt=new Date(e.ts);
+      const ts=dt.toLocaleDateString('de-DE')+' '+dt.toLocaleTimeString('de-DE');
+      const rc2=e.role==='owner'?'log-role-owner':e.role==='admin'?'log-role-admin':'log-role-viewer';
+      const ac=e.action;
+      const acC=ac==='LOGIN'?'login':ac==='LOGOUT'?'logout':ac==='ADD'?'add':ac==='EDIT'?'edit':ac==='DELETE'?'delete':ac==='SECURITY'?'security':'other';
+      return`<tr><td class="log-ts">${esc(ts)}</td><td class="log-user ${rc2}">${esc(e.user)}</td><td><span style="font-family:'Share Tech Mono';font-size:10px">${esc((e.role||'').toUpperCase())}</span></td><td><span class="log-action ${acC}">${esc(ac)}</span></td><td class="log-detail">${esc(e.detail||'—')}</td></tr>`;
     }).join('');
   }
-  document.getElementById('log-footer').textContent = `${filtered.length} Einträge${filtered.length>max?' (zeige '+max+')':''} · Gesamt: ${log.length}`;
-  // Backup-Panel aktualisieren
+  document.getElementById('log-footer').textContent=fl.length+' Einträge · Gesamt: '+log.length;
   renderBackupPanel();
-  // Firebase-Status-Panel aktualisieren
   renderFbPanel();
 }
-
 setInterval(()=>{
-  if(curRole === 'viewer') return;
-  const s = getSession();
-  if(!s.last) return;
-  const timeout = getAdminTimeout(s.user || curRole);
-  const rem = Math.max(0, timeout - (Date.now() - s.last));
-  const m = Math.floor(rem/60000).toString().padStart(2,'0');
-  const sec = Math.floor((rem%60000)/1000).toString().padStart(2,'0');
-  const el = document.getElementById('cp-sess-timeout');
-  if(el){ el.textContent = m+':'+sec; el.className = 'cpstat-val'+(rem<5*60*1000?' err':rem<10*60*1000?' warn':' ok'); }
-  const el2 = document.getElementById('cp-sess-last');
-  if(el2&&s.last) el2.textContent = new Date(s.last).toLocaleTimeString('de-DE');
-}, 1000);
+  if(curRole==='viewer')return;
+  const s=getSession();if(!s.last)return;
+  const timeout=getAdminTimeout(s.user||curRole);
+  const rem=Math.max(0,timeout-(Date.now()-s.last));
+  const m=Math.floor(rem/60000).toString().padStart(2,'0');
+  const sec=Math.floor((rem%60000)/1000).toString().padStart(2,'0');
+  const el=document.getElementById('cp-sess-timeout');
+  if(el){el.textContent=m+':'+sec;el.className='cpstat-val'+(rem<5*60*1000?' err':rem<10*60*1000?' warn':' ok');}
+  const el2=document.getElementById('cp-sess-last');
+  if(el2&&s.last)el2.textContent=new Date(s.last).toLocaleTimeString('de-DE');
+},1000);
 
-/* ── DATA ───────────────────────────────────────────────────────────── */
-const FK = 'mnc_f6', MK = 'mnc_m4';
-let fraks = [], mems = [], eFid = null, eMid = null, mf = 'all';
+function renderFbPanel(){
+  const el=document.getElementById('fb-panel-content');
+  if(!el)return;
+  if(!_fbOnline){
+    el.innerHTML='<div style="background:var(--s2);border:1px solid var(--border2);padding:22px 26px"><div style="font-family:\'Bebas Neue\';font-size:22px;color:var(--gold2);letter-spacing:3px;margin-bottom:12px">⚠ OFFLINE</div><div style="font-family:\'Share Tech Mono\';font-size:12px;color:var(--white)">Seite neu laden um Firebase zu verbinden.</div></div>';
+    return;
+  }
+  el.innerHTML=`<div class="cpgrid" style="margin-bottom:16px">
+    <div class="cpcard"><div class="cpcard-title">🔥 Verbindung</div>
+      <div class="cpstat-row"><span class="cpstat-key">Status</span><span class="cpstat-val ok">ONLINE ✓</span></div>
+      <div class="cpstat-row"><span class="cpstat-key">Fraktionen</span><span class="cpstat-val ok">${fraks.length}</span></div>
+      <div class="cpstat-row"><span class="cpstat-key">Mitglieder</span><span class="cpstat-val ok">${mems.length}</span></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <button class="abtn" onclick="fbPushAll().then(()=>toast('☁ Hochgeladen ✓'))">☁ HOCHLADEN</button>
+    <button class="fbtn" onclick="fbPullAll().then(()=>toast('↓ Geladen ✓'))">↓ HERUNTERLADEN</button>
+  </div>`;
+}
 
+/* ════════════════════════════════════════════════════════════════════════════
+   NAVIGATION & DATEN
+   ════════════════════════════════════════════════════════════════════════════ */
+function goHome(e){if(e)e.preventDefault();document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.getElementById('page-home').classList.add('on');}
+function navTo(id){let btn=null;document.querySelectorAll('.nb').forEach(b=>{if((b.getAttribute('onclick')||'').includes("'"+id+"'"))btn=b;});showPage(id,btn);}
+function showPage(id, btn){
+  document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='member')rmem();
+  if(id==='ctrl')renderCtrl();
+}
+function save(){
+  hs();updateHomeStats();
+  if(!_fbOnline){toast('⚠ Kein Firebase!','e');return;}
+  _localMutex=true;
+  Promise.all([fbWrite(FB_PATH.fraks,fraks),fbWrite(FB_PATH.mems,mems)]).then(()=>{
+    _localMutex=false;
+    try{localStorage.setItem(FK,JSON.stringify(fraks));localStorage.setItem(MK,JSON.stringify(mems));}catch{}
+    showSyncIndicator('✓ Gespeichert');
+  }).catch(()=>{_localMutex=false;toast('⚠ Firebase-Fehler!','e');});
+}
+function hs(){
+  document.getElementById('hcf').textContent=fraks.length;
+  document.getElementById('hcm').textContent=mems.length;
+}
+function updateHomeStats(){
+  document.getElementById('home-cf').textContent=fraks.length;
+  document.getElementById('home-cm').textContent=mems.length;
+  document.getElementById('home-ca').textContent=mems.filter(m=>m.status==='AKTIV').length;
+  document.getElementById('home-ci').textContent=mems.filter(m=>m.status==='INAKTIV').length;
+  document.getElementById('hcard-cf').textContent=fraks.length;
+  document.getElementById('hcard-cm').textContent=mems.length;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   FRAKTIONEN
+   ════════════════════════════════════════════════════════════════════════════ */
+function setFF(btn){document.querySelectorAll('[data-ff]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');rfrak();}
+function rfrak(){
+  const q=(document.getElementById('finp').value||'').toLowerCase();
+  let list=fraks.filter(f=>f.name.toLowerCase().includes(q));
+  list.sort((a,b)=>{if(a.mnc&&!b.mnc)return -1;if(!a.mnc&&b.mnc)return 1;return a.name.localeCompare(b.name,'de',{sensitivity:'base'});});
+  const g=document.getElementById('fgrid');
+  if(!list.length){
+    g.innerHTML=fraks.length===0&&!_fbOnline
+      ?'<div class="empty"><div class="big" style="font-size:28px">VERBINDE…</div><p>Firebase wird geladen</p></div>'
+      :'<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
+    return;
+  }
+  g.innerHTML=list.map(f=>{
+    const primHex=toHex(f.prim)||'#1a1a1a';
+    const cf=[['PRIMÄR',f.prim],['SEK',f.sek],['PEARL',f.pearl],['SCHEIN',f.schein],['UNTER',f.unterboden],['QUALM',f.reifenqualm]].filter(([,v])=>v&&v.trim());
+    const cr=cf.map(([l,v])=>{const hx=toHex(v)||'#2a2a2a';return`<div class="ccrow"><div class="cdot" style="width:34px;height:34px;background:${hx};border:2px solid rgba(255,255,255,.12);border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div><span class="clbl">${l}</span></div>`;}).join('');
+    const hi=f.hints?`<div class="fcext"><div class="elbl">HINWEISE</div>${esc(f.hints)}</div>`:'';
+    const nc=nameColor(f.prim);
+    const bright=isBright(primHex);
+    const txtCol=bright?'rgba(0,0,0,.85)':'rgba(255,255,255,.95)';
+    const acts=(hasPerm('canEditFrak')||hasPerm('canDeleteFrak'))?`<div class="fcact">${hasPerm('canEditFrak')?`<button class="actbtn" onclick="event.stopPropagation();openFM('${f.id}')">BEARBEITEN</button>`:''}${hasPerm('canDeleteFrak')?`<button class="actbtn del" onclick="event.stopPropagation();delFrak('${f.id}')">LÖSCHEN</button>`:''}</div>`:'';
+    return`<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${f.id}')" role="button" tabindex="0" aria-label="${esc(f.name)}" onkeydown="if(event.key==='Enter')openDet('${f.id}')">
+      <div class="cblock"><div class="cblock-main" style="background:${primHex}"></div><div class="cblock-txt" style="color:${txtCol}">${esc(f.name)}</div></div>
+      <div class="fcb"><div class="fcname" style="color:${nc}">${esc(f.name)}</div><div class="fccols">${cr}</div>${hi}</div>${acts}</div>`;
+  }).join('');
+}
+function openDet(id){
+  const f=fraks.find(x=>x.id===id);if(!f)return;
+  document.getElementById('detbar').innerHTML=[f.prim,f.sek,f.pearl].map(c=>`<div style="flex:1;background:${toHex(c)||'#1a1a1a'}"></div>`).join('');
+  const ne=document.getElementById('detname');ne.textContent=f.name;ne.style.color=nameColor(f.prim);
+  document.getElementById('detsub').textContent='Lackierung · Vollständige Details';
+  const flds=[['Primärfarbe',f.prim],['Sekundärfarbe',f.sek],['Perleffekt',f.pearl],['Scheinwerfer',f.schein],['Unterboden',f.unterboden],['Reifenqualm',f.reifenqualm]].filter(([,v])=>v&&v.trim());
+  document.getElementById('detrows').innerHTML=flds.map(([l,v])=>`<div class="detrow"><div class="detdot" style="background:${toHex(v)||'#2a2a2a'}"></div><div class="detlbl">${esc(l)}</div><div class="detval">${esc(v)}</div></div>`).join('');
+  const hw=document.getElementById('hintswrap'),dd=document.getElementById('detdiv');
+  if(f.hints&&f.hints.trim()){hw.style.display='block';dd.style.display='block';document.getElementById('hintbox').textContent=f.hints;}
+  else{hw.style.display='none';dd.style.display='none';}
+  document.getElementById('detvtxt').textContent=buildV(f);
+  document.getElementById('detov').classList.add('open');
+}
+function closeDet(){document.getElementById('detov').classList.remove('open');}
+function copyDet(){
+  navigator.clipboard.writeText(document.getElementById('detvtxt').textContent).then(()=>{
+    const b=document.getElementById('detcpy');b.textContent='KOPIERT ✓';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='KOPIEREN';b.classList.remove('ok');},2200);
+  }).catch(()=>toast('Fehler beim Kopieren','e'));
+}
+function buildV(f){
+  let s='"'+f.name+'"\n';
+  s+='Primär: '+(f.prim||'—')+'\n';
+  s+='Sekundär: '+(f.sek||'—')+'\n';
+  s+='Perleffekt: '+(f.pearl||'—')+'\n';
+  if(f.schein)s+='Neon: '+f.schein+'\n';
+  if(f.unterboden)s+='Unterboden: '+f.unterboden+'\n';
+  if(f.reifenqualm)s+='Reifenqualm: '+f.reifenqualm+'\n';
+  if(f.hints)s+='Sonstiges: '+f.hints;
+  return s.trim();
+}
+function openFM(id){
+  eFid=id||null;
+  document.getElementById('fmtitle').textContent=id?'BEARBEITEN':'NEUE FRAKTION';
+  ['fn','fp','fs','fpe','fsch','fub','frq','fhi'].forEach(i=>document.getElementById(i).value='');
+  ['fpSw','fsSw','fpeSw','fschSw','fubSw','frqSw'].forEach(i=>document.getElementById(i).style.background='var(--s3)');
+  document.getElementById('vorlage-area').classList.remove('show');
+  document.getElementById('vorlage-input').value='';
+  if(id){
+    const f=fraks.find(x=>x.id===id);
+    if(f){
+      document.getElementById('fn').value=f.name||'';
+      document.getElementById('fp').value=f.prim||'';
+      document.getElementById('fs').value=f.sek||'';
+      document.getElementById('fpe').value=f.pearl||'';
+      document.getElementById('fsch').value=f.schein||'';
+      document.getElementById('fub').value=f.unterboden||'';
+      document.getElementById('frq').value=f.reifenqualm||'';
+      document.getElementById('fhi').value=f.hints||'';
+      [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw'],['frq','frqSw']].forEach(([t,b])=>syncSw(t,b));
+    }
+  }
+  upPv();
+  document.getElementById('fmov').classList.add('open');
+}
+function closeFM(){document.getElementById('fmov').classList.remove('open');}
+function syncSw(textId, btnId){const h=toHex(document.getElementById(textId).value);document.getElementById(btnId).style.background=h||'var(--s3)';}
+function upPv(){[['fp','pv1'],['fs','pv2'],['fpe','pv3']].forEach(([f,p])=>{const h=toHex(document.getElementById(f).value);document.getElementById(p).style.background=h||'#1a1a1a';});}
+function saveFrak(){
+  if(curRole==='viewer'){toast('Keine Berechtigung','e');return;}
+  const name=document.getElementById('fn').value.trim();
+  if(!name){toast('Name erforderlich','w');return;}
+  const d={id:eFid||'f'+Date.now(),name,
+    prim:document.getElementById('fp').value.trim(),sek:document.getElementById('fs').value.trim(),
+    pearl:document.getElementById('fpe').value.trim(),schein:document.getElementById('fsch').value.trim(),
+    unterboden:document.getElementById('fub').value.trim(),reifenqualm:document.getElementById('frq').value.trim(),
+    hints:document.getElementById('fhi').value.trim(),
+    mnc:eFid?(fraks.find(f=>f.id===eFid)||{}).mnc||false:false};
+  if(eFid){
+    if(!hasPerm('canEditFrak')){toast('Keine Berechtigung','e');return;}
+    fraks=fraks.map(f=>f.id===eFid?d:f);
+    logAction('EDIT','Fraktion "'+esc(name)+'" bearbeitet');
+    toast('Gespeichert ✓');
+  }else{
+    if(!hasPerm('canAddFrak')){toast('Keine Berechtigung','e');return;}
+    fraks.push(d);
+    logAction('ADD','Fraktion "'+esc(name)+'" hinzugefügt');
+    toast('Fraktion hinzugefügt ✓');
+  }
+  save();closeFM();rfrak();
+}
+function delFrak(id){
+  if(!hasPerm('canDeleteFrak')){toast('Keine Berechtigung','e');return;}
+  const f=fraks.find(x=>x.id===id);if(!f)return;
+  document.getElementById('cfname').textContent='"'+f.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{
+    fraks=fraks.filter(x=>x.id!==id);
+    save();rfrak();logAction('DELETE','Fraktion "'+esc(f.name)+'" gelöscht');toast('Gelöscht','w');closeCF();
+  };
+  document.getElementById('cfov').classList.add('open');
+}
+function toggleVorlage(){document.getElementById('vorlage-area').classList.toggle('show');}
+function clearVorlage(){document.getElementById('vorlage-input').value='';}
+function parseVorlage(){
+  const t=document.getElementById('vorlage-input').value;
+  const parse=(keys,src)=>{for(const k of keys){const m=src.match(new RegExp(k+'[:\\s]+([^\\n]+)','i'));if(m)return m[1].trim();}return'';};
+  document.getElementById('fp').value=parse(['Primär','Prim','Primary'],t);
+  document.getElementById('fs').value=parse(['Sekundär','Sek','Secondary'],t);
+  document.getElementById('fpe').value=parse(['Pearl','Perl'],t);
+  document.getElementById('fsch').value=parse(['Neon','Scheinwerfer'],t);
+  document.getElementById('fub').value=parse(['Unterboden','Unter'],t);
+  document.getElementById('frq').value=parse(['Reifenqualm','Qualm'],t);
+  [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw'],['frq','frqSw']].forEach(([t2,b])=>syncSw(t2,b));
+  upPv();
+  toast('Vorlage eingelesen ✓');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MITGLIEDER
+   ════════════════════════════════════════════════════════════════════════════ */
+function setMF(btn, f){document.querySelectorAll('[data-mf]').forEach(b=>b.classList.remove('on'));btn.classList.add('on');mf=f;rmem();}
+function rmem(){
+  const q=(document.getElementById('minp').value||'').toLowerCase();
+  let list=mems.filter(m=>(m.name||'').toLowerCase().includes(q)||(m.rang||'').toLowerCase().includes(q));
+  if(mf!=='all')list=list.filter(m=>m.status===mf);
+  document.getElementById('sa').textContent=mems.filter(m=>m.status==='AKTIV').length;
+  document.getElementById('sn').textContent=mems.filter(m=>m.status==='INAKTIV').length;
+  document.getElementById('su').textContent=mems.filter(m=>m.status==='URLAUB').length;
+  document.getElementById('sg').textContent=mems.length;
+  const tb=document.getElementById('mtb');
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:44px;color:var(--white);font-family:\'Share Tech Mono\';font-size:13px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';return;}
+  tb.innerHTML=list.map((m,i)=>{
+    const num=String(mems.indexOf(m)+1).padStart(2,'0');
+    const rc=RC[m.rang]||'rn';
+    const sc2=m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
+    const canEdit=hasPerm('canEditMem'),canDel=hasPerm('canDeleteMem');
+    const acts=(canEdit||canDel)?`<span>${canEdit?`<button class="rabtn" onclick="openMM('${m.id}')">✎</button> `:''}${canDel?`<button class="rabtn del" onclick="delMem('${m.id}')">✕</button>`:''}</span>`:'';
+    return`<tr><td class="numc">${num}</td><td class="namc">➤ ${esc(m.name)}</td><td><span class="rb ${rc}">${esc(m.rang||'—')}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${esc(m.note||'')}</td><td style="text-align:right;white-space:nowrap">${acts}</td></tr>`;
+  }).join('');
+}
+function openMM(id){
+  eMid=id||null;
+  document.getElementById('mmtitle').textContent=id?'BEARBEITEN':'NEUES MITGLIED';
+  document.getElementById('mn').value='';document.getElementById('mno').value='';
+  document.getElementById('mr').value='';document.getElementById('mst').value='AKTIV';
+  if(id){
+    const m=mems.find(x=>x.id===id);
+    if(m){document.getElementById('mn').value=m.name;document.getElementById('mr').value=m.rang;document.getElementById('mst').value=m.status;document.getElementById('mno').value=m.note||'';}
+  }
+  document.getElementById('mmov').classList.add('open');
+}
+function closeMM(){document.getElementById('mmov').classList.remove('open');}
+function saveMem(){
+  if(eMid&&!hasPerm('canEditMem')){toast('Keine Berechtigung','e');return;}
+  if(!eMid&&!hasPerm('canAddMem')){toast('Keine Berechtigung','e');return;}
+  const name=document.getElementById('mn').value.trim();
+  if(!name){toast('Name erforderlich','w');return;}
+  const d={id:eMid||'m'+Date.now(),name,rang:document.getElementById('mr').value,status:document.getElementById('mst').value,note:document.getElementById('mno').value.trim()};
+  if(eMid){mems=mems.map(m=>m.id===eMid?d:m);logAction('EDIT','Mitglied "'+esc(name)+'" bearbeitet');toast('Aktualisiert ✓');}
+  else{mems.push(d);logAction('ADD','Mitglied "'+esc(name)+'" hinzugefügt');toast('Mitglied hinzugefügt ✓');}
+  save();closeMM();rmem();
+}
+function delMem(id){
+  if(!hasPerm('canDeleteMem')){toast('Keine Berechtigung','e');return;}
+  const m=mems.find(x=>x.id===id);if(!m)return;
+  document.getElementById('cfname').textContent='"'+m.name+'"';
+  document.getElementById('cfconfirm').onclick=()=>{
+    mems=mems.filter(x=>x.id!==id);
+    save();rmem();logAction('DELETE','Mitglied "'+esc(m.name)+'" gelöscht');toast('Gelöscht','w');closeCF();
+  };
+  document.getElementById('cfov').classList.add('open');
+}
+function expText(){
+  let t='MID NIGHT CLUB — LOS SANTOS\nOFFIZIELLE MITGLIEDERLISTE\n'+'─'.repeat(40)+'\n\n';
+  mems.forEach((m,i)=>{t+=String(i+1).padStart(2,'0')+'  ➤  '+m.name+'  |  '+(m.rang||'—')+'  |  '+m.status+'\n';});
+  t+='\n'+'─'.repeat(40)+'\nGESAMT: '+mems.length+' MITGLIEDER';
+  navigator.clipboard.writeText(t).then(()=>toast('Liste kopiert ✓')).catch(()=>toast('Fehler','e'));
+  document.getElementById('expprev').innerHTML='<pre style="font-family:\'Share Tech Mono\';font-size:12px;color:var(--white);margin-top:14px;white-space:pre-wrap">'+esc(t)+'</pre>';
+}
+function expJSON(){
+  const b=new Blob([JSON.stringify({fraks,mems},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='mnc_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);toast('JSON exportiert');
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   TOAST & MISC
+   ════════════════════════════════════════════════════════════════════════════ */
+function closeCF(){document.getElementById('cfov').classList.remove('open');}
+function toast(msg, type=''){
+  const tc=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');
+  t.textContent=msg;tc.appendChild(t);
+  setTimeout(()=>t.remove(),2700);
+}
+
+/* ── INIT ────────────────────────────────────────────────────────────────── */
+function init(){
+  // Lade Cache sofort — Firebase überschreibt sobald verbunden
+  try{
+    const cf=localStorage.getItem(FK);
+    fraks=cf?JSON.parse(cf).map(f=>Object.assign({unterboden:'',reifenqualm:''},f)):JSON.parse(JSON.stringify(PF));
+  }catch{fraks=JSON.parse(JSON.stringify(PF));}
+  try{
+    const cm=localStorage.getItem(MK);
+    mems=cm?JSON.parse(cm):JSON.parse(JSON.stringify(PM));
+  }catch{mems=JSON.parse(JSON.stringify(PM));}
+  rfrak();rmem();hs();updateHomeStats();
+  applyRole('viewer','Gast');
+  startKickPoll();
+}
+
+
+/* ── DATEN: PF · PM · toHex · Color Picker · Vorlage · RC ─────────────── */
 const PF = [
   {id:'mnc',name:'MNC (Wir)',prim:'#000000',sek:'#FFD209',pearl:'Chrome',schein:'Yellow',unterboden:'#F3FF00',reifenqualm:'',hints:'',mnc:true},
   {id:'p1',name:'Accra',prim:'Metallic Black',sek:'',pearl:'Metallic Straw beige',schein:'Golden Shower',unterboden:'#986000',reifenqualm:'',hints:'',mnc:false},
@@ -2391,440 +2404,6 @@ function parseVorlage(){
   }
 }
 
-/* ── INIT ───────────────────────────────────────────────────────────── */
-function init(){
-  // Zeige Cache sofort (leere Ansicht vermeiden), Firebase überschreibt sofort
-  fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
-  fraks = fraks.map(f=>{
-    if(f.unterboden===undefined) f.unterboden='';
-    if(f.reifenqualm===undefined) f.reifenqualm='';
-    return f;
-  });
-  mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
-  rfrak(); rmem(); hs(); updateHomeStats();
-
-  // Starte als Gast — Session wird nach Firebase-Laden validiert
-  applyRole('viewer','Gast');
-  startKickPoll();
-}
-function save(){
-  hs();
-  updateHomeStats();
-  // Firebase ist die einzige Wahrheit — localStorage nur als stiller Cache
-  if(_fbOnline){
-    _localMutex = true;
-    Promise.all([
-      fbWrite(FB_PATH.fraks, fraks),
-      fbWrite(FB_PATH.mems, mems),
-    ]).then(()=>{
-      _localMutex = false;
-      // Cache aktualisieren
-      localStorage.setItem(FK, JSON.stringify(fraks));
-      localStorage.setItem(MK, JSON.stringify(mems));
-      showSyncIndicator('✓ Gespeichert');
-    }).catch(()=>{
-      _localMutex = false;
-      toast('⚠ Firebase nicht erreichbar — Daten NICHT gespeichert!','e');
-    });
-  } else {
-    // Kein Firebase = kein Speichern (kein stilles Wegschreiben in localStorage)
-    toast('⚠ Kein Internet — Daten können nicht gespeichert werden!','e');
-  }
-}
-function hs(){
-  document.getElementById('hcf').textContent = fraks.length;
-  document.getElementById('hcm').textContent = mems.length;
-}
-function updateHomeStats(){
-  document.getElementById('home-cf').textContent = fraks.length;
-  document.getElementById('home-cm').textContent = mems.length;
-  document.getElementById('home-ca').textContent = mems.filter(m=>m.status==='AKTIV').length;
-  document.getElementById('home-ci').textContent = mems.filter(m=>m.status==='INAKTIV').length;
-  document.getElementById('hcard-cf').textContent = fraks.length;
-  document.getElementById('hcard-cm').textContent = mems.length;
-}
-
-/* ── NAVIGATION ─────────────────────────────────────────────────────── */
-function goHome(e){
-  if(e) e.preventDefault();
-  document.querySelectorAll('.page, .homepage').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-  document.getElementById('page-home').classList.add('on');
-}
-function navTo(id){
-  // finde den passenden Nav-Button anhand des onclick-Inhalts
-  let btn = null;
-  document.querySelectorAll('.nb').forEach(b=>{
-    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) btn = b;
-  });
-  showPage(id, btn);
-}
-function showPage(id, btn){
-  document.querySelectorAll('.page, .homepage').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
-  const pg = document.getElementById('page-'+id);
-  if(pg) pg.classList.add('on');
-  if(btn) btn.classList.add('on');
-  if(id==='member') rmem();
-  if(id==='ctrl') renderCtrl();
-}
-
-/* ── FRAK GRID ──────────────────────────────────────────────────────── */
-function setFF(btn){
-  document.querySelectorAll('[data-ff]').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  rfrak();
-}
-function setMF(btn,f){
-  document.querySelectorAll('[data-mf]').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  mf = f;
-  rmem();
-}
-
-function rfrak(){
-  const q = (document.getElementById('finp').value||'').toLowerCase();
-  let list = fraks.filter(f=>f.name.toLowerCase().includes(q));
-  list.sort((a,b)=>{
-    if(a.mnc&&!b.mnc) return -1;
-    if(!a.mnc&&b.mnc) return 1;
-    return a.name.localeCompare(b.name,'de',{sensitivity:'base'});
-  });
-  const g = document.getElementById('fgrid');
-  if(!list.length){
-    g.innerHTML = '<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
-    return;
-  }
-  const isAdmin = curRole==='admin'||curRole==='owner';
-  g.innerHTML = list.map(f=>{
-    const primHex = toHex(f.prim) || '#1a1a1a';
-    const cf = [['PRIMÄR',f.prim],['SEK',f.sek],['PEARL',f.pearl],['SCHEIN',f.schein],['UNTER',f.unterboden],['QUALM',f.reifenqualm]]
-      .filter(([,v])=>v&&v.trim());
-    const cr = cf.map(([l,v])=>{
-      const h = toHex(v)||'#2a2a2a';
-      return `<div class="ccrow"><div class="cdot" style="width:34px;height:34px;background:${h};border:2px solid rgba(255,255,255,.12);border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div><span class="clbl">${l}</span></div>`;
-    }).join('');
-    const hi = f.hints ? `<div class="fcext"><div class="elbl">HINWEISE</div>${esc(f.hints)}</div>` : '';
-    const nc = nameColor(f.prim);
-    const bright = isBright(primHex);
-    const txtCol = bright ? 'rgba(0,0,0,.85)' : 'rgba(255,255,255,.95)';
-    const acts = (hasPerm('canEditFrak')||hasPerm('canDeleteFrak')) ? `<div class="fcact">
-      ${hasPerm('canEditFrak')?`<button class="actbtn" onclick="event.stopPropagation();openFM('${f.id}')">BEARBEITEN</button>`:''}
-      ${hasPerm('canDeleteFrak')?`<button class="actbtn del" onclick="event.stopPropagation();delFrak('${f.id}')">LÖSCHEN</button>`:''}
-    </div>` : '';
-    return `<div class="fc${f.mnc?' mnc':''}" onclick="openDet('${f.id}')" role="button" tabindex="0" aria-label="${esc(f.name)} Lackierung" onkeydown="if(event.key==='Enter')openDet('${f.id}')">
-      <div class="cblock">
-        <div class="cblock-main" style="background:${primHex}"></div>
-        <div class="cblock-txt" style="color:${txtCol}">${esc(f.name)}</div>
-      </div>
-      <div class="fcb">
-        <div class="fcname" style="color:${nc}">${esc(f.name)}</div>
-        <div class="fccols">${cr}</div>
-        ${hi}
-      </div>
-      ${acts}
-    </div>`;
-  }).join('');
-}
-
-/* ── DETAIL ─────────────────────────────────────────────────────────── */
-function openDet(id){
-  const f = fraks.find(x=>x.id===id); if(!f) return;
-  document.getElementById('detbar').innerHTML = [f.prim,f.sek,f.pearl]
-    .map(c=>`<div style="flex:1;background:${toHex(c)||'#1a1a1a'}"></div>`).join('');
-  const ne = document.getElementById('detname');
-  ne.textContent = f.name; ne.style.color = nameColor(f.prim);
-  const flds = [['Primärfarbe',f.prim],['Sekundärfarbe',f.sek],['Perleffekt',f.pearl],
-    ['Scheinwerfer',f.schein],['Unterboden',f.unterboden],['Reifenqualm',f.reifenqualm]]
-    .filter(([,v])=>v&&v.trim());
-  document.getElementById('detrows').innerHTML = flds.map(([l,v])=>`
-    <div class="detrow">
-      <div class="detdot" style="background:${toHex(v)||'#2a2a2a'}"></div>
-      <div class="detlbl">${esc(l)}</div>
-      <div class="detval">${esc(v)}</div>
-    </div>`).join('');
-  const hw = document.getElementById('hintswrap'), dd = document.getElementById('detdiv');
-  if(f.hints&&f.hints.trim()){
-    hw.style.display='block'; dd.style.display='block';
-    document.getElementById('hintbox').textContent = f.hints;
-  } else {
-    hw.style.display='none'; dd.style.display='none';
-  }
-  document.getElementById('detvtxt').textContent = buildV(f);
-  document.getElementById('detov').classList.add('open');
-}
-function closeDet(){ document.getElementById('detov').classList.remove('open'); }
-function copyDet(){
-  navigator.clipboard.writeText(document.getElementById('detvtxt').textContent).then(()=>{
-    const b = document.getElementById('detcpy');
-    b.textContent = 'KOPIERT ✓'; b.classList.add('ok');
-    setTimeout(()=>{ b.textContent='KOPIEREN'; b.classList.remove('ok'); }, 2200);
-  }).catch(()=>toast('Kopieren fehlgeschlagen','e'));
-}
-
-function buildV(f){
-  let s = `"${f.name}"\n`;
-  s += `Primär: ${f.prim||'—'}\n`;
-  s += `Sekundär: ${f.sek||'—'}\n`;
-  s += `Perleffekt: ${f.pearl||'—'}\n`;
-  if(f.schein)    s += `Neon: ${f.schein}\n`;
-  if(f.unterboden)  s += `Unterboden: ${f.unterboden}\n`;
-  if(f.reifenqualm) s += `Reifenqualm: ${f.reifenqualm}\n`;
-  if(f.hints)       s += `Sonstiges: ${f.hints}`;
-  return s.trim();
-}
-
-/* ── FORM ───────────────────────────────────────────────────────────── */
-function openFM(id){
-  eFid = id||null;
-  document.getElementById('fmtitle').textContent = id ? 'BEARBEITEN' : 'NEUE FRAKTION';
-  ['fn','fp','fs','fpe','fsch','fub','frq','fhi'].forEach(i=>document.getElementById(i).value='');
-  ['fpSw','fsSw','fpeSw','fschSw','fubSw','frqSw'].forEach(i=>document.getElementById(i).style.background='var(--s3)');
-  document.getElementById('vorlage-area').classList.remove('show');
-  document.getElementById('vorlage-input').value = '';
-  if(id){
-    const f = fraks.find(x=>x.id===id);
-    if(f){
-      document.getElementById('fn').value = f.name;
-      document.getElementById('fp').value = f.prim||'';
-      document.getElementById('fs').value = f.sek||'';
-      document.getElementById('fpe').value = f.pearl||'';
-      document.getElementById('fsch').value = f.schein||'';
-      document.getElementById('fub').value = f.unterboden||'';
-      document.getElementById('frq').value = f.reifenqualm||'';
-      document.getElementById('fhi').value = f.hints||'';
-      [['fp','fpSw'],['fs','fsSw'],['fpe','fpeSw'],['fsch','fschSw'],['fub','fubSw'],['frq','frqSw']].forEach(([ti,bi])=>syncSw(ti,bi));
-    }
-  }
-  upPv();
-  document.getElementById('fmov').classList.add('open');
-}
-function closeFM(){ document.getElementById('fmov').classList.remove('open'); }
-function syncSw(textId,btnId){
-  const h = toHex(document.getElementById(textId).value);
-  document.getElementById(btnId).style.background = h||'var(--s3)';
-}
-function upPv(){
-  [['fp','pv1'],['fs','pv2'],['fpe','pv3']].forEach(([f,p])=>{
-    const h = toHex(document.getElementById(f).value);
-    document.getElementById(p).style.background = h||'#1a1a1a';
-  });
-}
-function saveFrak(){
-  if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  const name = document.getElementById('fn').value.trim();
-  if(!name){ toast('Name erforderlich','w'); return; }
-  const d = {
-    id: eFid||'f'+Date.now(),
-    name,
-    prim: document.getElementById('fp').value.trim(),
-    sek:  document.getElementById('fs').value.trim(),
-    pearl:document.getElementById('fpe').value.trim(),
-    schein:document.getElementById('fsch').value.trim(),
-    unterboden:document.getElementById('fub').value.trim(),
-    reifenqualm:document.getElementById('frq').value.trim(),
-    hints:document.getElementById('fhi').value.trim(),
-    mnc: eFid ? (fraks.find(f=>f.id===eFid)||{}).mnc||false : false
-  };
-  if(eFid){
-    fraks = fraks.map(f=>f.id===eFid?d:f);
-    toast('Aktualisiert');
-    logAction('EDIT',`Fraktion "${esc(name)}" bearbeitet`);
-  } else {
-    fraks.push(d);
-    toast('Gespeichert');
-    logAction('ADD',`Fraktion "${esc(name)}" hinzugefügt`);
-  }
-  save(); closeFM(); rfrak();
-}
-function delFrak(id){
-  if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  const f = fraks.find(x=>x.id===id); if(!f) return;
-  document.getElementById('cfname').textContent = '"'+f.name+'"';
-  document.getElementById('cfconfirm').onclick = ()=>{
-    fraks = fraks.filter(f=>f.id!==id);
-    save(); rfrak();
-    logAction('DELETE',`Fraktion "${esc(f.name)}" gelöscht`);
-    toast('Gelöscht','w');
-    closeCF();
-  };
-  document.getElementById('cfov').classList.add('open');
-}
-function closeCF(){ document.getElementById('cfov').classList.remove('open'); }
-
-/* ── COLOR PICKER — PRO CANVAS HSV ──────────────────────────────────── */
-let cpTid = null, cpBid = null;
-let cpH = 0, cpS = 1, cpV = 1; // HSV state
-let cpOldColor = '#333333';
-let cpSvX = 1, cpSvY = 0; // cursor pos on canvas (0–1)
-
-function cpHsvToRgb(h,s,v){
-  const f = n => {
-    const k = (n + h/60) % 6;
-    return v - v*s*Math.max(0, Math.min(k, 4-k, 1));
-  };
-  return [Math.round(f(5)*255), Math.round(f(3)*255), Math.round(f(1)*255)];
-}
-function cpRgbToHsv(r,g,b){
-  r/=255;g/=255;b/=255;
-  const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
-  let h=0,s=max===0?0:d/max,v=max;
-  if(d!==0){
-    if(max===r) h=((g-b)/d)%6;
-    else if(max===g) h=(b-r)/d+2;
-    else h=(r-g)/d+4;
-    h=Math.round(h*60); if(h<0)h+=360;
-  }
-  return [h, s, v];
-}
-function cpHexToRgb(hex){
-  hex = hex.replace('#','');
-  if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
-  if(hex.length!==6) return null;
-  const n=parseInt(hex,16);
-  if(isNaN(n)) return null;
-  return [(n>>16)&255,(n>>8)&255,n&255];
-}
-function cpRgbToHex(r,g,b){
-  return '#'+(((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1));
-}
-function cpClamp(v,mn,mx){ return Math.max(mn,Math.min(mx,v)); }
-
-function cpDrawCanvas(){
-  const canvas = document.getElementById('cpCanvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  // Hue gradient left→right
-  const hGrad = ctx.createLinearGradient(0,0,W,0);
-  hGrad.addColorStop(0,'#fff');
-  hGrad.addColorStop(1,`hsl(${cpH},100%,50%)`);
-  ctx.fillStyle = hGrad; ctx.fillRect(0,0,W,H);
-  // Black gradient top→bottom
-  const bGrad = ctx.createLinearGradient(0,0,0,H);
-  bGrad.addColorStop(0,'rgba(0,0,0,0)');
-  bGrad.addColorStop(1,'#000');
-  ctx.fillStyle = bGrad; ctx.fillRect(0,0,W,H);
-  // Cursor
-  const cx = cpSvX * W, cy = (1-cpSvY) * H;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 8, 0, Math.PI*2);
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(cx, cy, 6, 0, Math.PI*2);
-  ctx.strokeStyle = 'rgba(0,0,0,.5)';
-  ctx.lineWidth = 1;
-  ctx.stroke();
-}
-
-function cpUpdateAllFromHsv(){
-  cpS = cpClamp(cpSvX, 0, 1);
-  cpV = cpClamp(cpSvY, 0, 1);
-  const [r,g,b] = cpHsvToRgb(cpH, cpS, cpV);
-  const hex = cpRgbToHex(r,g,b);
-  // Update inputs
-  document.getElementById('cpR').value = r;
-  document.getElementById('cpG').value = g;
-  document.getElementById('cpB').value = b;
-  document.getElementById('cpHexShort').value = hex.slice(1).toUpperCase();
-  document.getElementById('cpTxt').value = hex;
-  // Update swatches
-  document.getElementById('cpNewSwatch').style.background = hex;
-  // Color name
-  document.getElementById('cpNameLbl').textContent = cpGuessName(hex);
-  cpDrawCanvas();
-}
-
-function cpGuessName(hex){
-  const names = {
-    '#000000':'Schwarz','#131313':'Schwarz','#1c1c1c':'Matt Schwarz','#ffffff':'Weiß',
-    '#f5f5f5':'Pure White','#f0f0f0':'Weiß','#cc2222':'Rot','#aa2222':'Torino Red',
-    '#2244cc':'Blau','#0066ff':'Electric Blue','#22aa44':'Grün','#3dcc44':'Lime Green',
-    '#dd6600':'Orange','#c9a84c':'Gold','#ffd200':'Gelb','#dd4488':'Pink',
-    '#e040a0':'Hot Pink','#6633aa':'Lila','#7733bb':'Lila Anodized',
-    '#aaaaaa':'Silber / Chrome','#999999':'Metallic Silver','#666666':'Matt Grau',
-    '#b8963c':'Brushed Gold','#b8902a':'Anodized Gold','#8a7040':'Desert Tan Brown',
-    '#884422':'Chameleon Copper',
-  };
-  const h = hex.toLowerCase();
-  if(names[h]) return names[h];
-  // Attempt fuzzy by RGB distance
-  const rgb = cpHexToRgb(h);
-  if(!rgb) return '—';
-  let best = '—', bestD = 80;
-  for(const [k,n] of Object.entries(names)){
-    const c = cpHexToRgb(k);
-    if(!c) continue;
-    const d = Math.sqrt((rgb[0]-c[0])**2+(rgb[1]-c[1])**2+(rgb[2]-c[2])**2);
-    if(d < bestD){ bestD = d; best = n+'~'; }
-  }
-  return best;
-}
-
-function cpHueChanged(){
-  cpH = parseInt(document.getElementById('cpHue').value)||0;
-  cpUpdateAllFromHsv();
-}
-function cpRgbChanged(){
-  const r=cpClamp(parseInt(document.getElementById('cpR').value)||0,0,255);
-  const g=cpClamp(parseInt(document.getElementById('cpG').value)||0,0,255);
-  const b=cpClamp(parseInt(document.getElementById('cpB').value)||0,0,255);
-  const [h,s,v] = cpRgbToHsv(r,g,b);
-  cpH = h; cpSvX = s; cpSvY = v;
-  document.getElementById('cpHue').value = h;
-  const hex = cpRgbToHex(r,g,b);
-  document.getElementById('cpHexShort').value = hex.slice(1).toUpperCase();
-  document.getElementById('cpTxt').value = hex;
-  document.getElementById('cpNewSwatch').style.background = hex;
-  document.getElementById('cpNameLbl').textContent = cpGuessName(hex);
-  cpDrawCanvas();
-}
-function cpHexShortChanged(){
-  const raw = document.getElementById('cpHexShort').value.replace(/[^0-9a-fA-F]/g,'');
-  document.getElementById('cpHexShort').value = raw;
-  if(raw.length === 6){
-    const rgb = cpHexToRgb(raw);
-    if(rgb){
-      const [h,s,v] = cpRgbToHsv(...rgb);
-      cpH = h; cpSvX = s; cpSvY = v;
-      document.getElementById('cpHue').value = h;
-      document.getElementById('cpR').value = rgb[0];
-      document.getElementById('cpG').value = rgb[1];
-      document.getElementById('cpB').value = rgb[2];
-      const hex = '#'+raw;
-      document.getElementById('cpTxt').value = hex;
-      document.getElementById('cpNewSwatch').style.background = hex;
-      document.getElementById('cpNameLbl').textContent = cpGuessName(hex);
-      cpDrawCanvas();
-    }
-  }
-}
-
-function cpCanvasClick(e){
-  const canvas = document.getElementById('cpCanvas');
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const x = (e.clientX - rect.left) * scaleX;
-  const y = (e.clientY - rect.top) * scaleY;
-  cpSvX = cpClamp(x / canvas.width, 0, 1);
-  cpSvY = cpClamp(1 - y / canvas.height, 0, 1);
-  cpUpdateAllFromHsv();
-}
-let cpDragging = false;
-document.addEventListener('DOMContentLoaded', ()=>{
-  const canvas = document.getElementById('cpCanvas');
-  if(!canvas) return;
-  canvas.addEventListener('mousedown', e=>{ cpDragging=true; cpCanvasClick(e); });
-  canvas.addEventListener('mousemove', e=>{ if(cpDragging) cpCanvasClick(e); });
-  document.addEventListener('mouseup', ()=>{ cpDragging=false; });
-  canvas.addEventListener('touchstart', e=>{ cpDragging=true; cpCanvasClick(e.touches[0]); e.preventDefault(); }, {passive:false});
-  canvas.addEventListener('touchmove', e=>{ if(cpDragging) cpCanvasClick(e.touches[0]); e.preventDefault(); }, {passive:false});
-  document.addEventListener('touchend', ()=>{ cpDragging=false; });
-});
-
 function openCp(textId, btnId){
   cpTid = textId; cpBid = btnId;
   const raw = document.getElementById(textId).value || '';
@@ -2891,131 +2470,13 @@ const RC = {
   'Supīdā Wrench Class':'rsp','Unten-sha First Class':'ru','Unten-sha Second Class':'ru',
   'Unten-sha Third Class':'ru','Crashtest Dummy':'rd'
 };
-function rmem(){
-  const q = (document.getElementById('minp').value||'').toLowerCase();
-  let list = mems.filter(m=>m.name.toLowerCase().includes(q));
-  if(mf !== 'all') list = list.filter(m=>m.status===mf);
-  document.getElementById('sa').textContent = mems.filter(m=>m.status==='AKTIV').length;
-  document.getElementById('sn').textContent = mems.filter(m=>m.status==='INAKTIV').length;
-  document.getElementById('su').textContent = mems.filter(m=>m.status==='URLAUB').length;
-  document.getElementById('sg').textContent = mems.length;
-  const tb = document.getElementById('mtb');
-  const isAdmin = curRole==='admin'||curRole==='owner';
-  if(!list.length){
-    tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:44px;color:var(--white);font-family:\'Share Tech Mono\';font-size:13px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';
-    return;
-  }
-  tb.innerHTML = list.map(m=>{
-    const idx = mems.indexOf(m);
-    const num = String(idx+1).padStart(2,'0');
-    const rc = RC[m.rang]||'rn', rl = m.rang||'—';
-    const sc2 = m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
-    const acts = isAdmin ? `<span><button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button></span>` : '';
-    return `<tr><td class="numc">${num}</td><td class="namc">➤ ${esc(m.name)}</td><td><span class="rb ${rc}">${esc(rl)}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${esc(m.note||'')}</td><td style="text-align:right;white-space:nowrap">${acts}</td></tr>`;
-  }).join('');
-}
-function openMM(id){
-  eMid = id||null;
-  document.getElementById('mmtitle').textContent = id ? 'BEARBEITEN' : 'NEUES MITGLIED';
-  ['mn','mno'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('mr').value = '';
-  document.getElementById('mst').value = 'AKTIV';
-  if(id){
-    const m = mems.find(x=>x.id===id);
-    if(m){
-      document.getElementById('mn').value = m.name;
-      document.getElementById('mr').value = m.rang;
-      document.getElementById('mst').value = m.status;
-      document.getElementById('mno').value = m.note||'';
-    }
-  }
-  document.getElementById('mmov').classList.add('open');
-}
-function closeMM(){ document.getElementById('mmov').classList.remove('open'); }
-function saveMem(){
-  if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  const name = document.getElementById('mn').value.trim();
-  if(!name){ toast('Name erforderlich','w'); return; }
-  const d = {
-    id: eMid||'m'+Date.now(), name,
-    rang: document.getElementById('mr').value,
-    status: document.getElementById('mst').value,
-    note: document.getElementById('mno').value.trim()
-  };
-  if(eMid){
-    mems = mems.map(m=>m.id===eMid?d:m);
-    toast('Aktualisiert');
-    logAction('EDIT',`Mitglied "${esc(name)}" bearbeitet`);
-  } else {
-    mems.push(d);
-    toast('Mitglied hinzugefügt');
-    logAction('ADD',`Mitglied "${esc(name)}" hinzugefügt`);
-  }
-  save(); closeMM(); rmem();
-}
-function delMem(id){
-  if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  const m = mems.find(x=>x.id===id); if(!m) return;
-  document.getElementById('cfname').textContent = '"'+m.name+'"';
-  document.getElementById('cfconfirm').onclick = ()=>{
-    mems = mems.filter(m=>m.id!==id);
-    save(); rmem();
-    logAction('DELETE',`Mitglied "${esc(m.name)}" gelöscht`);
-    toast('Gelöscht','w');
-    closeCF();
-  };
-  document.getElementById('cfov').classList.add('open');
-}
 
-/* ── EXPORT ─────────────────────────────────────────────────────────── */
-function expText(){
-  let t = 'MID NIGHT CLUB — LOS SANTOS\nOFFIZIELLE MITGLIEDERLISTE\n'+'─'.repeat(40)+'\n\n';
-  mems.forEach((m,i)=>{ t += `${String(i+1).padStart(2,'0')}  ➤  ${m.name}  |  ${m.rang||'—'}  |  ${m.status}\n`; });
-  t += '\n'+'─'.repeat(40)+`\nGESAMT: ${mems.length} MITGLIEDER`;
-  navigator.clipboard.writeText(t).then(()=>toast('Liste kopiert'))
-    .catch(()=>toast('Kopieren fehlgeschlagen','e'));
-  document.getElementById('expprev').innerHTML = `<div class="vwrap" style="margin-top:16px"><div class="vlbl">VORSCHAU</div><div class="vtxt" style="white-space:pre">${esc(t)}</div></div>`;
-}
-function expJSON(){
-  const b = new Blob([JSON.stringify({fraks,mems,ts:new Date().toISOString()},null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(b);
-  a.download = 'mnc_backup.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('JSON exportiert');
-}
-
-/* ── TOAST ──────────────────────────────────────────────────────────── */
-function toast(msg, type){
-  const t = document.createElement('div');
-  t.className = 'toast' + (type?' '+type:'');
-  t.textContent = msg;
-  document.getElementById('tc').appendChild(t);
-  setTimeout(()=>t.remove(), 2700);
-}
-
-/* ── MODAL CLOSE ON BACKDROP ────────────────────────────────────────── */
-document.querySelectorAll('.ov,.fov,.cpov,.cfov,.lgov,.apov').forEach(o=>{
-  o.addEventListener('click', e=>{ if(e.target===o) o.classList.remove('open'); });
-});
-
-/* ── KEYBOARD ESC ───────────────────────────────────────────────────── */
-document.addEventListener('keydown', e=>{
-  if(e.key === 'Escape'){
-    ['detov','fmov','mmov','cpov','cfov','lgov','apov'].forEach(id=>{
-      document.getElementById(id).classList.remove('open');
-    });
-  }
-});
-
+/* ── BACKUP & AUDIT ──────────────────────────────────────────────────────── */
 /* ══════════════════════════════════════════════════════════════════════
    TÄGLICHES AUTO-BACKUP SYSTEM
    Speichert jeden Tag automatisch einen Snapshot in localStorage.
    Hält die letzten 7 Tages-Backups. Download-Button im Control Panel.
    ══════════════════════════════════════════════════════════════════════ */
-const BACKUP_KEY = 'mnc_daily_backups_v1';
-const BACKUP_LAST_KEY = 'mnc_backup_last_date';
 
 function getTodayStr(){
   const d = new Date();
@@ -3242,31 +2703,25 @@ function runSecurityAudit(){
   return issues;
 }
 
-/* ══════════════════════════════════════════════════════════════════════
-   FIREBASE AUTH — MNC HUB v4.0
-   ─────────────────────────────────────────────────────────────────────
-   ROLLEN:
-   • Google-Owner  → Email in Firebase /mnc/googleUsers/{key} mit role:"owner"
-                     → Haupt-Owner, alle Rechte, steuert 2. Owner
-   • Lokaler Owner → Benutzername "owner" + Passwort (2. Owner)
-                     → Rechte vom Google-Owner einzeln freigeschaltet
-   • Google-Admin  → Email in Firebase /mnc/googleUsers/{key} mit role:"admin"
-                     → Rechte einzeln steuerbar
-   • Google-Gast   → Email NICHT eingetragen → viewer (Gast-Rolle)
-   • Gast          → kein Login → viewer
-   ══════════════════════════════════════════════════════════════════════ */
 
-// Firebase Events — ZUERST registrieren vor init()
+/* ── FIREBASE EVENTS — vor init() ────────────────────────────────────────── */
 window.addEventListener('fbReady', ()=>{ initFirebase(); });
 window.addEventListener('fbError', e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
-// Falls Event schon gefeuert bevor Listener da war:
-if(window._fbReady === true && !_fbOnline){ initFirebase(); }
-setTimeout(()=>{
-  if(!_fbOnline){ fbSetStatus('offline','OFFLINE'); }
-}, 6000);
+if(window._fbReady===true&&!_fbOnline){ initFirebase(); }
+setTimeout(()=>{ if(!_fbOnline)fbSetStatus('offline','OFFLINE'); },6000);
+setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); },500);
 
-// Sicherheitsaudit beim Start
-setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); }, 500);
+/* ── MODALS: Backdrop + ESC ──────────────────────────────────────────────── */
+document.querySelectorAll('.ov,.fov,.cpov,.cfov,.lgov,.apov').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o)o.classList.remove('open'); });
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    ['detov','fmov','mmov','cpov','cfov','lgov','apov'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.classList.remove('open');
+    });
+  }
+});
 
 init();
 </script>
