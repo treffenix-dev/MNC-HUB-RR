@@ -1752,6 +1752,10 @@ function doLogout(){
   localStorage.removeItem(SESS_KEY);
   clearTimeout(sessionTimer);
   applyRole('viewer','Gast');
+  // Zurück zur Homepage
+  document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-home').classList.add('on');
   rfrak();rmem();
   toast('Abgemeldet','w');
 }
