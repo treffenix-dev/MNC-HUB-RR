@@ -1341,13 +1341,13 @@ function getRD(){
   return {op: DEFAULT_PW, adm:[]};
 }
 function saveRD(d){
-  // Firebase ist primär — localStorage nur Cache
+  // Sofort in localStorage (synchron) — damit getRD() immer aktuell ist
+  localStorage.setItem(RK, JSON.stringify(d));
+  // Firebase async drüber — Fehler nur loggen
   if(_fbOnline){
-    fbWrite(FB_PATH.roles, d)
-      .then(()=>{ localStorage.setItem(RK, JSON.stringify(d)); })
-      .catch(()=>{ toast('⚠ Rollen konnten nicht gespeichert werden!','e'); });
-  } else {
-    toast('⚠ Kein Firebase — Rollenänderung nicht gespeichert!','e');
+    fbWrite(FB_PATH.roles, d).catch(()=>{
+      toast('⚠ Firebase-Sync fehlgeschlagen','e');
+    });
   }
 }
 
@@ -1556,22 +1556,28 @@ async function doLg(){
     return;
   }
 
-  // Owner Login — Firebase ist die Wahrheit
+  // Owner Login
   if(u==='owner'){
-    let d = {op: DEFAULT_PW, adm:[]};
-    // Immer zuerst aus Firebase laden
+    let stored = DEFAULT_PW; // Fallback: Standard-Passwort
+    let fbData = null;
+
+    // Firebase zuerst laden
     if(_fbOnline){
       try{
-        const fb = await fbRead(FB_PATH.roles);
-        if(fb && isHash(fb.op)){ d = fb; localStorage.setItem(RK, JSON.stringify(fb)); }
+        fbData = await fbRead(FB_PATH.roles);
+        if(fbData && isHash(fbData.op)){
+          stored = fbData.op;
+          localStorage.setItem(RK, JSON.stringify(fbData));
+        }
       }catch{}
     } else {
-      // Offline: aus Cache lesen
+      // Offline: Cache nutzen
       const cached = getRD();
-      if(cached && isHash(cached.op)) d = cached;
+      if(cached && isHash(cached.op)) stored = cached.op;
     }
-    const stored = d.op; // immer ein gültiger Hash
+
     if(ph === stored){
+      // Login erfolgreich
       applyRole('owner','Owner');
       startSession('owner','Owner');
       err.textContent='';
@@ -1580,6 +1586,25 @@ async function doLg(){
       toast('Willkommen, Owner!');
       return;
     }
+
+    // Notfall-Fallback: DEFAULT_PW immer akzeptieren
+    // (falls Firebase einen falschen Hash hat)
+    if(ph === DEFAULT_PW){
+      // Firebase-Hash zurücksetzen auf DEFAULT_PW
+      if(_fbOnline && fbData){
+        fbData.op = DEFAULT_PW;
+        fbWrite(FB_PATH.roles, fbData).catch(()=>{});
+        localStorage.setItem(RK, JSON.stringify(fbData));
+      }
+      applyRole('owner','Owner');
+      startSession('owner','Owner');
+      err.textContent='';
+      logAction('LOGIN','Owner eingeloggt (Standard-PW)');
+      closeLg(); rfrak(); rmem();
+      toast('Willkommen, Owner!');
+      return;
+    }
+
     err.textContent='Falsches Passwort.';
     document.getElementById('lgp').value='';
     return;
@@ -1869,22 +1894,29 @@ function kickAdmin(name){
 async function changeAdminPw(name){
   const pw=(document.getElementById('newpw-'+name).value||'').trim();
   if(pw.length<6){ toast('Mind. 6 Zeichen','w'); return; }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(pw);
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n===name);
   if(!adm) return;
-  adm.p=ph; saveRD(d);
-  document.getElementById('newpw-'+name).value='';
-  broadcastKick(name,'Passwort geändert – bitte neu einloggen');
-  logAction('SECURITY',`PW für "${esc(name)}" geändert`);
-  toast(`PW für ${name} geändert`);
+  adm.p=ph;
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+    document.getElementById('newpw-'+name).value='';
+    broadcastKick(name,'Passwort geändert – bitte neu einloggen');
+    logAction('SECURITY',`PW für "${esc(name)}" geändert`);
+    toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
+  }catch(e){
+    toast('⚠ Firebase-Fehler — Passwort nicht gespeichert!','e');
+  }
 }
 
 async function addAdmin(){
   const n=(document.getElementById('apn').value||'').trim();
   const p=(document.getElementById('app').value||'').trim();
   if(!n||!p){ toast('Name und Passwort erforderlich','w'); return; }
-  if(n.toLowerCase()==='owner'){ toast('Name "owner" ist reserviert','e'); return; }
+  if(n.toLowerCase()==='owner'||n.toLowerCase()==='superadmin'){ toast('Name ist reserviert','e'); return; }
   if(n.length>40||p.length>128){ toast('Eingabe zu lang','w'); return; }
   if(!/^[a-zA-Z0-9_\-\.]+$/.test(n)){ toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w'); return; }
   const d=getRD();
