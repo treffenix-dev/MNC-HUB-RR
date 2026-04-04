@@ -554,7 +554,9 @@ if(FB_CONFIGURED){
             <input class="fi" id="opw" type="password" placeholder="Neues Passwort (mind. 6 Zeichen)" style="flex:1" autocomplete="new-password">
             <button class="abtn" onclick="changeOwnerPw()" style="padding:13px 14px">ÄNDERN</button>
           </div>
-          <div class="apsh" style="margin-top:16px;margin-bottom:10px">Standard Session-Timeout</div>
+          <div class="apsh" style="margin-top:16px;margin-bottom:10px">Firebase Rollen</div>
+          <button class="fbtn" onclick="resetFirebaseRoles()" style="padding:8px 14px;font-size:12px;border-color:rgba(224,80,64,.4);color:var(--red);margin-bottom:12px">🔄 Rollen zurücksetzen</button>
+          <div class="apsh" style="margin-top:4px;margin-bottom:10px">Standard Session-Timeout</div>
           <div class="timeout-row">
             <span class="timeout-lbl">TIMEOUT</span>
             <input type="range" class="timeout-slider" id="owner-timeout-slider" min="5" max="120" step="5" value="30" oninput="updateOwnerTimeoutLabel()">
@@ -1286,6 +1288,8 @@ async function fbPullAll(){
     localStorage.setItem(MK,JSON.stringify(mems));
   }
   if(fbR&&fbR.op){
+    // Stelle sicher dass adm Array existiert
+    if(!fbR.adm)fbR.adm=[];
     localStorage.setItem(RK,JSON.stringify(fbR));
   }else if(!fbR){
     const d={op:DEFAULT_PW,adm:[]};
@@ -1646,7 +1650,7 @@ function doLg(){
   // 5. Admin
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
-  if(adm&&!adm.banned){
+  if(adm&&!adm.banned&&adm.p){
     const sh=isHash(adm.p)?adm.p:pwHash(adm.p);
     if(ph===sh){
       applyRole('admin',adm.n);
@@ -1839,6 +1843,26 @@ function removeAdmin(name){
   toast(name+' gelöscht','w');
   renderAdminPanel();
 }
+function resetFirebaseRoles(){
+  if(!_fbOnline){toast('Firebase nicht verbunden','e');return;}
+  if(!confirm('Firebase Rollen komplett zurücksetzen?\n\nAlle Admins werden gelöscht.\nOwner-Passwort bleibt.'))return;
+  const fresh={op:DEFAULT_PW,adm:[]};
+  saveRD(fresh);
+  // Auch googleUsers löschen falls vorhanden
+  if(window._mncFB){
+    const{ref,remove}=window._mncFB;
+    remove(ref(window._mncDB,'mnc/googleUsers')).catch(()=>{});
+    remove(ref(window._mncDB,'mnc/roles')).then(()=>{
+      return fbWrite(FB_PATH.roles,fresh);
+    }).then(()=>{
+      toast('Firebase Rollen zurückgesetzt ✓');
+      renderAdminPanel();
+    }).catch(()=>toast('Fehler','e'));
+  }
+  localStorage.removeItem(RK);
+  setTimeout(()=>fbPullAll(),1000);
+}
+
 function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<6){toast('Mind. 6 Zeichen','w');return;}
