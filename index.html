@@ -1524,6 +1524,15 @@ function applyRole(role, user){
 async function doLg(){
   const err = document.getElementById('lgerr');
   err.textContent = 'Prüfe…';
+
+  // Rate Limiting prüfen
+  const rl = checkRateLimit();
+  if(rl.locked){
+    err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`;
+    showLockBanner(rl.remaining);
+    return;
+  }
+
   const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
   const p = (document.getElementById('lgp').value||'');
   if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
@@ -1551,6 +1560,7 @@ async function doLg(){
       return;
     }
     // Kein Hinweis dass dieser User existiert
+    recordFailedAttempt();
     err.textContent='Falscher Benutzername oder Passwort.';
     document.getElementById('lgp').value='';
     return;
@@ -1605,6 +1615,7 @@ async function doLg(){
       return;
     }
 
+    recordFailedAttempt();
     err.textContent='Falsches Passwort.';
     document.getElementById('lgp').value='';
     return;
@@ -1627,6 +1638,7 @@ async function doLg(){
       return;
     }
   }
+  recordFailedAttempt();
   err.textContent='Falscher Benutzername oder Passwort.';
   document.getElementById('lgp').value='';
 }
