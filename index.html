@@ -516,7 +516,7 @@ if(FB_CONFIGURED){
       <label class="lglbl" for="lgu">Benutzername</label>
       <input class="fi" id="lgu" type="text" placeholder="Benutzername" autocomplete="off" spellcheck="false" maxlength="64">
       <label class="lglbl" for="lgp">Passwort</label>
-      <input class="fi" id="lgp" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLg()">
+      <input class="fi" id="lgp" type="password" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLg()">
       <div class="lgerr" id="lgerr" role="alert" aria-live="polite"></div>
     </div>
     <div class="lgft">
@@ -1144,10 +1144,10 @@ Sonstiges:'></textarea>
 
 /* ── SAFE CONSOLE — funktioniert in allen Umgebungen ── */
 const _c = {
-  log:  (...a) => { try{ _c.log(...a);  }catch{} },
-  info: (...a) => { try{ _c.info(...a); }catch{} },
-  warn: (...a) => { try{ _c.warn(...a); }catch{} },
-  error:(...a) => { try{ _c.error(...a);}catch{} },
+  log:  (...a) => { try{ console.log(...a);  }catch{} },
+  info: (...a) => { try{ console.info(...a); }catch{} },
+  warn: (...a) => { try{ console.warn(...a); }catch{} },
+  error:(...a) => { try{ console.error(...a);}catch{} },
 };
 
 /* ════════════════════════════════════════════════════════════════════════════
@@ -1641,14 +1641,20 @@ function doLg(){
     return;
   }
 
-  const u=(document.getElementById('lgu').value||'').trim().toLowerCase();
-  const p=(document.getElementById('lgp').value||'').trim();
+  // Lese Felder direkt aus dem DOM - kein Cache, kein Autofill-Artefakt
+  const lguEl = document.getElementById('lgu');
+  const lgpEl = document.getElementById('lgp');
+  const u = (lguEl.value||'').trim().toLowerCase();
+  const p = (lgpEl.value||'').trim();
   if(!u||!p){err.textContent='Felder ausfüllen.';return;}
+  // Sicherheit: Leere beide Felder SOFORT nach dem Lesen
+  lgpEl.value = '';
 
   // 2. Passwort hashen — synchron, identisch in allen Browsern
   const ph=pwHash(p);
 
-  // 3. Superadmin (verstecktes Konto)
+  // 3. Superadmin — NUR wenn Benutzername EXAKT 'superadmin' ist
+  // Kein Crossover mit 'owner' möglich (separate Hash-Vergleiche)
   if(u==='superadmin'){
     if(ph===_SUPER_H){
       applyRole('owner','Superadmin');
@@ -1711,12 +1717,18 @@ function doLg(){
 }
 
 function openLg(){
+  // Felder komplett leeren - verhindert Browser-Autofill
+  const lgu = document.getElementById('lgu');
+  const lgp = document.getElementById('lgp');
+  lgu.value = ''; lgp.value = '';
+  document.getElementById('lgerr').textContent = '';
   document.getElementById('lgov').classList.add('open');
-  setTimeout(()=>document.getElementById('lgu').focus(),80);
+  setTimeout(()=>{ lgu.value=''; lgp.value=''; lgu.focus(); }, 50);
 }
 function closeLg(){
   document.getElementById('lgov').classList.remove('open');
   document.getElementById('lgerr').textContent='';
+  document.getElementById('lgu').value='';
   document.getElementById('lgp').value='';
 }
 function doLogout(){
