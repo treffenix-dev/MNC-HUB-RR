@@ -1254,6 +1254,7 @@ function fbHookKick(){
 
 /* ── FIREBASE INIT ──────────────────────────────────────────────── */
 function initFirebase(){
+  if(_fbOnline) return;
   if(!window._fbReady){
     fbSetStatus('local', 'LOKAL');
     // Kein Firebase → Seite trotzdem normal laden mit localStorage-Daten
@@ -1584,6 +1585,7 @@ function applyRole(role, user){
 async function doLg(){
   const err = document.getElementById('lgerr');
   err.textContent = 'Prüfe…';
+  err.style.color = 'var(--gold2)';
 
   // Rate Limiting prüfen
   const rl = checkRateLimit();
@@ -1617,50 +1619,52 @@ async function doLg(){
       }catch{}
       clearRateLimit();
       err.textContent='';
+  err.style.color = '';
       closeLg(); rfrak(); rmem();
       return;
     }
     // Kein Hinweis dass dieser User existiert
     recordFailedAttempt();
     err.textContent='Falscher Benutzername oder Passwort.';
+    err.style.color='var(--red)';
     document.getElementById('lgp').value='';
     return;
   }
 
   // Owner Login
   if(u==='owner'){
-    let stored = DEFAULT_PW; // Fallback: Standard-Passwort
-    let fbData = null;
-
-    // Firebase zuerst laden
+    // Reihenfolge: 1. Firebase (aktuell), 2. localStorage-Cache, 3. DEFAULT_PW
+    let stored = DEFAULT_PW;
     if(_fbOnline){
       try{
-        fbData = await fbRead(FB_PATH.roles);
+        const fbData = await fbRead(FB_PATH.roles);
         if(fbData && isHash(fbData.op)){
           stored = fbData.op;
           localStorage.setItem(RK, JSON.stringify(fbData));
+        } else {
+          const cached = getRD();
+          if(cached && isHash(cached.op)) stored = cached.op;
         }
-      }catch{}
+      }catch{
+        const cached = getRD();
+        if(cached && isHash(cached.op)) stored = cached.op;
+      }
     } else {
-      // Offline: Cache nutzen
       const cached = getRD();
       if(cached && isHash(cached.op)) stored = cached.op;
     }
-
     if(ph === stored){
-      // Login erfolgreich
       applyRole('owner','Owner');
       startSession('owner','Owner');
-      err.textContent='';
+      err.textContent=''; err.style.color='';
       clearRateLimit();
       logAction('LOGIN','Owner eingeloggt');
       closeLg(); rfrak(); rmem();
       toast('Willkommen, Owner!');
       return;
     }
-
     recordFailedAttempt();
-    err.textContent='Falsches Passwort.';
+    err.textContent='Falsches Passwort.'; err.style.color='var(--red)';
     document.getElementById('lgp').value='';
     return;
   }
@@ -1676,6 +1680,7 @@ async function doLg(){
     if(ph===sh){
       applyRole('admin',adm.n); startSession('admin',adm.n);
       err.textContent='';
+  err.style.color = '';
       clearRateLimit();
       logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
       closeLg(); rfrak(); rmem();
@@ -1685,6 +1690,7 @@ async function doLg(){
   }
   recordFailedAttempt();
   err.textContent='Falscher Benutzername oder Passwort.';
+  err.style.color='var(--red)';
   document.getElementById('lgp').value='';
 }
 function openLg(){
@@ -1693,7 +1699,9 @@ function openLg(){
 }
 function closeLg(){
   document.getElementById('lgov').classList.remove('open');
-  document.getElementById('lgerr').textContent = '';
+  const e = document.getElementById('lgerr');
+  e.textContent = '';
+  e.style.color = '';
   document.getElementById('lgp').value = '';
 }
 function doLogout(){
