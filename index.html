@@ -1926,11 +1926,11 @@ function kickAdmin(name){
   logAction('SECURITY',`Admin "${esc(name)}" manuell ausgeloggt`);
   toast(`${name} wird ausgeloggt…`,'w');
 }
-async function changeAdminPw(name){
+function changeAdminPw(name){
   const pw=(document.getElementById('newpw-'+name).value||'').trim();
   if(pw.length<6){ toast('Mind. 6 Zeichen','w'); return; }
   if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
-  const ph=await sha256(pw);
+  const ph=_sha256pure(pw+HASH_SALT);
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n===name);
   if(!adm) return;
@@ -1947,7 +1947,7 @@ async function changeAdminPw(name){
   }
 }
 
-async function addAdmin(){
+function addAdmin(){
   const n=(document.getElementById('apn').value||'').trim();
   const p=(document.getElementById('app').value||'').trim();
   if(!n||!p){ toast('Name und Passwort erforderlich','w'); return; }
@@ -1957,7 +1957,7 @@ async function addAdmin(){
   const d=getRD();
   if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){ toast('Admin existiert bereits','w'); return; }
   if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
-  const ph=await sha256(p);
+  const ph=_sha256pure(p+HASH_SALT);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
   try{
@@ -1980,11 +1980,11 @@ function removeAdmin(name){
   toast(`${name} gelöscht`,'w');
   renderAdminPanel();
 }
-async function changeOwnerPw(){
+function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
   if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
-  const ph=await sha256(p);
+  const ph=_sha256pure(p+HASH_SALT);
   const d=getRD(); d.op=ph;
   // Direkt zu Firebase (saveRD ist Firebase-first)
   try{
