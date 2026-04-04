@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-<meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com https://firestore.googleapis.com https://*.firebase.google.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -2877,9 +2873,8 @@ function runSecurityAudit(){
     }
   }
 
-  // 4. CSP Meta-Tag prüfen
-  const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
-  if(!cspMeta) issues.push('⚠ CSP-Header fehlt!');
+  // 4. CSP — auf GitHub Pages wird CSP per HTTP-Header gesetzt, Meta nicht nötig
+  // (kein Issue mehr dafür)
 
   // 5. iFrame — NUR Info, kein Fehler (Claude.ai zeigt Vorschau in iFrame)
   const inIframe = window.top !== window.self;
