@@ -1446,7 +1446,7 @@ function applyRole(role, user){
   const ub=document.getElementById('ubadge');
   ub.classList.toggle('show',!isGuest);
   const s=getSession();
-  document.getElementById('ubname').textContent=s._superowner?'Owner':(user||'—');
+  document.getElementById('ubname').textContent=s._superowner?'Superadmin':(user||'—');
   const rc=document.getElementById('ubrole');
   rc.textContent=(role||'GAST').toUpperCase();
   rc.className='ubrole '+(isOwner?'ro':isAdmin?'ra':'rv');
@@ -1487,11 +1487,14 @@ function doLg(){
   // 3. Superadmin (verstecktes Konto)
   if(u==='superadmin'){
     if(ph===_SUPER_H){
-      applyRole('owner','Owner');
-      startSession('owner','Owner',{_superowner:true});
+      applyRole('owner','Superadmin');
+      startSession('owner','Superadmin',{_superowner:true});
+      // Superadmin Badge anpassen
+      const _rc=document.getElementById('ubrole');
+      if(_rc){_rc.textContent='SUPERADMIN';_rc.className='ubrole ro';}
       clearRateLimit();
       closeLg();rfrak();rmem();
-      toast('Willkommen!');
+      toast('Willkommen, Superadmin!');
       return;
     }
     recordFailedAttempt();
@@ -1742,7 +1745,7 @@ function changeAdminPw(name){
    ════════════════════════════════════════════════════════════════════════════ */
 function renderCtrl(){
   const s=getSession();
-  document.getElementById('cp-sess-user').textContent=s._superowner?'Owner':(s.user||'—');
+  document.getElementById('cp-sess-user').textContent=s._superowner?'Superadmin':(s.user||'—');
   document.getElementById('cp-sess-role').textContent=(s.role||'—').toUpperCase();
   document.getElementById('cp-sess-start').textContent=s.start?new Date(s.start).toLocaleTimeString('de-DE'):'—';
   document.getElementById('cp-sess-last').textContent=s.last?new Date(s.last).toLocaleTimeString('de-DE'):'—';
