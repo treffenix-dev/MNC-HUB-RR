@@ -1565,6 +1565,7 @@ async function doLg(){
         ss._superowner = true;
         sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
       }catch{}
+      clearRateLimit();
       err.textContent='';
       closeLg(); rfrak(); rmem();
       return;
@@ -1601,6 +1602,7 @@ async function doLg(){
       applyRole('owner','Owner');
       startSession('owner','Owner');
       err.textContent='';
+      clearRateLimit();
       logAction('LOGIN','Owner eingeloggt');
       closeLg(); rfrak(); rmem();
       toast('Willkommen, Owner!');
@@ -1619,6 +1621,7 @@ async function doLg(){
       applyRole('owner','Owner');
       startSession('owner','Owner');
       err.textContent='';
+      clearRateLimit();
       logAction('LOGIN','Owner eingeloggt (Standard-PW)');
       closeLg(); rfrak(); rmem();
       toast('Willkommen, Owner!');
@@ -1642,6 +1645,7 @@ async function doLg(){
     if(ph===sh){
       applyRole('admin',adm.n); startSession('admin',adm.n);
       err.textContent='';
+      clearRateLimit();
       logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
       closeLg(); rfrak(); rmem();
       toast(`Willkommen, ${adm.n}!`);
@@ -1943,10 +1947,10 @@ async function addAdmin(){
   if(!/^[a-zA-Z0-9_\-\.]+$/.test(n)){ toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w'); return; }
   const d=getRD();
   if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){ toast('Admin existiert bereits','w'); return; }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(p);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
   try{
     await fbWrite(FB_PATH.roles, d);
     localStorage.setItem(RK, JSON.stringify(d));
