@@ -1109,11 +1109,15 @@ async function fbPushAll(){
 async function fbPullAll(){
   if(!_fbOnline) return;
   showSyncIndicator('Lade Daten…');
-  const [fbFraks, fbMems, fbRoles] = await Promise.all([
+
+  const [fbFraks, fbMems, fbRoles, fbLog] = await Promise.all([
     fbRead(FB_PATH.fraks),
     fbRead(FB_PATH.mems),
     fbRead(FB_PATH.roles),
+    fbRead(FB_PATH.log),
   ]);
+
+  // Fraktionen — Firebase ist die Wahrheit
   if(fbFraks && Array.isArray(fbFraks)){
     fraks = fbFraks.map(f=>{
       if(f.unterboden===undefined) f.unterboden='';
@@ -1121,36 +1125,37 @@ async function fbPullAll(){
       return f;
     });
     localStorage.setItem(FK, JSON.stringify(fraks));
-  } else {
-    // Keine Daten in Firebase → lokale hochladen
-    const localFraks = JSON.parse(localStorage.getItem(FK)||'null');
-    if(localFraks && localFraks.length > 0) await fbWrite(FB_PATH.fraks, localFraks);
   }
+  // Falls Firebase leer ist: Standarddaten hochladen (einmalig bei erstem Start)
+  else if(!fbFraks){
+    fraks = JSON.parse(JSON.stringify(PF));
+    await fbWrite(FB_PATH.fraks, fraks);
+    localStorage.setItem(FK, JSON.stringify(fraks));
+  }
+
+  // Mitglieder — Firebase ist die Wahrheit
   if(fbMems && Array.isArray(fbMems)){
     mems = fbMems;
     localStorage.setItem(MK, JSON.stringify(mems));
-  } else {
-    // Keine Daten in Firebase → lokale hochladen
-    const localMems = JSON.parse(localStorage.getItem(MK)||'null');
-    if(localMems && localMems.length > 0) await fbWrite(FB_PATH.mems, localMems);
-  }
-  if(fbRoles && fbRoles.op){
-    saveRD(fbRoles);
-  } else if(!fbRoles) {
-    const local = getRD();
-    if(local.op) await fbWrite(FB_PATH.roles, local);
+  } else if(!fbMems){
+    mems = JSON.parse(JSON.stringify(PM));
+    await fbWrite(FB_PATH.mems, mems);
+    localStorage.setItem(MK, JSON.stringify(mems));
   }
 
-  // Logs aus Firebase laden
-  const fbLog = await fbRead(FB_PATH.log);
-  if(fbLog && Array.isArray(fbLog) && fbLog.length > 0){
-    // Firebase-Logs mit lokalen mergen (neueste zuerst, max 500)
-    const localLog = getLog();
-    const merged = [...fbLog, ...localLog]
-      .filter((v,i,a) => a.findIndex(x=>x.ts===v.ts&&x.action===v.action)===i)
-      .sort((a,b)=>b.ts.localeCompare(a.ts))
-      .slice(0,500);
-    localStorage.setItem(LOG_KEY, JSON.stringify(merged));
+  // Rollen/Passwörter — Firebase ist die Wahrheit, KEIN saveRD() (vermeidet Loop)
+  if(fbRoles && fbRoles.op){
+    localStorage.setItem(RK, JSON.stringify(fbRoles));
+  } else if(!fbRoles){
+    // Erste Einrichtung: Default-Passwort zu Firebase schreiben
+    const defaultRD = {op: DEFAULT_PW, adm:[]};
+    await fbWrite(FB_PATH.roles, defaultRD);
+    localStorage.setItem(RK, JSON.stringify(defaultRD));
+  }
+
+  // Logs
+  if(fbLog && Array.isArray(fbLog)){
+    localStorage.setItem(LOG_KEY, JSON.stringify(fbLog.slice(0,500)));
   }
 
   rfrak(); rmem(); hs(); updateHomeStats();
@@ -1184,21 +1189,16 @@ function fbSetupListeners(){
   });
 
   // Rollen/Passwörter live — Firebase ist die einzige Wahrheit
-  // So können alle Nutzer von überall mit denselben Daten einloggen
   fbListen(FB_PATH.roles, data=>{
     if(!data || !data.op) return;
+    // Nur Cache aktualisieren, KEIN saveRD() (würde Loop verursachen)
     localStorage.setItem(RK, JSON.stringify(data));
   });
 
-  // Logs live synchronisieren
+  // Logs live — Firebase ist die Wahrheit
   fbListen(FB_PATH.log, data=>{
     if(!data || !Array.isArray(data)) return;
-    const localLog = getLog();
-    const merged = [...data, ...localLog]
-      .filter((v,i,a) => a.findIndex(x=>x.ts===v.ts&&x.action===v.action)===i)
-      .sort((a,b)=>b.ts.localeCompare(a.ts))
-      .slice(0,500);
-    localStorage.setItem(LOG_KEY, JSON.stringify(merged));
+    localStorage.setItem(LOG_KEY, JSON.stringify(data.slice(0,500)));
   });
 
   // Kick-Signal live
@@ -1242,26 +1242,40 @@ function fbHookKick(){
 /* ── FIREBASE INIT ──────────────────────────────────────────────── */
 function initFirebase(){
   if(!window._fbReady){
-    fbSetStatus('local', 'LOKAL');
+    fbSetStatus('local', 'KEIN FIREBASE');
+    toast('⚠ Firebase nicht konfiguriert — Daten können nicht geladen werden!','e');
     return;
   }
   _fbOnline = true;
   fbSetStatus('sync', 'VERBINDET…');
 
-  // Daten laden und Listener starten
   fbPullAll().then(async ()=>{
     fbSetupListeners();
     fbHookSave();
     fbHookRoles();
     fbHookKick();
     fbSetStatus('online', 'ONLINE ✓');
-    toast('🔥 Firebase verbunden · Echtzeit-Sync aktiv');
+    toast('🔥 Firebase verbunden');
+
+    // Session JETZT validieren — mit echten Firebase-Daten
+    const _sess = getSession();
+    if(_sess.role && _sess.user && _sess.role !== 'viewer'){
+      const d = getRD();
+      let valid = false;
+      if(_sess.role === 'owner') valid = true;
+      else if(_sess.role === 'admin'){
+        const adm = (d.adm||[]).find(a => a.n === _sess.user);
+        valid = adm && !adm.banned;
+      }
+      if(valid){ curRole = _sess.role; applyRole(_sess.role, _sess.user); resetSessionTimer(); }
+      else { applyRole('viewer','Gast'); }
+    }
 
   }).catch(e=>{
     _fbOnline = false;
     fbSetStatus('offline', 'OFFLINE');
     console.error('[FB] Init failed:', e);
-    toast('⚠ Firebase Fehler — lokaler Modus','w');
+    toast('⚠ Firebase nicht erreichbar — bitte Seite neu laden!','e');
   });
 }
 
@@ -1315,27 +1329,29 @@ const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a4
 const SUPEROWNER_USER = 'superadmin';
 /* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
 function getRD(){
+  // Firebase-Cache aus localStorage lesen (wird von Realtime Listener live aktualisiert)
   try{
-    // Immer aus localStorage lesen (wird von Firebase live aktualisiert)
     const v2 = localStorage.getItem(RK);
-    if(v2) return JSON.parse(v2);
-    const raw = localStorage.getItem('mnc_roles');
-    const d = raw ? JSON.parse(raw) : {op: DEFAULT_PW, adm:[]};
-    saveRD(d);
-    return d;
-  }catch{
-    const fresh = {op: DEFAULT_PW, adm:[]};
-    try{ saveRD(fresh); }catch{}
-    return fresh;
-  }
+    if(v2){
+      const d = JSON.parse(v2);
+      if(d && isHash(d.op)) return d;
+    }
+  }catch{}
+  // Fallback: Default
+  return {op: DEFAULT_PW, adm:[]};
 }
 function saveRD(d){
-  localStorage.setItem(RK, JSON.stringify(d));
-  // Sofort zu Firebase synchronisieren
-  if(_fbOnline){ fbWrite(FB_PATH.roles, d).catch(()=>{}); }
+  // Firebase ist primär — localStorage nur Cache
+  if(_fbOnline){
+    fbWrite(FB_PATH.roles, d)
+      .then(()=>{ localStorage.setItem(RK, JSON.stringify(d)); })
+      .catch(()=>{ toast('⚠ Rollen konnten nicht gespeichert werden!','e'); });
+  } else {
+    toast('⚠ Kein Firebase — Rollenänderung nicht gespeichert!','e');
+  }
 }
 
-/* ── ACTIVITY LOG — Firebase als primärer Speicher ──────────────────── */
+/* ── ACTIVITY LOG — Firebase als einziger Speicher ──────────────────── */
 function logAction(action, detail=''){
   try{
     // Superowner hinterlässt keine Spuren im Log
@@ -1346,18 +1362,18 @@ function logAction(action, detail=''){
     const user = curRole === 'viewer' ? 'GAST' : (document.getElementById('ubname').textContent || '?');
     log.unshift({ts: new Date().toISOString(), user, role: curRole, action, detail});
     if(log.length > 500) log.length = 500;
+    // Cache aktualisieren
     localStorage.setItem(LOG_KEY, JSON.stringify(log));
-    // Firebase: immer synchronisieren
-    if(_fbOnline){ fbWrite(FB_PATH.log, log.slice(0,200)).catch(()=>{}); }
+    // Firebase ist die Wahrheit
+    if(_fbOnline){ fbWrite(FB_PATH.log, log.slice(0,500)).catch(()=>{}); }
   }catch(e){}
 }
 function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }catch{ return []; } }
 function clearLog(){
   if(!confirm('Aktivitätsprotokoll wirklich löschen?')) return;
   localStorage.removeItem(LOG_KEY);
-  // Firebase Log ebenfalls löschen
   if(_fbOnline){ fbWrite(FB_PATH.log, []).catch(()=>{}); }
-  logAction('SECURITY','Aktivitätsprotokoll gelöscht');
+  else{ toast('⚠ Offline — Log nur lokal gelöscht','w'); }
   renderCtrl();
   toast('Log gelöscht','w');
 }
@@ -1872,9 +1888,11 @@ async function addAdmin(){
   const ph=await sha256(p);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
-  saveRD(d);
-  // Sofort zu Firebase pushen
-  if(_fbOnline){ try{ await fbWrite(FB_PATH.roles, d); }catch(e){} }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+  }catch(e){ toast('⚠ Firebase-Fehler beim Speichern','e'); return; }
   document.getElementById('apn').value='';
   document.getElementById('app').value='';
   logAction('SECURITY',`Admin "${esc(n)}" erstellt`);
@@ -1894,13 +1912,19 @@ function removeAdmin(name){
 async function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(p);
-  const d=getRD(); d.op=ph; saveRD(d);
-  // Sofort zu Firebase pushen
-  if(_fbOnline){ try{ await fbWrite(FB_PATH.roles, d); }catch(e){} }
-  document.getElementById('opw').value='';
-  logAction('SECURITY','Owner-Passwort geändert');
-  toast('Owner-Passwort geändert ✓');
+  const d=getRD(); d.op=ph;
+  // Direkt zu Firebase (saveRD ist Firebase-first)
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+    document.getElementById('opw').value='';
+    logAction('SECURITY','Owner-Passwort geändert');
+    toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
+  }catch(e){
+    toast('⚠ Fehler beim Speichern — Passwort nicht geändert!','e');
+  }
 }
 
 /* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
@@ -2298,15 +2322,7 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Rollen-Datensatz: DEFAULT_PW setzen wenn kein gültiger Hash vorhanden
-  try{
-    const _rd = JSON.parse(localStorage.getItem(RK)||'{}');
-    if(!_rd.op || !isHash(_rd.op)){
-      localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:(_rd.adm||[])}));
-    }
-  }catch{ localStorage.setItem(RK, JSON.stringify({op:DEFAULT_PW, adm:[]})); }
-
-  // Lokale Daten sofort anzeigen (optimistic UI)
+  // Zeige Cache sofort (leere Ansicht vermeiden), Firebase überschreibt sofort
   fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
   fraks = fraks.map(f=>{
     if(f.unterboden===undefined) f.unterboden='';
@@ -2316,31 +2332,14 @@ function init(){
   mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
   rfrak(); rmem(); hs(); updateHomeStats();
 
-  // Session aus sessionStorage wiederherstellen
-  const _sess = getSession();
-  if(_sess.role && _sess.user && _sess.role !== 'viewer'){
-    const d = getRD();
-    let valid = false;
-    if(_sess.role === 'owner') valid = true;
-    else if(_sess.role === 'admin'){
-      const adm = (d.adm||[]).find(a => a.n === _sess.user);
-      valid = adm && !adm.banned;
-    }
-    if(valid){ curRole = _sess.role; applyRole(_sess.role, _sess.user); resetSessionTimer(); }
-    else applyRole('viewer','Gast');
-  } else {
-    applyRole('viewer','Gast');
-  }
-
+  // Starte als Gast — Session wird nach Firebase-Laden validiert
+  applyRole('viewer','Gast');
   startKickPoll();
 }
 function save(){
-  // localStorage als lokaler Cache
-  localStorage.setItem(FK, JSON.stringify(fraks));
-  localStorage.setItem(MK, JSON.stringify(mems));
   hs();
   updateHomeStats();
-  // Firebase ist primärer Speicher — immer synchronisieren
+  // Firebase ist die einzige Wahrheit — localStorage nur als stiller Cache
   if(_fbOnline){
     _localMutex = true;
     Promise.all([
@@ -2348,10 +2347,17 @@ function save(){
       fbWrite(FB_PATH.mems, mems),
     ]).then(()=>{
       _localMutex = false;
-      showSyncIndicator('✓ Cloud gespeichert');
-    }).catch(()=>{ _localMutex = false; toast('⚠ Cloud-Fehler beim Speichern','e'); });
+      // Cache aktualisieren
+      localStorage.setItem(FK, JSON.stringify(fraks));
+      localStorage.setItem(MK, JSON.stringify(mems));
+      showSyncIndicator('✓ Gespeichert');
+    }).catch(()=>{
+      _localMutex = false;
+      toast('⚠ Firebase nicht erreichbar — Daten NICHT gespeichert!','e');
+    });
   } else {
-    toast('⚠ Offline — nur lokal gespeichert','w');
+    // Kein Firebase = kein Speichern (kein stilles Wegschreiben in localStorage)
+    toast('⚠ Kein Internet — Daten können nicht gespeichert werden!','e');
   }
 }
 function hs(){
@@ -3206,7 +3212,12 @@ const FB_CONFIG = {
 
 window.addEventListener('fbReady',  ()=>{ initFirebase(); });
 window.addEventListener('fbError',  e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
-setTimeout(()=>{ if(!_fbOnline) fbSetStatus('local','LOKAL'); }, 5000);
+setTimeout(()=>{
+  if(!_fbOnline){
+    fbSetStatus('offline','OFFLINE');
+    toast('⚠ Firebase nicht erreichbar — Seite neu laden!','e');
+  }
+}, 6000);
 
 // Sicherheitsaudit beim Start
 setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); }, 500);
