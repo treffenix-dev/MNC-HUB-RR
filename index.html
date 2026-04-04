@@ -1436,7 +1436,9 @@ function hasPerm(perm){
   if(curRole==='admin'){
     const d=getRD(),s=getSession();
     const a=(d.adm||[]).find(x=>x.n===(s.user||''));
-    return a?({...DEFAULT_PERMS,...(a.perms||{})})[perm]===true:false;
+    // Admin gefunden: nutze seine Rechte
+    // Admin nicht in Liste (z.B. noch nicht synchronisiert): DEFAULT_PERMS
+    return ({...DEFAULT_PERMS,...(a&&a.perms||{})})[perm]===true;
   }
   return false;
 }
