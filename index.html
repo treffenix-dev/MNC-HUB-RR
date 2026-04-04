@@ -595,7 +595,7 @@ if(FB_CONFIGURED){
   <nav class="nav" aria-label="Hauptnavigation">
     <button class="nb" onclick="showPage('frak',this)">Lackierungen</button>
     <button class="nb" onclick="showPage('member',this)">Mitglieder</button>
-    <button class="nb own-only" onclick="showPage('ctrl',this);renderCtrl()">⬡ Control Panel</button>
+    <button class="nb own-only" onclick="showPage('ctrl',this);renderCtrl()" style="display:none">⬡ Control Panel</button>
   </nav>
   <div class="hstats" aria-label="Statistiken">
     <div class="schip">Fraktionen <b id="hcf">—</b></div>
@@ -647,7 +647,7 @@ if(FB_CONFIGURED){
       <div class="hcard-title">Mitglieder</div>
       <div class="hcard-sub">Clubmitglieder · Ränge · Status</div>
     </div>
-    <div class="hcard own-only" onclick="navTo('ctrl')"  style="opacity:1">
+    <div class="hcard own-only" onclick="navTo('ctrl')" style="display:none;opacity:1">
       <div class="hcard-icon">⬡</div>
       <div class="hcard-title">Control Panel</div>
       <div class="hcard-sub">Sicherheit · Logs · Admin-Verwaltung</div>
@@ -664,7 +664,7 @@ if(FB_CONFIGURED){
     <button class="fbtn on" data-ff="all" onclick="setFF(this)">ALLE</button>
     <button class="abtn adm-only" onclick="openFM()" style="display:none" id="btn-add-frak">+ EINTRAG</button>
   </div>
-  <div class="fgrid" id="fgrid"></div>
+  <div class="fgrid" id="fgrid"><div class="empty"><div class="big" style="font-size:32px">VERBINDE...</div><p>Firebase wird geladen</p></div></div>
 </div>
 
 <!-- MITGLIEDER -->
@@ -705,7 +705,7 @@ if(FB_CONFIGURED){
   <button class="back-home" onclick="goHome()">Startseite</button>
   <div class="stitle" style="justify-content:space-between;flex-wrap:wrap;gap:12px">
     <div><h2>Control Panel</h2><small>Echtzeit-Überwachung · Sicherheit · Benutzerverwaltung</small></div>
-    <button class="abtn own-only" onclick="openAP()" style="padding:12px 24px;font-size:15px;letter-spacing:2px;align-self:center">⚙ BENUTZER VERWALTEN</button>
+    <button class="abtn own-only" onclick="openAP()" style="display:none;padding:12px 24px;font-size:15px;letter-spacing:2px;align-self:center">⚙ BENUTZER VERWALTEN</button>
   </div>
   <div class="cpgrid">
     <div class="cpcard">
@@ -1291,9 +1291,7 @@ function initFirebase(){
     _fbOnline = false;
     fbSetStatus('offline', 'OFFLINE');
     console.error('[FB] Init failed:', e);
-    fraks = []; mems = [];
-    rfrak(); rmem(); hs(); updateHomeStats();
-    toast('⚠ Firebase nicht erreichbar — bitte Seite neu laden!','e');
+    toast('⚠ Firebase nicht erreichbar — Seite neu laden zum Verbinden','e');
   });
 }
 
@@ -2416,8 +2414,13 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Firebase lädt Daten — bis dahin leer zeigen
-  fraks = []; mems = [];
+  // Cache sofort zeigen — Firebase überschreibt sobald verbunden
+  try{
+    const cf = localStorage.getItem(FK);
+    const cm = localStorage.getItem(MK);
+    fraks = cf ? JSON.parse(cf).map(f=>({unterboden:'',reifenqualm:'',...f})) : [];
+    mems  = cm ? JSON.parse(cm) : [];
+  }catch{ fraks=[]; mems=[]; }
   rfrak(); rmem(); hs(); updateHomeStats();
   applyRole('viewer','Gast');
   startKickPoll();
@@ -2435,6 +2438,7 @@ function save(){
     fbWrite(FB_PATH.mems, mems),
   ]).then(()=>{
     _localMutex = false;
+    try{localStorage.setItem(FK,JSON.stringify(fraks));localStorage.setItem(MK,JSON.stringify(mems));}catch{}
     showSyncIndicator('✓ Gespeichert');
   }).catch(()=>{
     _localMutex = false;
@@ -2502,7 +2506,11 @@ function rfrak(){
   });
   const g = document.getElementById('fgrid');
   if(!list.length){
-    g.innerHTML = '<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
+    if(!_fbOnline && fraks.length===0){
+      g.innerHTML = '<div class="empty"><div class="big" style="font-size:32px">VERBINDE...</div><p>Firebase wird geladen — bitte warten</p></div>';
+    } else {
+      g.innerHTML = '<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
+    }
     return;
   }
   const isAdmin = curRole==='admin'||curRole==='owner';
