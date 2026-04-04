@@ -3279,35 +3279,31 @@ function runSecurityAudit(){
   return issues;
 }
 
-init();
-
 /* ══════════════════════════════════════════════════════════════════════
    FIREBASE AUTH — MNC HUB v4.0
-   ─────────────────────────────────────────────────────────────────────
-   ROLLEN:
-   • Google-Owner  → Email in Firebase /mnc/googleUsers/{key} mit role:"owner"
-                     → Haupt-Owner, alle Rechte, steuert 2. Owner
-   • Lokaler Owner → Benutzername "owner" + Passwort (2. Owner)
-                     → Rechte vom Google-Owner einzeln freigeschaltet
-   • Google-Admin  → Email in Firebase /mnc/googleUsers/{key} mit role:"admin"
-                     → Rechte einzeln steuerbar
-   • Google-Gast   → Email NICHT eingetragen → viewer (Gast-Rolle)
-   • Gast          → kein Login → viewer
    ══════════════════════════════════════════════════════════════════════ */
 
-// Firebase Events (werden vom <head> Script gefeuert)
+// Firebase Events ZUERST registrieren — BEVOR init() aufgerufen wird!
+// Sonst kann das fbReady-Event gefeuert werden bevor der Listener existiert (Race Condition)
 window.addEventListener('fbReady', ()=>{ initFirebase(); });
 window.addEventListener('fbError', e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
+
+// Falls Firebase schon bereit war bevor dieser Listener registriert wurde:
+if(window._fbReady === true && !_fbOnline){
+  initFirebase();
+}
+
 setTimeout(()=>{
   if(!_fbOnline){
     fbSetStatus('offline','OFFLINE');
-    // Kein Error-Toast — Offline-Modus läuft bereits sauber
     console.info('[MNC] Firebase nicht erreichbar — Offline-Modus aktiv');
   }
 }, 6000);
 
 // Sicherheitsaudit beim Start
 setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); }, 500);
+
+init();
 </script>
 </body>
 </html>
