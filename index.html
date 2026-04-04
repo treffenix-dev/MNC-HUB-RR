@@ -298,7 +298,7 @@ tbody tr:hover{background:var(--s2);}
 /* ── ADMIN PANEL — ERWEITERT ──────────────────────────────────────────── */
 .apov{display:none;position:fixed;inset:0;z-index:750;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
 .apov.open{display:flex;}
-.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;border-top:2px solid var(--gold3);}
+.apmod{background:var(--s1);border:1px solid var(--border2);width:100%;max-width:680px;max-height:92vh;overflow-y:auto;overflow-x:hidden;border-top:2px solid var(--gold3);box-sizing:border-box;}
 .aphd{padding:22px 28px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
 .aptit{font-family:'Bebas Neue';font-size:28px;letter-spacing:3px;color:var(--gold2);}
 .apbd{padding:24px 28px;}
@@ -793,7 +793,7 @@ if(FB_CONFIGURED){
     <div class="dethead">
       <div>
         <div class="detname" id="detname"></div>
-        <div class="detsub">Lackierung · Vollständige Details</div>
+        <div class="detsub" id="detsub">Lackierung · Vollständige Details</div>
       </div>
       <button class="xbtn" onclick="closeDet()" aria-label="Schließen">✕</button>
     </div>
@@ -1821,8 +1821,8 @@ function renderAdminPanel(){
   if(!admins.length){
     document.getElementById('adminlist').innerHTML='<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Keine Admins.</div>';
   } else {
-  const log=getLog();
-  document.getElementById('adminlist').innerHTML=admins.map((a,idx)=>{
+    const log=getLog();
+    const adminHtml=admins.map((a,idx)=>{
     const isOnline=s.role==='admin'&&s.user===a.n;
     const lastLogin=log.find(e=>e.user===a.n&&e.action==='LOGIN');
     const perms={...DEFAULT_PERMS,...(a.perms||{})};
@@ -1874,7 +1874,8 @@ function renderAdminPanel(){
         </div>
       </div>
     </div>`;
-  }).join('');
+    }).join('');
+    document.getElementById('adminlist').innerHTML = adminHtml;
   } // end else (admins.length)
 
   // Google-Nutzer Liste laden
@@ -1951,22 +1952,26 @@ function kickAdmin(name){
 async function changeAdminPw(name){
   const pw=(document.getElementById('newpw-'+name).value||'').trim();
   if(pw.length<6){ toast('Mind. 6 Zeichen','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(pw);
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n===name);
   if(!adm) return;
   adm.p=ph;
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-    document.getElementById('newpw-'+name).value='';
-    broadcastKick(name,'Passwort geändert – bitte neu einloggen');
-    logAction('SECURITY',`PW für "${esc(name)}" geändert`);
-    toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
-  }catch(e){
-    toast('⚠ Firebase-Fehler — Passwort nicht gespeichert!','e');
+  // Lokal sofort speichern
+  localStorage.setItem(RK, JSON.stringify(d));
+  if(_fbOnline){
+    try{
+      await fbWrite(FB_PATH.roles, d);
+      toast(`PW für ${name} geändert ✓ — gilt sofort überall`);
+    }catch(e){
+      toast(`PW für ${name} lokal geändert ⚠ — Firebase-Sync fehlgeschlagen`,'w');
+    }
+  } else {
+    toast(`PW für ${name} geändert ✓ — wird synchronisiert wenn online`,'w');
   }
+  document.getElementById('newpw-'+name).value='';
+  broadcastKick(name,'Passwort geändert – bitte neu einloggen');
+  logAction('SECURITY',`PW für "${esc(name)}" geändert`);
 }
 
 async function addAdmin(){
@@ -1978,14 +1983,15 @@ async function addAdmin(){
   if(!/^[a-zA-Z0-9_\-\.]+$/.test(n)){ toast('Nur Buchstaben, Zahlen, _ - . erlaubt','w'); return; }
   const d=getRD();
   if((d.adm||[]).some(a=>a.n.toLowerCase()===n.toLowerCase())){ toast('Admin existiert bereits','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Admin kann nicht gespeichert werden!','e'); return; }
+  // Auch offline speichern — Firebase sync wenn online
   const ph=await sha256(p);
   d.adm=d.adm||[];
   d.adm.push({n,p:ph,perms:{...DEFAULT_PERMS},timeout:d.ownerTimeout||30,banned:false,createdAt:Date.now()});
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-  }catch(e){ toast('⚠ Firebase-Fehler beim Speichern','e'); return; }
+  localStorage.setItem(RK, JSON.stringify(d));
+  if(_fbOnline){
+    try{ await fbWrite(FB_PATH.roles, d); }
+    catch(e){ toast('⚠ Firebase-Sync fehlgeschlagen — Admin lokal gespeichert','w'); }
+  }
   document.getElementById('apn').value='';
   document.getElementById('app').value='';
   logAction('SECURITY',`Admin "${esc(n)}" erstellt`);
@@ -2005,19 +2011,23 @@ function removeAdmin(name){
 async function changeOwnerPw(){
   const p=(document.getElementById('opw').value||'').trim();
   if(p.length<6){ toast('Mind. 6 Zeichen','w'); return; }
-  if(!_fbOnline){ toast('⚠ Kein Firebase — Passwort kann nicht gespeichert werden!','e'); return; }
   const ph=await sha256(p);
-  const d=getRD(); d.op=ph;
-  // Direkt zu Firebase (saveRD ist Firebase-first)
-  try{
-    await fbWrite(FB_PATH.roles, d);
-    localStorage.setItem(RK, JSON.stringify(d));
-    document.getElementById('opw').value='';
-    logAction('SECURITY','Owner-Passwort geändert');
-    toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
-  }catch(e){
-    toast('⚠ Fehler beim Speichern — Passwort nicht geändert!','e');
+  const d=getRD();
+  d.op=ph;
+  // Lokal sofort speichern — Firebase async wenn online
+  localStorage.setItem(RK, JSON.stringify(d));
+  if(_fbOnline){
+    try{
+      await fbWrite(FB_PATH.roles, d);
+      toast('Owner-Passwort geändert ✓ — gilt sofort auf allen Geräten');
+    }catch(e){
+      toast('Owner-Passwort lokal geändert ⚠ — Firebase-Sync fehlgeschlagen','w');
+    }
+  } else {
+    toast('Owner-Passwort geändert ✓ — wird synchronisiert wenn online','w');
   }
+  document.getElementById('opw').value='';
+  logAction('SECURITY','Owner-Passwort geändert');
 }
 
 /* ── CONTROL PANEL RENDER ────────────────────────────────────────────── */
