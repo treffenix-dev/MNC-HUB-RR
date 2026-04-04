@@ -7,7 +7,7 @@
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://www.gstatic.com https://firestore.googleapis.com https://*.firebase.google.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -1345,6 +1345,7 @@ function fbSetupListeners(){
     if(sig.target===s.user&&(Date.now()-sig.ts)<10000&&sig.reason!=='__timeout_update__'){doLogout();toast('⚠ '+sig.reason,'e');}
   });
 }
+let _fbRetryCount=0;
 function initFirebase(){
   if(_fbOnline)return;
   if(!window._fbReady){
@@ -1352,8 +1353,13 @@ function initFirebase(){
     return;
   }
   _fbOnline=true;
+  _fbRetryCount=0;
   fbSetStatus('sync','VERBINDET…');
+  _doFbConnect();
+}
+function _doFbConnect(){
   fbPullAll().then(()=>{
+    _fbRetryCount=0;
     fbSetupListeners();
     fbSetStatus('online','ONLINE ✓');
     toast('🔥 Firebase verbunden');
@@ -1370,10 +1376,18 @@ function initFirebase(){
       if(valid){curRole=s.role;applyRole(s.role,s.user);resetSessionTimer();}
       else{sessionStorage.removeItem(SESS_KEY);applyRole('viewer','Gast');}
     }
-  }).catch(()=>{
+  }).catch(e=>{
     _fbOnline=false;
-    fbSetStatus('offline','OFFLINE');
-    toast('⚠ Firebase nicht erreichbar!','e');
+    console.warn('[MNC FIREBASE] Verbindungsfehler:',e);
+    if(_fbRetryCount<3){
+      _fbRetryCount++;
+      const delay=_fbRetryCount*3000;
+      fbSetStatus('sync','RETRY '+_fbRetryCount+'/3…');
+      setTimeout(()=>{ if(!_fbOnline){_fbOnline=true;_doFbConnect();} },delay);
+    }else{
+      fbSetStatus('offline','OFFLINE');
+      toast('⚠ Firebase nicht erreichbar!','e');
+    }
   });
 }
 function fbGetConfigStatus(){return window._fbReady?'configured':'unconfigured';}
@@ -1390,7 +1404,9 @@ function getRD(){
 }
 function saveRD(d){
   localStorage.setItem(RK,JSON.stringify(d));
-  if(_fbOnline)fbWrite(FB_PATH.roles,d).catch(()=>{});
+  if(_fbOnline)fbWrite(FB_PATH.roles,d).then(ok=>{
+    if(!ok)console.warn('[MNC] saveRD: Firebase Write fehlgeschlagen');
+  }).catch(e=>console.warn('[MNC] saveRD Fehler:',e));
 }
 function hasPerm(perm){
   if(curRole==='owner')return true;
@@ -1588,7 +1604,7 @@ function applyRole(role, user){
   if(addMemBtn)addMemBtn.style.display=hasPerm('canAddMem')?'':'none';
 }
 
-function doLg(){
+async function doLg(){
   const err=document.getElementById('lgerr');
   err.textContent='';
 
@@ -1625,8 +1641,15 @@ function doLg(){
     return;
   }
 
-  // 4. Owner
+  // 4. Owner — auch hier fresh Firebase-Daten holen
   if(u==='owner'){
+    // Frische Rollen aus Firebase laden (Owner-PW könnte geändert worden sein)
+    if(_fbOnline){
+      try{
+        const fresh=await fbRead(FB_PATH.roles);
+        if(fresh&&isHash(fresh.op)){localStorage.setItem(RK,JSON.stringify(fresh));}
+      }catch(e){console.warn('[MNC] Owner-PW FB-Read fehlgeschlagen:',e);}
+    }
     let stored=DEFAULT_PW;
     const cached=getRD();
     if(cached&&isHash(cached.op))stored=cached.op;
@@ -1638,7 +1661,6 @@ function doLg(){
       logAction('LOGIN','Owner eingeloggt');
       closeLg();rfrak();rmem();
       toast('Willkommen, Owner!');
-      if(_fbOnline)fbRead(FB_PATH.roles).then(d=>{if(d&&isHash(d.op))saveRD(d);}).catch(()=>{});
       return;
     }
     recordFailedAttempt();
@@ -1647,7 +1669,19 @@ function doLg(){
     return;
   }
 
-  // 5. Admin
+  // 5. Admin — IMMER zuerst live aus Firebase laden
+  err.textContent='Prüfe…';
+  if(_fbOnline){
+    try{
+      const fresh=await fbRead(FB_PATH.roles);
+      if(fresh&&fresh.op){
+        if(!fresh.adm)fresh.adm=[];
+        localStorage.setItem(RK,JSON.stringify(fresh));
+      }
+    }catch(e){console.warn('[MNC] Admin FB-Read fehlgeschlagen:',e);}
+  }
+  err.textContent='';
+
   const d=getRD();
   const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
   if(adm&&!adm.banned&&adm.p){
@@ -2876,7 +2910,8 @@ function runSecurityAudit(){
 window.addEventListener('fbReady', ()=>{ initFirebase(); });
 window.addEventListener('fbError', e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
 if(window._fbReady===true&&!_fbOnline){ initFirebase(); }
-setTimeout(()=>{ if(!_fbOnline)fbSetStatus('offline','OFFLINE'); },6000);
+// Wenn nach 12s immer noch nicht online → Offline anzeigen
+setTimeout(()=>{ if(!_fbOnline)fbSetStatus('offline','OFFLINE'); },12000);
 setTimeout(()=>{ runSecurityAudit(); runDailyBackup(); },500);
 
 /* ── MODALS: Backdrop + ESC ──────────────────────────────────────────────── */
