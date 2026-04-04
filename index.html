@@ -7,7 +7,7 @@
 <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
 <meta http-equiv="Referrer-Policy" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://*.firebaseapp.com; connect-src https://*.firebasedatabase.app wss://*.firebasedatabase.app https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.firebaseapp.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com; img-src 'self' data: https://*.googleusercontent.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none';">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -398,6 +398,16 @@ tbody tr:hover{background:var(--s2);}
 
 
 
+
+/* ── FIREBASE STATUS BADGE ──────────────────────────────────────────── */
+.fb-status{display:none;align-items:center;gap:7px;padding:6px 14px;background:var(--s2);border:1px solid var(--border2);}
+.fb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.fb-dot.online{background:var(--green);box-shadow:0 0 6px var(--green);}
+.fb-dot.sync{background:#f0a020;box-shadow:0 0 6px #f0a020;animation:pulse .8s infinite;}
+.fb-dot.offline{background:var(--g3);}
+.fb-dot.local{background:#4488cc;}
+.fb-label{font-family:'Share Tech Mono';font-size:10px;letter-spacing:1.5px;color:var(--white);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 /* ── RESPONSIVE ──────────────────────────────────────────────────────── */
 @media(max-width:768px){
   .hdr{padding:0 16px;height:60px;flex-wrap:wrap;}
@@ -2383,6 +2393,8 @@ function init(){
   // Starte als Gast — Session wird nach Firebase-Laden validiert
   applyRole('viewer','Gast');
   startKickPoll();
+  // Homepage sicherstellen
+  document.getElementById('page-home').classList.add('on');
 }
 function save(){
   hs();
