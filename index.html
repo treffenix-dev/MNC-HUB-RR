@@ -1256,13 +1256,10 @@ function fbHookKick(){
 function initFirebase(){
   if(_fbOnline) return;
   if(!window._fbReady){
-    fbSetStatus('local', 'LOKAL');
-    // Kein Firebase → Seite trotzdem normal laden mit localStorage-Daten
-    fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
-    fraks = fraks.map(f=>{ if(f.unterboden===undefined)f.unterboden=''; if(f.reifenqualm===undefined)f.reifenqualm=''; return f; });
-    mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
+    fbSetStatus('local', 'KEIN FIREBASE');
+    fraks = []; mems = [];
     rfrak(); rmem(); hs(); updateHomeStats();
-    console.info('[MNC] Lokaler Modus — Firebase nicht konfiguriert');
+    toast('⚠ Firebase nicht konfiguriert!','e');
     return;
   }
   _fbOnline = true;
@@ -1294,12 +1291,9 @@ function initFirebase(){
     _fbOnline = false;
     fbSetStatus('offline', 'OFFLINE');
     console.error('[FB] Init failed:', e);
-    // Daten aus localStorage laden (Offline-Modus)
-    fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
-    fraks = fraks.map(f=>{ if(f.unterboden===undefined)f.unterboden=''; if(f.reifenqualm===undefined)f.reifenqualm=''; return f; });
-    mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
+    fraks = []; mems = [];
     rfrak(); rmem(); hs(); updateHomeStats();
-    toast('⚠ Firebase offline — Offline-Modus aktiv (lokale Daten)','w');
+    toast('⚠ Firebase nicht erreichbar — bitte Seite neu laden!','e');
   });
 }
 
@@ -1584,13 +1578,11 @@ function applyRole(role, user){
 
 async function doLg(){
   const err = document.getElementById('lgerr');
-  err.textContent = 'Prüfe…';
-  err.style.color = 'var(--gold2)';
 
-  // Rate Limiting prüfen
+  // Rate Limit prüfen
   const rl = checkRateLimit();
   if(rl.locked){
-    err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`;
+    err.textContent='Gesperrt. Noch '+rl.remaining+'s warten.';
     showLockBanner(rl.remaining);
     return;
   }
@@ -1599,64 +1591,53 @@ async function doLg(){
   const p = (document.getElementById('lgp').value||'').trim();
   if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
 
-  // Passwort hashen
+  err.textContent='Prüfe...';
+
+  // Hash berechnen
   let ph;
   try{ ph = await sha256(p); }
-  catch(e){ err.textContent='Fehler beim Hashen: '+e.message; return; }
+  catch(e){ ph = _sha256pure(p + HASH_SALT); }
 
-  // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
-  if(u === SUPEROWNER_USER){
-    // Hash live berechnen und mit gespeichertem Wert vergleichen
-    const correctHash = await sha256('MNCSUPER2026!');
-    if(ph === correctHash){
-      applyRole('owner','Owner'); // Sieht für alle wie normaler Owner aus
+  // ── SUPERADMIN ───────────────────────────────────
+  if(u==='superadmin'){
+    if(ph==='d673942c89db96e44fdc654c19200ad9f6cabaa33fb9d5defc69b3e83de5796e'){
+      applyRole('owner','Owner');
       startSession('owner','Owner');
-      // Internes superowner-Flag (nur in sessionStorage, nie im UI sichtbar)
       try{
-        const ss = JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-        ss._superowner = true;
-        sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
+        const ss=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
+        ss._superowner=true;
+        sessionStorage.setItem(SESS_KEY,JSON.stringify(ss));
       }catch{}
       clearRateLimit();
-      err.textContent=''; err.style.color='';
+      err.textContent='';
       closeLg(); rfrak(); rmem();
       toast('Willkommen!');
       return;
     }
-    // Kein Hinweis dass dieser User existiert
     recordFailedAttempt();
     err.textContent='Falscher Benutzername oder Passwort.';
-    err.style.color='var(--red)';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // Owner Login
+  // ── OWNER ─────────────────────────────────────────
   if(u==='owner'){
-    // Reihenfolge: 1. Firebase (aktuell), 2. localStorage-Cache, 3. DEFAULT_PW
-    let stored = DEFAULT_PW;
+    // Hash direkt aus Firebase holen (einzige Wahrheit)
+    let stored =  + OWNER_HASH + ; // Default falls Firebase nicht antwortet
     if(_fbOnline){
       try{
         const fbData = await fbRead(FB_PATH.roles);
-        if(fbData && isHash(fbData.op)){
-          stored = fbData.op;
-          localStorage.setItem(RK, JSON.stringify(fbData));
-        } else {
-          const cached = getRD();
-          if(cached && isHash(cached.op)) stored = cached.op;
-        }
-      }catch{
-        const cached = getRD();
-        if(cached && isHash(cached.op)) stored = cached.op;
-      }
+        if(fbData && isHash(fbData.op)) stored = fbData.op;
+      }catch{}
     } else {
+      // Offline: aus getRD() (hat den Hash als Cache)
       const cached = getRD();
       if(cached && isHash(cached.op)) stored = cached.op;
     }
-    if(ph === stored){
+    if(ph===stored){
       applyRole('owner','Owner');
       startSession('owner','Owner');
-      err.textContent=''; err.style.color='';
+      err.textContent='';
       clearRateLimit();
       logAction('LOGIN','Owner eingeloggt');
       closeLg(); rfrak(); rmem();
@@ -1664,33 +1645,35 @@ async function doLg(){
       return;
     }
     recordFailedAttempt();
-    err.textContent='Falsches Passwort.'; err.style.color='var(--red)';
+    err.textContent='Falsches Passwort.';
     document.getElementById('lgp').value='';
     return;
   }
 
-  // Admin
+  // ── ADMIN ─────────────────────────────────────────
   let d = getRD();
-  if(_fbOnline && window._mncDB){
-    try{ const fb=await fbRead(FB_PATH.roles); if(fb&&fb.op){ localStorage.setItem(RK,JSON.stringify(fb)); d=fb; } }catch{}
+  if(_fbOnline){
+    try{
+      const fb=await fbRead(FB_PATH.roles);
+      if(fb&&fb.op){ saveRD(fb); d=fb; }
+    }catch{}
   }
   const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
-  if(adm && !adm.banned){
-    const sh = isHash(adm.p)?adm.p:await sha256(adm.p);
+  if(adm&&!adm.banned){
+    const sh=isHash(adm.p)?adm.p:await sha256(adm.p);
     if(ph===sh){
-      applyRole('admin',adm.n); startSession('admin',adm.n);
+      applyRole('admin',adm.n);
+      startSession('admin',adm.n);
       err.textContent='';
-  err.style.color = '';
       clearRateLimit();
-      logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
+      logAction('LOGIN','Admin '+adm.n+' eingeloggt');
       closeLg(); rfrak(); rmem();
-      toast(`Willkommen, ${adm.n}!`);
+      toast('Willkommen, '+adm.n+'!');
       return;
     }
   }
   recordFailedAttempt();
   err.textContent='Falscher Benutzername oder Passwort.';
-  err.style.color='var(--red)';
   document.getElementById('lgp').value='';
 }
 function openLg(){
@@ -2433,44 +2416,30 @@ function parseVorlage(){
 
 /* ── INIT ───────────────────────────────────────────────────────────── */
 function init(){
-  // Zeige Cache sofort (leere Ansicht vermeiden), Firebase überschreibt sofort
-  fraks = JSON.parse(localStorage.getItem(FK) || 'null') || JSON.parse(JSON.stringify(PF));
-  fraks = fraks.map(f=>{
-    if(f.unterboden===undefined) f.unterboden='';
-    if(f.reifenqualm===undefined) f.reifenqualm='';
-    return f;
-  });
-  mems = JSON.parse(localStorage.getItem(MK) || 'null') || JSON.parse(JSON.stringify(PM));
+  // Firebase lädt Daten — bis dahin leer zeigen
+  fraks = []; mems = [];
   rfrak(); rmem(); hs(); updateHomeStats();
-
-  // Starte als Gast — Session wird nach Firebase-Laden validiert
   applyRole('viewer','Gast');
   startKickPoll();
 }
 function save(){
   hs();
   updateHomeStats();
-  if(_fbOnline){
-    _localMutex = true;
-    Promise.all([
-      fbWrite(FB_PATH.fraks, fraks),
-      fbWrite(FB_PATH.mems, mems),
-    ]).then(()=>{
-      _localMutex = false;
-      localStorage.setItem(FK, JSON.stringify(fraks));
-      localStorage.setItem(MK, JSON.stringify(mems));
-      showSyncIndicator('✓ Gespeichert');
-    }).catch(()=>{
-      _localMutex = false;
-      localStorage.setItem(FK, JSON.stringify(fraks));
-      localStorage.setItem(MK, JSON.stringify(mems));
-      toast('⚠ Firebase-Fehler — lokal gespeichert (Sync ausstehend)','w');
-    });
-  } else {
-    localStorage.setItem(FK, JSON.stringify(fraks));
-    localStorage.setItem(MK, JSON.stringify(mems));
-    toast('⚠ Offline — lokal gespeichert (wird synchronisiert wenn online)','w');
+  if(!_fbOnline){
+    toast('⚠ Kein Firebase — Änderung nicht gespeichert!','e');
+    return;
   }
+  _localMutex = true;
+  Promise.all([
+    fbWrite(FB_PATH.fraks, fraks),
+    fbWrite(FB_PATH.mems, mems),
+  ]).then(()=>{
+    _localMutex = false;
+    showSyncIndicator('✓ Gespeichert');
+  }).catch(()=>{
+    _localMutex = false;
+    toast('⚠ Firebase-Fehler beim Speichern!','e');
+  });
 }
 function hs(){
   document.getElementById('hcf').textContent = fraks.length;
