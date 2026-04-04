@@ -3219,35 +3219,9 @@ init();
    • Gast          → kein Login → viewer
    ══════════════════════════════════════════════════════════════════════ */
 
-const FB_CONFIG = {
-  apiKey:            "AIzaSyBDBXVpKSLCQWasScX9wvS7jZoIBNKvUvA",
-  authDomain:        "mnc-hub-rr.firebaseapp.com",
-  databaseURL:       "https://mnc-hub-rr-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "mnc-hub-rr",
-  storageBucket:     "mnc-hub-rr.firebasestorage.app",
-  messagingSenderId: "134160037882",
-  appId:             "1:134160037882:web:5940264c467c59be27d643"
-};
-
-// Firebase SDK laden
-(function(){
-  const s = document.createElement('script');
-  s.type  = 'module';
-  s.textContent = `
-    import { initializeApp }                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getDatabase, ref, set, get, onValue }        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-    const app  = initializeApp(${JSON.stringify(FB_CONFIG)});
-    const db   = getDatabase(app);
-    window._mncDB   = db;
-    window._mncFB   = { ref, set, get, onValue };
-    window._fbReady = true;
-    window.dispatchEvent(new Event('fbReady'));
-  `;
-  document.head.appendChild(s);
-})();
-
-window.addEventListener('fbReady',  ()=>{ initFirebase(); });
-window.addEventListener('fbError',  e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
+// Firebase Events (werden vom <head> Script gefeuert)
+window.addEventListener('fbReady', ()=>{ initFirebase(); });
+window.addEventListener('fbError', e=>{ fbSetStatus('offline','FEHLER'); toast('⚠ Firebase: '+e.detail,'e'); });
 setTimeout(()=>{
   if(!_fbOnline){
     fbSetStatus('offline','OFFLINE');
