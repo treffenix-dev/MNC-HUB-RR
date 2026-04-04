@@ -1210,6 +1210,7 @@ function fbSetupListeners(){
 
   // Logs live — Firebase ist die Wahrheit
   fbListen(FB_PATH.log, data=>{
+    if(_localMutex) return;
     if(!data || !Array.isArray(data)) return;
     localStorage.setItem(LOG_KEY, JSON.stringify(data.slice(0,500)));
   });
@@ -1303,12 +1304,16 @@ let loginAttempts = 0;
 let sessionTimer = null;
 let sessionStart = null;
 
-// Rate Limit beim Start prüfen — abgelaufene Sperren sofort clearen
+// Rate Limit beim Start clearen wenn abgelaufen
 (function(){
   try{
     const rl = JSON.parse(localStorage.getItem('mnc_ratelimit') || '{}');
-    if(rl.until && Date.now() >= rl.until) localStorage.removeItem('mnc_ratelimit');
-  }catch{}
+    if(!rl.until || Date.now() >= rl.until){
+      localStorage.removeItem('mnc_ratelimit');
+    }
+  }catch{
+    localStorage.removeItem('mnc_ratelimit');
+  }
 })();
 
 /* ── SHA-256 HASHING ────────────────────────────────────────────────── */
@@ -1417,9 +1422,16 @@ function logAction(action, detail=''){
 function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); }catch{ return []; } }
 function clearLog(){
   if(!confirm('Aktivitätsprotokoll wirklich löschen?')) return;
+  // _localMutex verhindert dass der Realtime-Listener sofort wieder befüllt
+  _localMutex = true;
   localStorage.removeItem(LOG_KEY);
-  if(_fbOnline){ fbWrite(FB_PATH.log, []).catch(()=>{}); }
-  else{ toast('⚠ Offline — Log nur lokal gelöscht','w'); }
+  if(_fbOnline){
+    fbWrite(FB_PATH.log, []).then(()=>{
+      setTimeout(()=>{ _localMutex = false; }, 1000);
+    }).catch(()=>{ _localMutex = false; });
+  } else {
+    setTimeout(()=>{ _localMutex = false; }, 500);
+  }
   renderCtrl();
   toast('Log gelöscht','w');
 }
@@ -1569,24 +1581,30 @@ function applyRole(role, user){
 
 async function doLg(){
   const err = document.getElementById('lgerr');
-  err.textContent = 'Prüfe…';
+  err.textContent = '';
 
   // Rate Limiting prüfen
   const rl = checkRateLimit();
   if(rl.locked){
-    err.textContent = `Gesperrt. Noch ${rl.remaining}s warten.`;
+    err.textContent = 'Zugang gesperrt. Noch ' + rl.remaining + 's warten.';
     showLockBanner(rl.remaining);
     return;
   }
 
   const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
   const p = (document.getElementById('lgp').value||'').trim();
-  if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
+  if(!u||!p){ err.textContent='Bitte alle Felder ausfüllen.'; return; }
 
-  // Passwort hashen
+  err.textContent = 'Prüfe...';
+
+  // Passwort hashen — beide Pfade (crypto.subtle und Pure-JS) geben identische Ergebnisse
   let ph;
-  try{ ph = await sha256(p); }
-  catch(e){ err.textContent='Fehler beim Hashen: '+e.message; return; }
+  try{
+    ph = await sha256(p);
+  }catch(e){
+    try{ ph = _sha256pure(p + HASH_SALT); }
+    catch(e2){ err.textContent = 'Hash-Fehler: ' + e2.message; return; }
+  }
 
   // SUPEROWNER — verstecktes God-Konto (unsichtbar für alle)
   if(u === SUPEROWNER_USER){
