@@ -1216,33 +1216,15 @@ function fbSetupListeners(){
 }
 
 /* ── FIREBASE-OVERRIDE FÜR SAVE() ──────────────────────────────── */
-// Wird nach init() aufgerufen um save() zu überschreiben
+// save() ruft Firebase jetzt direkt auf — kein Override mehr nötig
 function fbHookSave(){
-  const _origSave = save;
-  window.save = function(){
-    _origSave();
-    if(_fbOnline){
-      _localMutex = true;
-      Promise.all([
-        fbWrite(FB_PATH.fraks, fraks),
-        fbWrite(FB_PATH.mems, mems),
-      ]).then(()=>{
-        _localMutex = false;
-        showSyncIndicator('✓ Cloud gespeichert');
-      }).catch(()=>{ _localMutex = false; });
-    }
-  };
+  // Kein Überschreiben nötig — save() schreibt direkt zu Firebase
 }
 
 /* ── FIREBASE-OVERRIDE FÜR ROLLEN ──────────────────────────────── */
+// saveRD() schreibt direkt zu Firebase — kein Override nötig
 function fbHookRoles(){
-  const _origSaveRD = saveRD;
-  window.saveRD = function(d){
-    _origSaveRD(d);
-    if(_fbOnline){
-      fbWrite(FB_PATH.roles, d).catch(()=>{});
-    }
-  };
+  // Kein Überschreiben nötig — saveRD() synchronisiert direkt
 }
 
 /* ── FIREBASE KICK OVERRIDE ─────────────────────────────────────── */
@@ -1322,11 +1304,12 @@ function esc(str){
 
 /* ── ROLE DATA ──────────────────────────────────────────────────────── */
 const DEFAULT_PW = 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'; // Owner-Passwort: MNC2025!
+/* ── ROLE DATA — Firebase als einzige Wahrheit ──────────────────────── */
 function getRD(){
   try{
+    // Immer aus localStorage lesen (wird von Firebase live aktualisiert)
     const v2 = localStorage.getItem(RK);
     if(v2) return JSON.parse(v2);
-    // Migration v1->v2 oder Erststart: sofort persistieren
     const raw = localStorage.getItem('mnc_roles');
     const d = raw ? JSON.parse(raw) : {op: DEFAULT_PW, adm:[]};
     saveRD(d);
@@ -1337,9 +1320,13 @@ function getRD(){
     return fresh;
   }
 }
-function saveRD(d){ localStorage.setItem(RK, JSON.stringify(d)); }
+function saveRD(d){
+  localStorage.setItem(RK, JSON.stringify(d));
+  // Sofort zu Firebase synchronisieren
+  if(_fbOnline){ fbWrite(FB_PATH.roles, d).catch(()=>{}); }
+}
 
-/* ── ACTIVITY LOG ───────────────────────────────────────────────────── */
+/* ── ACTIVITY LOG — Firebase als primärer Speicher ──────────────────── */
 function logAction(action, detail=''){
   try{
     const log = JSON.parse(localStorage.getItem(LOG_KEY) || '[]');
@@ -1347,7 +1334,7 @@ function logAction(action, detail=''){
     log.unshift({ts: new Date().toISOString(), user, role: curRole, action, detail});
     if(log.length > 500) log.length = 500;
     localStorage.setItem(LOG_KEY, JSON.stringify(log));
-    // Firebase-Sync: Logs auch online speichern
+    // Firebase: immer synchronisieren
     if(_fbOnline){ fbWrite(FB_PATH.log, log.slice(0,200)).catch(()=>{}); }
   }catch(e){}
 }
@@ -1355,6 +1342,8 @@ function getLog(){ try{ return JSON.parse(localStorage.getItem(LOG_KEY) || '[]')
 function clearLog(){
   if(!confirm('Aktivitätsprotokoll wirklich löschen?')) return;
   localStorage.removeItem(LOG_KEY);
+  // Firebase Log ebenfalls löschen
+  if(_fbOnline){ fbWrite(FB_PATH.log, []).catch(()=>{}); }
   logAction('SECURITY','Aktivitätsprotokoll gelöscht');
   renderCtrl();
   toast('Log gelöscht','w');
@@ -1588,9 +1577,9 @@ const PERM_DEFS = [
   {id:'canViewLog',    label:'Log einsehen',         desc:'Aktivitätsprotokoll lesen'},
 ];
 const DEFAULT_PERMS = {
-  canAddFrak:true, canEditFrak:true, canDeleteFrak:false,
-  canAddMem:true,  canEditMem:true,  canDeleteMem:false,
-  canViewLog:false,
+  canAddFrak:true, canEditFrak:true, canDeleteFrak:true,
+  canAddMem:true,  canEditMem:true,  canDeleteMem:true,
+  canViewLog:true,
 };
 const KICK_KEY = 'mnc_kick_v1';
 
@@ -1608,16 +1597,10 @@ function getAdminPerms(name){
 }
 function hasPerm(perm){
   if(curRole==='owner'){
-    // Google-Owner hat immer alle Rechte
-    // Lokaler "owner" (2. Owner): prüft seine freigeschalteten Rechte
-    const d = getRD();
-    const ownerPerms = d.ownerPerms || {};
-    // Wenn ownerPerms leer → noch gar nichts freigeschaltet (neuer 2. Owner)
-    return ownerPerms[perm] === true;
+    // Owner hat immer ALLE Rechte — keine Einschränkung
+    return true;
   }
   if(curRole==='admin'){
-    // Google-Admin: Rechte aus Firebase-Eintrag
-    // Lokaler Admin: Rechte aus localStorage
     return getAdminPerms(getSession().user||'')[perm]===true;
   }
   return false;
@@ -2305,14 +2288,23 @@ function init(){
   startKickPoll();
 }
 function save(){
+  // localStorage als lokaler Cache
   localStorage.setItem(FK, JSON.stringify(fraks));
   localStorage.setItem(MK, JSON.stringify(mems));
   hs();
   updateHomeStats();
-  // Firebase: immer synchronisieren wenn online
+  // Firebase ist primärer Speicher — immer synchronisieren
   if(_fbOnline){
-    fbWrite(FB_PATH.fraks, fraks).catch(()=>{});
-    fbWrite(FB_PATH.mems, mems).catch(()=>{});
+    _localMutex = true;
+    Promise.all([
+      fbWrite(FB_PATH.fraks, fraks),
+      fbWrite(FB_PATH.mems, mems),
+    ]).then(()=>{
+      _localMutex = false;
+      showSyncIndicator('✓ Cloud gespeichert');
+    }).catch(()=>{ _localMutex = false; toast('⚠ Cloud-Fehler beim Speichern','e'); });
+  } else {
+    toast('⚠ Offline — nur lokal gespeichert','w');
   }
 }
 function hs(){
@@ -2916,14 +2908,12 @@ function runDailyBackup(){
     };
     let backups = [];
     try{ backups = JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }catch{}
-    // Doppelten Eintrag für heute vermeiden
     backups = backups.filter(b=>b.date!==today);
     backups.unshift(snapshot);
-    // Max. 7 Tages-Backups behalten
     if(backups.length > 7) backups = backups.slice(0,7);
     localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
     localStorage.setItem(BACKUP_LAST_KEY, today);
-    // Firebase-Backup ebenfalls speichern
+    // Firebase: Backups online sichern (primär)
     if(_fbOnline){ fbWrite('mnc/backups', backups).catch(()=>{}); }
     console.info(`[MNC HUB] Tages-Backup erstellt: ${today} (${fraks.length} Fraktionen, ${mems.length} Mitglieder)`);
   }catch(e){
@@ -2931,8 +2921,19 @@ function runDailyBackup(){
   }
 }
 
-function getBackups(){
-  try{ return JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }catch{ return []; }
+function getBackups(){ try{ return JSON.parse(localStorage.getItem(BACKUP_KEY)||'[]'); }catch{ return []; } }
+
+async function getBackupsFromFirebase(){
+  if(_fbOnline){
+    try{
+      const fb = await fbRead('mnc/backups');
+      if(fb && Array.isArray(fb) && fb.length > 0){
+        localStorage.setItem(BACKUP_KEY, JSON.stringify(fb));
+        return fb;
+      }
+    }catch{}
+  }
+  return getBackups();
 }
 
 function downloadBackup(dateStr){
@@ -2962,11 +2963,15 @@ function restoreBackup(dateStr){
 }
 
 function renderBackupPanel(){
-  const backups = getBackups();
   const el = document.getElementById('backup-list');
   if(!el) return;
+  const backups = getBackups();
   if(!backups.length){
-    el.innerHTML = '<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Noch kein automatisches Backup vorhanden. Wird beim nächsten Seitenaufruf an einem neuen Tag erstellt.</div>';
+    el.innerHTML = '<div style="color:var(--white);font-family:\'Share Tech Mono\';font-size:12px;padding:12px 0;letter-spacing:1px">Noch kein automatisches Backup vorhanden. Wird täglich automatisch erstellt.</div>';
+    // Versuche aus Firebase zu laden
+    if(_fbOnline){
+      getBackupsFromFirebase().then(fb=>{ if(fb.length) renderBackupPanel(); });
+    }
     return;
   }
   el.innerHTML = backups.map(b=>`
