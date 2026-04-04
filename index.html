@@ -1394,8 +1394,15 @@ function initFirebase(){
         const a=(d.adm||[]).find(x=>x.n===s.user);
         valid=a&&!a.banned;
       }
-      if(valid){curRole=s.role;applyRole(s.role,s.user);resetSessionTimer();}
-      else{sessionStorage.removeItem(SESS_KEY);applyRole('viewer','Gast');}
+      if(valid){
+        curRole=s.role;applyRole(s.role,s.user);resetSessionTimer();
+        if(s._superowner){const rc=document.getElementById('ubrole');if(rc){rc.textContent='SUPERADMIN';rc.className='ubrole ro';}}
+      }else{
+        sessionStorage.removeItem(SESS_KEY);
+        localStorage.removeItem(SESS_KEY);
+        applyRole('viewer','Gast');
+        toast('Session abgelaufen — bitte neu einloggen','w');
+      }
     }
   }).catch(()=>{
     _fbOnline=false;
@@ -1546,17 +1553,23 @@ function hideLockBanner(){
    ════════════════════════════════════════════════════════════════════════════ */
 function startSession(role, user, extra){
   const now=Date.now();
-  sessionStorage.setItem(SESS_KEY,JSON.stringify({role,user,start:now,last:now,...(extra||{})}));
+  const sess={role,user,start:now,last:now,...(extra||{})};
+  sessionStorage.setItem(SESS_KEY,JSON.stringify(sess));
+  localStorage.setItem(SESS_KEY,JSON.stringify(sess));
   resetSessionTimer();
 }
 function touchSession(){
   try{
-    const s=JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');
-    if(s.user){s.last=Date.now();sessionStorage.setItem(SESS_KEY,JSON.stringify(s));}
+    const s=JSON.parse(sessionStorage.getItem(SESS_KEY)||localStorage.getItem(SESS_KEY)||'{}');
+    if(s.user){
+      s.last=Date.now();
+      sessionStorage.setItem(SESS_KEY,JSON.stringify(s));
+      localStorage.setItem(SESS_KEY,JSON.stringify(s));
+    }
     resetSessionTimer();
   }catch{}
 }
-function getSession(){try{return JSON.parse(sessionStorage.getItem(SESS_KEY)||'{}');}catch{return{};}}
+function getSession(){try{return JSON.parse(sessionStorage.getItem(SESS_KEY)||localStorage.getItem(SESS_KEY)||'{}');}catch{return{};}}
 function resetSessionTimer(){
   clearTimeout(sessionTimer);
   if(curRole==='viewer')return;
@@ -1673,13 +1686,14 @@ function doLg(){
     return;
   }
 
-  // 4. Owner
+  // 4. Owner — prüft DEFAULT_PW UND gespeicherten Hash
   if(u==='owner'){
-    let stored=DEFAULT_PW;
     const cached=getRD();
-    if(cached&&isHash(cached.op))stored=cached.op;
-    if(ph===stored){
-      if(checkMaintenance('owner')){ err.textContent='🔒 Seite im Wartungsmodus — nur Superadmin hat Zugang.'; document.getElementById('lgp').value=''; return; }
+    // Akzeptiere: Default-Passwort (MNC2025!) ODER aktuellen gespeicherten Hash
+    const storedHash = (cached&&isHash(cached.op)) ? cached.op : DEFAULT_PW;
+    const valid = (ph===DEFAULT_PW) || (ph===storedHash);
+    if(valid){
+      if(checkMaintenance('owner')){ err.textContent='🔒 Wartungsmodus aktiv.'; return; }
       applyRole('owner','Owner');
       startSession('owner','Owner');
       clearRateLimit();
@@ -1691,7 +1705,6 @@ function doLg(){
     }
     recordFailedAttempt();
     err.textContent='Falsches Passwort.';
-    document.getElementById('lgp').value='';
     return;
   }
 
@@ -1734,6 +1747,7 @@ function closeLg(){
 function doLogout(){
   logAction('LOGOUT');
   sessionStorage.removeItem(SESS_KEY);
+  localStorage.removeItem(SESS_KEY);
   clearTimeout(sessionTimer);
   applyRole('viewer','Gast');
   rfrak();rmem();
@@ -2317,7 +2331,31 @@ function init(){
     mems=cm?JSON.parse(cm):JSON.parse(JSON.stringify(PM));
   }catch{mems=JSON.parse(JSON.stringify(PM));}
   rfrak();rmem();hs();updateHomeStats();
-  applyRole('viewer','Gast');
+
+  // Session aus localStorage wiederherstellen (bleibt über Tabs/Reloads erhalten)
+  const saved=JSON.parse(localStorage.getItem(SESS_KEY)||'{}');
+  if(saved.role&&saved.user&&saved.role!=='viewer'){
+    const timeout=getAdminTimeout(saved.user||saved.role);
+    const elapsed=Date.now()-(saved.last||0);
+    if(elapsed<timeout){
+      // Session noch gültig — sofort wiederherstellen
+      curRole=saved.role;
+      sessionStorage.setItem(SESS_KEY,JSON.stringify(saved));
+      applyRole(saved.role,saved.user);
+      // Superadmin Badge setzen
+      if(saved._superowner){
+        const rc=document.getElementById('ubrole');
+        if(rc){rc.textContent='SUPERADMIN';rc.className='ubrole ro';}
+      }
+      resetSessionTimer();
+    }else{
+      // Session abgelaufen — aufräumen
+      localStorage.removeItem(SESS_KEY);
+      applyRole('viewer','Gast');
+    }
+  }else{
+    applyRole('viewer','Gast');
+  }
   startKickPoll();
 }
 
