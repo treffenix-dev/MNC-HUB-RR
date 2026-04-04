@@ -1596,7 +1596,7 @@ async function doLg(){
   }
 
   const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
-  const p = (document.getElementById('lgp').value||'');
+  const p = (document.getElementById('lgp').value||'').trim();
   if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
 
   // Passwort hashen
@@ -1618,9 +1618,9 @@ async function doLg(){
         sessionStorage.setItem(SESS_KEY, JSON.stringify(ss));
       }catch{}
       clearRateLimit();
-      err.textContent='';
-  err.style.color = '';
+      err.textContent=''; err.style.color='';
       closeLg(); rfrak(); rmem();
+      toast('Willkommen!');
       return;
     }
     // Kein Hinweis dass dieser User existiert
