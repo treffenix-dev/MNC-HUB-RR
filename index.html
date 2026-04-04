@@ -1501,60 +1501,57 @@ function applyRole(role, user){
 }
 
 async function doLg(){
-  // Sperre immer zuerst clearen (verhindert Phantom-Sperren)
-  clearRateLimit();
   const err = document.getElementById('lgerr');
-  err.textContent = '';
-  const u = (document.getElementById('lgu').value || '').trim().toLowerCase();
-  const p = document.getElementById('lgp').value || '';
-  if(!u || !p){ err.textContent = 'Bitte alle Felder ausfüllen.'; return; }
+  err.textContent = 'Prüfe…';
+  const u = (document.getElementById('lgu').value||'').trim().toLowerCase();
+  const p = (document.getElementById('lgp').value||'');
+  if(!u||!p){ err.textContent='Felder ausfüllen.'; return; }
 
   // Passwort hashen
   let ph;
-  try{
-    ph = await sha256(p);
-  }catch(e){
-    err.textContent = 'Fehler beim Hashen — HTTPS erforderlich.';
+  try{ ph = await sha256(p); }
+  catch(e){ err.textContent='Kein HTTPS — bitte über GitHub Pages öffnen.'; return; }
+
+  // Owner: direkt mit festem Hash vergleichen
+  if(u==='owner'){
+    // Erst lokal prüfen, dann Firebase
+    const d = getRD();
+    const stored = isHash(d.op) ? d.op : 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da';
+    if(ph === stored || ph === 'd20c5c90b1527b6b608d751ff832e401c74833b211702f77c9f951ba68a428da'){
+      applyRole('owner','Owner');
+      startSession('owner','Owner');
+      // Firebase sync
+      if(_fbOnline){ fbRead(FB_PATH.roles).then(fb=>{ if(fb&&fb.op) localStorage.setItem(RK,JSON.stringify(fb)); }); }
+      err.textContent='';
+      logAction('LOGIN','Owner eingeloggt');
+      closeLg(); rfrak(); rmem();
+      toast('Willkommen, Owner!');
+      return;
+    }
+    err.textContent='Falsches Passwort.';
+    document.getElementById('lgp').value='';
     return;
   }
 
-  // Zugangsdaten holen: Firebase zuerst, dann lokal
+  // Admin
   let d = getRD();
   if(_fbOnline && window._mncDB){
-    try{
-      const fbData = await fbRead(FB_PATH.roles);
-      if(fbData && fbData.op){
-        localStorage.setItem(RK, JSON.stringify(fbData));
-        d = fbData;
-      }
-    }catch(e){}
+    try{ const fb=await fbRead(FB_PATH.roles); if(fb&&fb.op){ localStorage.setItem(RK,JSON.stringify(fb)); d=fb; } }catch{}
   }
-
-  let authed = false;
-
-  if(u === 'owner'){
-    const storedHash = isHash(d.op) ? d.op : await sha256(d.op);
-    authed = (ph === storedHash);
-    if(authed){ applyRole('owner','Owner'); startSession('owner','Owner'); }
-  } else {
-    const adm = (d.adm||[]).find(a => a.n.toLowerCase() === u);
-    if(adm && !adm.banned){
-      const storedHash = isHash(adm.p) ? adm.p : await sha256(adm.p);
-      authed = (ph === storedHash);
-      if(authed){ applyRole('admin', adm.n); startSession('admin', adm.n); }
+  const adm=(d.adm||[]).find(a=>a.n.toLowerCase()===u);
+  if(adm && !adm.banned){
+    const sh = isHash(adm.p)?adm.p:await sha256(adm.p);
+    if(ph===sh){
+      applyRole('admin',adm.n); startSession('admin',adm.n);
+      err.textContent='';
+      logAction('LOGIN',`Admin ${adm.n} eingeloggt`);
+      closeLg(); rfrak(); rmem();
+      toast(`Willkommen, ${adm.n}!`);
+      return;
     }
   }
-
-  if(!authed){
-    err.textContent = 'Falscher Benutzername oder Passwort.';
-    document.getElementById('lgp').value = '';
-    return;
-  }
-
-  logAction('LOGIN', `Eingeloggt als "${esc(curRole)}"`);
-  closeLg();
-  rfrak(); rmem();
-  toast(`Willkommen, ${document.getElementById('ubname').textContent}!`);
+  err.textContent='Falscher Benutzername oder Passwort.';
+  document.getElementById('lgp').value='';
 }
 function openLg(){
   document.getElementById('lgov').classList.add('open');
