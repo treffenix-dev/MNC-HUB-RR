@@ -576,6 +576,123 @@ if(FB_CONFIGURED){
       </div>
       <div class="kick-info" id="ap-kick-info">⚠ Gelöschte/gesperrte Konten werden beim nächsten Tick (≤5s) automatisch ausgeloggt.</div>
 
+      <!-- SUPERADMIN GOD PANEL -->
+      <div id="sa-god-panel" style="display:none;margin-top:28px;border-top:2px solid var(--red);padding-top:20px">
+        <div class="apsh" style="color:var(--red);letter-spacing:3px">⚠ SUPERADMIN — EXKLUSIV</div>
+
+        <!-- Maintenance Mode -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:12px">
+          <div class="acard-head" style="cursor:default">
+            <div class="acard-left">
+              <div class="acard-dot" id="sa-maint-dot" style="background:var(--green)"></div>
+              <div>
+                <div class="acard-name">🔒 Maintenance Mode</div>
+                <div class="acard-meta">Sperrt die Seite für Owner & Admins — nur Superadmin kommt rein</div>
+              </div>
+            </div>
+            <button class="fbtn" id="sa-maint-btn" onclick="toggleMaintenance()" style="padding:8px 16px;font-size:12px">AKTIVIEREN</button>
+          </div>
+        </div>
+
+        <!-- Owner PW überschreiben -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:10px">
+          <div style="padding:14px">
+            <div class="acard-name" style="margin-bottom:6px">🔑 Owner-Passwort überschreiben</div>
+            <div class="acard-meta" style="margin-bottom:12px">Direkt setzen — ohne altes Passwort zu kennen</div>
+            <div class="adinl">
+              <input class="fi" id="sa-owner-pw" type="password" placeholder="Neues Owner-Passwort" style="flex:1" autocomplete="new-password">
+              <button class="abtn" onclick="saForceOwnerPw()" style="padding:10px 14px;font-size:12px;background:linear-gradient(135deg,var(--red),#c03020)">ÜBERSCHREIBEN</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Global Kick -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:10px">
+          <div style="padding:14px">
+            <div class="acard-name" style="margin-bottom:6px">⚡ Global Kick</div>
+            <div class="acard-meta" style="margin-bottom:12px">Alle aktiven Sessions sofort beenden</div>
+            <button class="fbtn" onclick="saGlobalKick()" style="padding:10px 18px;font-size:12px;border-color:var(--red);color:var(--red)">⚡ ALLE AUSLOGGEN</button>
+          </div>
+        </div>
+
+        <!-- Nuclear Reset — aufklappbar -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:10px">
+          <div class="acard-head" onclick="toggleAcard('sa-nuclear')" style="cursor:pointer">
+            <div class="acard-left">
+              <div class="acard-dot" style="background:var(--red)"></div>
+              <div>
+                <div class="acard-name" style="color:var(--red)">☢ Nuclear Reset</div>
+                <div class="acard-meta">Aufklappen um Daten zu löschen — nicht rückgängig!</div>
+              </div>
+            </div>
+            <span style="color:var(--red);font-size:16px">▾</span>
+          </div>
+          <div class="acard-body" id="abody-sa-nuclear">
+            <div style="background:rgba(224,80,64,.08);border:1px solid rgba(224,80,64,.3);padding:12px;margin-bottom:14px;font-family:'Share Tech Mono';font-size:11px;color:var(--red);letter-spacing:1px;line-height:1.8">
+              ⚠ WARNUNG — NICHT RÜCKGÄNGIG MACHBAR
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(224,80,64,.3);background:var(--s1)">
+                <div><div style="font-family:'Rajdhani';font-weight:700;font-size:14px">🗑 Fraktionen leeren</div></div>
+                <button class="fbtn" onclick="saConfirmReset('fraks','Alle Fraktionen')" style="padding:7px 12px;font-size:11px;border-color:rgba(224,80,64,.5);color:var(--red)">LÖSCHEN</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(224,80,64,.3);background:var(--s1)">
+                <div><div style="font-family:'Rajdhani';font-weight:700;font-size:14px">🗑 Mitglieder leeren</div></div>
+                <button class="fbtn" onclick="saConfirmReset('mems','Alle Mitglieder')" style="padding:7px 12px;font-size:11px;border-color:rgba(224,80,64,.5);color:var(--red)">LÖSCHEN</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(224,80,64,.3);background:var(--s1)">
+                <div><div style="font-family:'Rajdhani';font-weight:700;font-size:14px">🗑 Log leeren</div></div>
+                <button class="fbtn" onclick="saConfirmReset('log','Den Log')" style="padding:7px 12px;font-size:11px;border-color:rgba(224,80,64,.5);color:var(--red)">LÖSCHEN</button>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid rgba(224,80,64,.3);background:var(--s1)">
+                <div><div style="font-family:'Rajdhani';font-weight:700;font-size:14px">🗑 Alle Admins löschen</div></div>
+                <button class="fbtn" onclick="saConfirmReset('admins','Alle Admins')" style="padding:7px 12px;font-size:11px;border-color:rgba(224,80,64,.5);color:var(--red)">LÖSCHEN</button>
+              </div>
+              <div style="margin-top:6px;padding:12px;border:2px solid var(--red);background:rgba(224,80,64,.05)">
+                <div style="font-family:'Rajdhani';font-weight:800;font-size:15px;color:var(--red);margin-bottom:6px;letter-spacing:2px">☢ KOMPLETT-RESET</div>
+                <div style="font-family:'Share Tech Mono';font-size:10px;color:var(--white);margin-bottom:12px">Löscht ALLES: Fraktionen · Mitglieder · Admins · Log</div>
+                <button class="fbtn" onclick="saConfirmResetAll()" style="padding:10px 18px;font-size:12px;border-color:var(--red);color:var(--red);width:100%;letter-spacing:2px">☢ ALLES LÖSCHEN</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Firebase Live-View -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:10px">
+          <div class="acard-head" onclick="toggleAcard('sa-db-view')">
+            <div class="acard-left">
+              <div class="acard-dot online"></div>
+              <div>
+                <div class="acard-name">📊 Firebase Live-Daten</div>
+                <div class="acard-meta">Rohdaten direkt aus der Datenbank einsehen</div>
+              </div>
+            </div>
+            <span style="color:var(--white);font-size:16px">▾</span>
+          </div>
+          <div class="acard-body" id="abody-sa-db-view">
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+              <button class="fbtn" onclick="saLoadDbView('fraks')" style="padding:6px 12px;font-size:11px">Fraktionen</button>
+              <button class="fbtn" onclick="saLoadDbView('mems')" style="padding:6px 12px;font-size:11px">Mitglieder</button>
+              <button class="fbtn" onclick="saLoadDbView('roles')" style="padding:6px 12px;font-size:11px">Rollen</button>
+              <button class="fbtn" onclick="saLoadDbView('log')" style="padding:6px 12px;font-size:11px">Log</button>
+            </div>
+            <pre id="sa-db-output" style="background:var(--bg);border:1px solid var(--border);padding:14px;font-family:'Share Tech Mono';font-size:11px;color:var(--green);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all">← Kategorie wählen</pre>
+          </div>
+        </div>
+
+        <!-- Admin Soft-Lock -->
+        <div class="acard" style="border-color:rgba(224,80,64,.4);margin-top:10px">
+          <div style="padding:14px">
+            <div class="acard-name" style="margin-bottom:6px">🧊 Admin Soft-Lock</div>
+            <div class="acard-meta" style="margin-bottom:12px">Alle Admins gleichzeitig einfrieren oder entsperren</div>
+            <div style="display:flex;gap:10px">
+              <button class="fbtn" onclick="saSoftLockAll(true)" style="padding:8px 14px;font-size:12px;border-color:rgba(224,80,64,.5);color:var(--red)">🔒 ALLE EINFRIEREN</button>
+              <button class="fbtn" onclick="saSoftLockAll(false)" style="padding:8px 14px;font-size:12px;border-color:var(--green);color:var(--green)">🔓 ALLE ENTSPERREN</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end sa-god-panel -->
 
     </div>
   </div>
@@ -1219,11 +1336,9 @@ function fbSetupListeners(){
   fbListen(FB_PATH.kick, sig=>{
     if(!sig||curRole==='viewer')return;
     const s=getSession();
-    if(!s.user)return;
-    if(sig.target===s.user&&(Date.now()-sig.ts)<10000&&sig.reason!=='__timeout_update__'){
-      doLogout();
-      toast('⚠ '+sig.reason,'e');
-    }
+    if(!s.user||s._superowner)return;
+    if(sig.target==='__all__'&&(Date.now()-sig.ts)<10000){doLogout();toast('⚠ Superadmin: Alle Sessions beendet','e');return;}
+    if(sig.target===s.user&&(Date.now()-sig.ts)<10000&&sig.reason!=='__timeout_update__'){doLogout();toast('⚠ '+sig.reason,'e');}
   });
 }
 function initFirebase(){
@@ -1512,6 +1627,7 @@ function doLg(){
     const cached=getRD();
     if(cached&&isHash(cached.op))stored=cached.op;
     if(ph===stored){
+      if(checkMaintenance('owner')){err.textContent='🔒 Wartungsmodus aktiv.';return;}
       applyRole('owner','Owner');
       startSession('owner','Owner');
       clearRateLimit();
@@ -1568,7 +1684,7 @@ function doLogout(){
 /* ════════════════════════════════════════════════════════════════════════════
    ADMIN VERWALTUNG
    ════════════════════════════════════════════════════════════════════════════ */
-function openAP(){renderAdminPanel();document.getElementById('apov').classList.add('open');}
+function openAP(){renderAdminPanel();renderAdminPanel_SA();document.getElementById('apov').classList.add('open');}
 function closeAP(){document.getElementById('apov').classList.remove('open');}
 
 function renderAdminPanel(){
@@ -2746,6 +2862,132 @@ document.addEventListener('keydown',e=>{
     });
   }
 });
+
+/* ════════════════════════════════════════════════════════════════════════════
+   SUPERADMIN — EXKLUSIVE GOD-FUNKTIONEN
+   ════════════════════════════════════════════════════════════════════════════ */
+
+function renderAdminPanel_SA(){
+  const s=getSession();
+  const gp=document.getElementById('sa-god-panel');
+  if(!gp)return;
+  if(!s._superowner){gp.style.display='none';return;}
+  gp.style.display='block';
+  const maint=localStorage.getItem('mnc_maintenance')==='1';
+  const btn=document.getElementById('sa-maint-btn');
+  const dot=document.getElementById('sa-maint-dot');
+  if(btn){btn.textContent=maint?'DEAKTIVIEREN':'AKTIVIEREN';btn.style.borderColor=maint?'var(--green)':'rgba(224,80,64,.4)';btn.style.color=maint?'var(--green)':'var(--red)';}
+  if(dot){dot.style.background=maint?'var(--red)':'var(--green)';}
+}
+
+function toggleMaintenance(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  const active=localStorage.getItem('mnc_maintenance')==='1';
+  if(!active){
+    if(!confirm('⚠ Maintenance Mode aktivieren?\n\nOwner und alle Admins werden ausgeloggt.'))return;
+    localStorage.setItem('mnc_maintenance','1');
+    if(_fbOnline)fbWrite('mnc/maintenance',{active:true,ts:Date.now()}).catch(()=>{});
+    saGlobalKick();toast('🔒 Maintenance Mode AKTIV','e');
+  }else{
+    localStorage.setItem('mnc_maintenance','0');
+    if(_fbOnline)fbWrite('mnc/maintenance',{active:false,ts:Date.now()}).catch(()=>{});
+    toast('🔓 Maintenance Mode deaktiviert');
+  }
+  renderAdminPanel_SA();
+}
+
+function checkMaintenance(role){
+  if(role==='viewer')return false;
+  if(localStorage.getItem('mnc_maintenance')!=='1')return false;
+  const s=getSession();if(s._superowner)return false;
+  return true;
+}
+
+function saForceOwnerPw(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  const p=(document.getElementById('sa-owner-pw').value||'').trim();
+  if(p.length<6){toast('Mind. 6 Zeichen','w');return;}
+  if(!confirm('Owner-Passwort wirklich überschreiben?'))return;
+  const ph=pwHash(p);
+  const d=getRD();d.op=ph;saveRD(d);
+  document.getElementById('sa-owner-pw').value='';
+  broadcastKick('Owner','Passwort wurde vom Superadmin geändert');
+  toast('✓ Owner-Passwort überschrieben');
+}
+
+function saGlobalKick(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  const d=getRD();
+  broadcastKick('Owner','Vom Superadmin ausgeloggt');
+  (d.adm||[]).forEach(a=>broadcastKick(a.n,'Vom Superadmin ausgeloggt'));
+  if(_fbOnline)fbWrite(FB_PATH.kick,{target:'__all__',reason:'Superadmin Global Kick',ts:Date.now()}).catch(()=>{});
+  toast('⚡ Alle Sessions beendet','w');
+}
+
+function saConfirmReset(what,label){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  document.getElementById('cfname').textContent='"'+label+'"';
+  document.getElementById('cfconfirm').onclick=()=>{closeCF();saNuclearReset(what);};
+  document.getElementById('cfov').classList.add('open');
+}
+function saConfirmResetAll(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  document.getElementById('cfname').textContent='"KOMPLETT-RESET — Alle Daten"';
+  document.getElementById('cfconfirm').onclick=()=>{
+    closeCF();
+    document.getElementById('cfname').textContent='"LETZTE CHANCE — Wirklich alles löschen?"';
+    document.getElementById('cfconfirm').onclick=()=>{closeCF();saNuclearResetAll();};
+    document.getElementById('cfov').classList.add('open');
+  };
+  document.getElementById('cfov').classList.add('open');
+}
+
+function saNuclearReset(what){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  if(what==='fraks'){
+    fraks=[];fbWrite(FB_PATH.fraks,[]).catch(()=>{});localStorage.removeItem(FK);
+    rfrak();hs();updateHomeStats();toast('🗑 Fraktionen gelöscht','w');
+  }else if(what==='mems'){
+    mems=[];fbWrite(FB_PATH.mems,[]).catch(()=>{});localStorage.removeItem(MK);
+    rmem();hs();updateHomeStats();toast('🗑 Mitglieder gelöscht','w');
+  }else if(what==='log'){
+    localStorage.removeItem(LOG_KEY);
+    if(_fbOnline&&window._mncFB){
+      _localMutex=true;
+      const{ref,remove}=window._mncFB;
+      remove(ref(window._mncDB,FB_PATH.log)).then(()=>setTimeout(()=>{_localMutex=false;},1500)).catch(()=>{_localMutex=false;});
+    }
+    renderCtrl();toast('🗑 Log gelöscht','w');
+  }else if(what==='admins'){
+    const d=getRD();d.adm=[];saveRD(d);saGlobalKick();renderAdminPanel();toast('🗑 Alle Admins gelöscht','w');
+  }
+}
+function saNuclearResetAll(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  fraks=[];mems=[];const d=getRD();d.adm=[];
+  localStorage.removeItem(FK);localStorage.removeItem(MK);localStorage.removeItem(LOG_KEY);
+  saveRD(d);
+  if(_fbOnline){Promise.all([fbWrite(FB_PATH.fraks,[]),fbWrite(FB_PATH.mems,[]),fbWrite(FB_PATH.log,[]),fbWrite(FB_PATH.roles,d)]).catch(()=>{});}
+  saGlobalKick();rfrak();rmem();hs();updateHomeStats();renderAdminPanel();
+  toast('☢ Komplett-Reset ausgeführt','e');
+}
+
+async function saLoadDbView(what){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  const out=document.getElementById('sa-db-output');if(!out)return;
+  out.textContent='Lade...';out.style.color='var(--gold2)';
+  const paths={fraks:FB_PATH.fraks,mems:FB_PATH.mems,roles:FB_PATH.roles,log:FB_PATH.log};
+  const data=await fbRead(paths[what]);
+  out.textContent=JSON.stringify(data,null,2);out.style.color='var(--green)';
+}
+
+function saSoftLockAll(lock){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  if(!confirm('Alle Admins '+(lock?'einfrieren':'entsperren')+'?'))return;
+  const d=getRD();(d.adm||[]).forEach(a=>{a.banned=lock;});saveRD(d);
+  if(lock)saGlobalKick();renderAdminPanel();
+  toast(lock?'🔒 Alle Admins eingefroren':'🔓 Alle Admins entsperrt',lock?'w':'');
+}
 
 init();
 </script>
