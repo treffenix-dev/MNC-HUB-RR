@@ -2926,13 +2926,15 @@ function downloadBackup(dateStr){
   const backups = getBackups();
   const b = backups.find(x=>x.date===dateStr);
   if(!b){ toast('Backup nicht gefunden','e'); return; }
-  const blob = new Blob([JSON.stringify(b,null,2)],{type:'application/json'});
+  // Nur Fraktionen — keine Mitglieder
+  const exportData = { date: b.date, ts: b.ts, fraks: b.fraks, version: b.version };
+  const blob = new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `mnc_backup_${dateStr}.json`;
+  a.download = `mnc_lackierungen_${dateStr}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
-  toast(`Backup ${dateStr} heruntergeladen`);
+  toast(`Lackierungen ${dateStr} als JSON heruntergeladen`);
 }
 
 function downloadBackupExcel(dateStr){
@@ -2940,39 +2942,35 @@ function downloadBackupExcel(dateStr){
   const b = backups.find(x=>x.date===dateStr);
   if(!b){ toast('Backup nicht gefunden','e'); return; }
 
-  // Build CSV content (Excel-compatible)
+  const sep = ',';
+  const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
   const lines = [];
-  const sep = ';';
 
-  // Header
-  lines.push(`MNC HUB BACKUP — ${dateStr}`);
-  lines.push(`Erstellt am: ${new Date(b.ts).toLocaleString('de-DE')}`);
-  lines.push('');
+  // Nur Fraktionen / Lackierungen
+  lines.push([esc('Name'),esc('Primärfarbe'),esc('Sekundärfarbe'),esc('Perleffekt'),esc('Unterboden'),esc('Scheinwerfer'),esc('Reifenqualm'),esc('Hinweise')].join(sep));
 
-  // Members sheet
-  lines.push('=== MITGLIEDER ===');
-  lines.push(['#','Name','Rang','Status','Notiz'].join(sep));
-  (b.mems||[]).forEach((m,i)=>{
-    lines.push([i+1, m.name||'', m.rang||'', m.status||'', m.note||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(sep));
-  });
-  lines.push('');
-
-  // Fraktionen sheet
-  lines.push('=== FRAKTIONEN ===');
-  lines.push(['#','Name','Prim','Sek','Pearl','Schein','Unterboden','Reifenqualm','Hinweise'].join(sep));
-  (b.fraks||[]).forEach((f,i)=>{
-    lines.push([i+1,f.name||'',f.prim||'',f.sek||'',f.pearl||'',f.schein||'',f.unterboden||'',f.reifenqualm||'',f.hints||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(sep));
+  (b.fraks||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(f=>{
+    if(f.mnc) return; // MNC (Wir) überspringen oder drin lassen je nach Wunsch
+    lines.push([
+      esc(f.name),
+      esc(f.prim),
+      esc(f.sek),
+      esc(f.pearl),
+      esc(f.unterboden),
+      esc(f.schein),
+      esc(f.reifenqualm),
+      esc(f.hints)
+    ].join(sep));
   });
 
-  // BOM for Excel UTF-8
   const bom = '\uFEFF';
   const blob = new Blob([bom + lines.join('\n')], {type:'text/csv;charset=utf-8'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `mnc_backup_${dateStr}.csv`;
+  a.download = `mnc_lackierungen_${dateStr}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
-  toast(`Excel-Backup ${dateStr} heruntergeladen`);
+  toast(`Lackierungen ${dateStr} als CSV exportiert`);
 }
 
 function restoreBackup(dateStr){
@@ -3008,7 +3006,7 @@ function renderBackupPanel(){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="fbtn" onclick="downloadBackup('${b.date}')" style="padding:8px 14px;font-size:13px">⬇ JSON</button>
-        <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📊 Excel</button>
+        <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📊 Google Sheets / Excel</button>
         <button class="bsec" onclick="restoreBackup('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:rgba(224,80,64,.4);color:var(--red)">↺ Wiederherstellen</button>
       </div>
     </div>`).join('');
