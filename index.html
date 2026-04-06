@@ -484,6 +484,8 @@ tbody tr:hover{background:var(--s2);}
 import { initializeApp }        from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getDatabase, ref, set, get, onValue, push, remove, update }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import { getAuth, signInAnonymously, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 // ── DEINE FIREBASE CONFIG HIER EINTRAGEN ──────────────────────────────
 // Gehe zu: console.firebase.google.com → Projekteinstellungen → Deine Apps → Web
@@ -502,17 +504,29 @@ const FB_CONFIG = {
 // Prüfen ob Config eingetragen wurde
 const FB_CONFIGURED = !FB_CONFIG.apiKey.includes('DEIN_');
 
-let app = null, db = null;
+let app = null, db = null, auth = null;
 
 if(FB_CONFIGURED){
   try{
-    app = initializeApp(FB_CONFIG);
-    db  = getDatabase(app);
-    window._mncDB = db;
-    window._mncFB = { ref, set, get, onValue, push, remove, update };
-    console.info('[MNC FIREBASE] ✓ Verbunden');
-    window._fbReady = true;
-    window.dispatchEvent(new CustomEvent('fbReady'));
+    app  = initializeApp(FB_CONFIG);
+    db   = getDatabase(app);
+    auth = getAuth(app);
+    window._mncDB   = db;
+    window._mncAuth = auth;
+    window._mncFB   = { ref, set, get, onValue, push, remove, update };
+
+    // Anonymous Auth — unsichtbar im Hintergrund, kein Login nötig
+    signInAnonymously(auth).then(()=>{
+      console.log('[MNC AUTH] ✓ Anonym angemeldet');
+      window._fbReady = true;
+      window.dispatchEvent(new CustomEvent('fbReady'));
+    }).catch(e=>{
+      console.error('[MNC AUTH] ✗ Anmeldung fehlgeschlagen:', e.message);
+      window._fbReady = false;
+      window.dispatchEvent(new CustomEvent('fbError', {detail: e.message}));
+    });
+
+    console.log('[MNC FIREBASE] ✓ Verbunden');
   }catch(e){
     console.error('[MNC FIREBASE] ✗ Verbindung fehlgeschlagen:', e);
     window._fbReady = false;
@@ -2835,7 +2849,7 @@ function runDailyBackup(force=false){
     localStorage.setItem(BACKUP_LAST_KEY, today);
     // Firebase: Backups online sichern (primär)
     if(_fbOnline){ fbWrite('mnc/backups', backups).catch(()=>{}); }
-    console.info(`[MNC HUB] Tages-Backup erstellt: ${today} (${fraks.length} Fraktionen, ${mems.length} Mitglieder)`);
+    console.log(`[MNC HUB] Tages-Backup erstellt: ${today} (${fraks.length} Fraktionen, ${mems.length} Mitglieder)`);
   }catch(e){
     console.warn('[MNC HUB] Backup fehlgeschlagen:', e);
   }
@@ -2998,7 +3012,8 @@ function runSecurityAudit(){
 
   // 3. localStorage auf fremde MNC-Keys prüfen
   const trustedKeys = ['mnc_roles_v2','mnc_actlog','mnc_ratelimit','mnc_session',
-    'mnc_f6','mnc_m4','mnc_daily_backups_v1','mnc_backup_last_date','mnc_kick_v1','mnc_roles'];
+    'mnc_f6','mnc_m4','mnc_daily_backups_v1','mnc_backup_last_date','mnc_kick_v1','mnc_roles',
+    'mnc_gate_pw','mnc_fk'];
   for(let i=0; i<localStorage.length; i++){
     const key = localStorage.key(i);
     if(key && !trustedKeys.includes(key) && key.startsWith('mnc_')){
@@ -3021,13 +3036,13 @@ function runSecurityAudit(){
     console.warn('[MNC SECURITY AUDIT] ⚠ Probleme:', issues);
     logAction('SECURITY', `Audit: ${issues.length} Problem(e) — ${issues[0]}`);
   } else {
-    console.info('[MNC SECURITY AUDIT] ✓ Alles sauber');
+    console.log('[MNC SECURITY AUDIT] ✓ Alles sauber');
   }
 
   if(inIframe && !inClaudePreview){
     console.warn('[MNC SECURITY AUDIT] ℹ Seite läuft in einem iFrame (nicht Claude.ai)');
   } else if(inIframe){
-    console.info('[MNC SECURITY AUDIT] ℹ Claude.ai Vorschau-Modus (normal)');
+    console.log('[MNC SECURITY AUDIT] ℹ Claude.ai Vorschau-Modus (normal)');
   }
 
   return issues;
@@ -3178,12 +3193,16 @@ function saNuclearReset(what){
     rmem();hs();updateHomeStats();toast('🗑 Mitglieder gelöscht','w');
   }else if(what==='log'){
     localStorage.removeItem(LOG_KEY);
+    // In-memory log leeren
+    if(typeof actLog !== 'undefined') try{ actLog.length=0; }catch{}
     if(_fbOnline&&window._mncFB){
       _localMutex=true;
       const{ref,remove}=window._mncFB;
-      remove(ref(window._mncDB,FB_PATH.log)).then(()=>setTimeout(()=>{_localMutex=false;},1500)).catch(()=>{_localMutex=false;});
+      remove(ref(window._mncDB,FB_PATH.log)).then(()=>{_localMutex=false;setTimeout(()=>renderCtrl(),300);}).catch(()=>{_localMutex=false;});
+    } else {
+      renderCtrl();
     }
-    renderCtrl();toast('🗑 Log gelöscht','w');
+    toast('🗑 Log gelöscht','w');
   }else if(what==='admins'){
     const d=getRD();d.adm=[];saveRD(d);saGlobalKick();renderAdminPanel();toast('🗑 Alle Admins gelöscht','w');
   }
