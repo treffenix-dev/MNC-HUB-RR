@@ -550,11 +550,31 @@ if(FB_CONFIGURED){
   const DEFAULT_PW = 'midnight';
   const SESSION_KEY = 'mnc_site_access';
   const PW_STORE = 'mnc_gate_pw';
+
+  // Load pw from Firebase if available, fallback to localStorage, fallback to default
+  async function loadGatePw(){
+    try {
+      const db = window._mncDB;
+      const fb = window._mncFB;
+      if(db && fb){
+        const snap = await fb.get(fb.ref(db, 'mnc/gatepw'));
+        if(snap.exists() && snap.val()){
+          const pw = snap.val();
+          localStorage.setItem(PW_STORE, pw);
+          return pw;
+        }
+      }
+    } catch(e){}
+    return localStorage.getItem(PW_STORE) || DEFAULT_PW;
+  }
+
   function getGatePw(){ return localStorage.getItem(PW_STORE) || DEFAULT_PW; }
-  function sgCheck(){
+
+  async function sgCheck(){
     const inp = document.getElementById('sgInput');
     const err = document.getElementById('sgErr');
-    if(inp.value === getGatePw()){
+    const pw = await loadGatePw();
+    if(inp.value === pw){
       sessionStorage.setItem(SESSION_KEY,'1');
       document.getElementById('siteGate').style.display='none';
     } else {
@@ -563,8 +583,20 @@ if(FB_CONFIGURED){
       setTimeout(()=>{inp.classList.remove('err');err.textContent='';inp.value='';},1200);
     }
   }
+
+  // Auto-load pw from Firebase when Firebase is ready
+  function tryAutoLoad(){
+    loadGatePw().then(pw => {
+      localStorage.setItem(PW_STORE, pw);
+    }).catch(()=>{});
+  }
+
+  window.addEventListener('fbReady', tryAutoLoad);
+  if(window._fbReady) tryAutoLoad();
+
   window.sgCheck = sgCheck;
   window.getGatePw = getGatePw;
+  window.loadGatePw = loadGatePw;
   window.PW_STORE = PW_STORE;
   if(sessionStorage.getItem(SESSION_KEY)==='1'){
     document.getElementById('siteGate').style.display='none';
@@ -1261,7 +1293,7 @@ const DEFAULT_PERMS = {
 let curRole='viewer', fraks=[], mems=[], eFid=null, eMid=null, mf='all';
 let loginAttempts=0, sessionTimer=null, kickPollInterval=null;
 let _fbOnline=false, _localMutex=false;
-const FB_PATH={fraks:'mnc/fraks',mems:'mnc/mems',roles:'mnc/roles',log:'mnc/log',kick:'mnc/kick'};
+const FB_PATH={fraks:'mnc/fraks',mems:'mnc/mems',roles:'mnc/roles',log:'mnc/log',kick:'mnc/kick',gatepw:'mnc/gatepw'};
 
 /* ════════════════════════════════════════════════════════════════════════════
    SHA-256 — PURE JAVASCRIPT, SYNCHRON
@@ -3074,12 +3106,13 @@ function saForceOwnerPw(){
   toast('✓ Owner-Passwort überschrieben');
 }
 
-function saChangeGatePw(){
+async function saChangeGatePw(){
   const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
   const cur=(document.getElementById('sa-gate-pw-current').value||'').trim();
   const nw=(document.getElementById('sa-gate-pw-new').value||'').trim();
   const status=document.getElementById('sa-gate-pw-status');
-  const current=window.getGatePw();
+  // Load current pw from Firebase first for accurate check
+  const current = await window.loadGatePw();
   if(cur!==current){
     status.textContent='⚠ AKTUELLER CODE FALSCH';status.style.color='var(--red)';
     setTimeout(()=>{status.textContent='';},2000);return;
@@ -3088,12 +3121,24 @@ function saChangeGatePw(){
     status.textContent='⚠ MIND. 4 ZEICHEN';status.style.color='var(--red)';
     setTimeout(()=>{status.textContent='';},2000);return;
   }
-  localStorage.setItem(window.PW_STORE, nw);
-  document.getElementById('sa-gate-pw-current').value='';
-  document.getElementById('sa-gate-pw-new').value='';
-  status.textContent='✓ ZUGANGSCODE GEÄNDERT';status.style.color='var(--green)';
-  setTimeout(()=>{status.textContent='';},3000);
-  toast('✓ Seiten-Zugangscode aktualisiert');
+  // Save to Firebase so ALL users get the new password
+  try {
+    await fbWrite(FB_PATH.gatepw, nw);
+    localStorage.setItem(window.PW_STORE, nw);
+    document.getElementById('sa-gate-pw-current').value='';
+    document.getElementById('sa-gate-pw-new').value='';
+    status.textContent='✓ ZUGANGSCODE GEÄNDERT — FIREBASE AKTUALISIERT';status.style.color='var(--green)';
+    setTimeout(()=>{status.textContent='';},3000);
+    toast('✓ Zugangscode für alle Nutzer aktualisiert');
+  } catch(e) {
+    // Fallback: localStorage only
+    localStorage.setItem(window.PW_STORE, nw);
+    document.getElementById('sa-gate-pw-current').value='';
+    document.getElementById('sa-gate-pw-new').value='';
+    status.textContent='⚠ NUR LOKAL GESPEICHERT — FIREBASE FEHLER';status.style.color='var(--gold2)';
+    setTimeout(()=>{status.textContent='';},3000);
+    toast('⚠ Lokal gespeichert — Firebase nicht erreichbar','w');
+  }
 }
 
 function saGlobalKick(){
