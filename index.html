@@ -230,13 +230,27 @@ tbody tr:hover{background:var(--s2);}
 .numc{font-family:'Share Tech Mono';font-size:13px;color:var(--white);width:52px;}
 .namc{font-weight:700;color:var(--white);font-size:16px;}
 .rb{display:inline-block;padding:4px 12px;font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;border:1px solid;white-space:nowrap;}
-.rh{border-color:var(--gold);color:var(--gold2);background:rgba(212,168,67,.1);}
-.rs{border-color:#7070ee;color:#a0a0ff;background:rgba(100,100,220,.08);}
-.rt{border-color:#4488cc;color:#88bbee;background:rgba(60,110,180,.08);}
-.rk{border-color:#4499aa;color:#66ccdd;background:rgba(60,130,150,.08);}
-.rsp{border-color:#44bb66;color:#77ee99;background:rgba(60,160,90,.08);}
-.ru{border-color:var(--border2);color:var(--g1);}
-.rd{border-color:var(--g3);color:var(--g2);}
+/* [12] Hashiriya ersten Ranges — Gold/Platin */
+.r12{border-color:#FFD700;color:#FFE55C;background:rgba(255,215,0,.12);}
+/* [11] Hashiriya zweiten Ranges — Gold */
+.r11{border-color:#d4a843;color:#f0c96a;background:rgba(212,168,67,.1);}
+/* [10] Hashiriya dritten Ranges — Amber */
+.r10{border-color:#cc8800;color:#ffaa22;background:rgba(200,130,0,.1);}
+/* [9] Respected Saikō Midnight — Lila */
+.r9{border-color:#9966ff;color:#bb99ff;background:rgba(140,80,255,.08);}
+/* [7] Respected Midnight Club Member — Blau-Lila */
+.r7{border-color:#7070ee;color:#a0a0ff;background:rgba(100,100,220,.08);}
+/* [5] Supidā second class — Cyan */
+.r5{border-color:#22bbdd;color:#55ddff;background:rgba(30,170,200,.08);}
+/* [4] Supidā third class — Blaugrün */
+.r4{border-color:#4499aa;color:#66ccdd;background:rgba(60,130,150,.08);}
+/* [3] Unten-sha first class — Grün */
+.r3{border-color:#44bb66;color:#77ee99;background:rgba(60,160,90,.08);}
+/* [2] Unten-sha second class — Hellgrün */
+.r2{border-color:#88cc44;color:#aae866;background:rgba(100,180,50,.08);}
+/* [1] Unten-sha third class — Grau-Grün */
+.r1{border-color:#668855;color:#99bb88;background:rgba(90,130,70,.08);}
+/* Fallback */
 .rn{border-color:var(--g3);color:var(--g3);}
 .sb2{display:inline-flex;align-items:center;gap:6px;font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;}
 .sd{width:7px;height:7px;border-radius:50%;}
@@ -2330,6 +2344,9 @@ function setMF(btn, f){document.querySelectorAll('[data-mf]').forEach(b=>b.class
 function rmem(){
   const q=(document.getElementById('minp').value||'').toLowerCase();
   let list=mems.filter(m=>(m.name||'').toLowerCase().includes(q)||(m.rang||'').toLowerCase().includes(q));
+  // Sort by rank number descending (12 → 1)
+  const rankOrder={'[12 MNC] Hashiriya ersten Ranges':12,'[11 MNC] Hashiriya zweiten Ranges':11,'[10 MNC] Hashiriya dritten Ranges':10,'[9 MNC] Respected Saikō Midnight':9,'[7 MNC] Respected Midnight Club Member':7,'[5 MNC] Supidā second class':5,'[4 MNC] Supidā third class':4,'[3 MNC] Unten-sha first class':3,'[2 MNC] Unten-sha second class':2,'[1 MNC] Unten-sha third class':1};
+  list.sort((a,b)=>(rankOrder[b.rang]||0)-(rankOrder[a.rang]||0));
   if(mf!=='all')list=list.filter(m=>m.status===mf);
   document.getElementById('sa').textContent=mems.filter(m=>m.status==='AKTIV').length;
   document.getElementById('sn').textContent=mems.filter(m=>m.status==='INAKTIV').length;
@@ -2498,24 +2515,48 @@ const PF = [
 ];
 
 const PM = [
-  {id:'m1',name:'Paco Akaza Himura',rang:'Supīdā Second Class',status:'AKTIV',note:''},
-  {id:'m2',name:'Enrico Tizman',rang:'',status:'AKTIV',note:''},
-  {id:'m3',name:'Nico Smith',rang:'',status:'AKTIV',note:''},
-  {id:'m5',name:'Cesar Perez',rang:'',status:'AKTIV',note:''},
-  {id:'m6',name:'Kevin Schmit',rang:'',status:'AKTIV',note:''},
-  {id:'m7',name:'Jack Nostra',rang:'',status:'AKTIV',note:''},
-  {id:'m8',name:'Nick Bronx',rang:'',status:'AKTIV',note:''},
-  {id:'m10',name:'Emilio Freespin',rang:'',status:'AKTIV',note:''},
-  {id:'m11',name:'Florian Gremory',rang:'',status:'AKTIV',note:''},
-  {id:'m12',name:'Loki Onkl',rang:'',status:'AKTIV',note:''},
-  {id:'m13',name:'Lucio Salamanca',rang:'',status:'AKTIV',note:''},
-  {id:'m14',name:'Pietro Onkel von Balgarew',rang:'',status:'AKTIV',note:''},
-  {id:'m15',name:'Vito Morelli',rang:'',status:'AKTIV',note:''},
-  {id:'m16',name:'Ben Baba',rang:'',status:'AKTIV',note:''},
-  {id:'m17',name:'Levin Baba',rang:'',status:'AKTIV',note:''},
-  {id:'m18',name:'Haro Petrovic',rang:'',status:'AKTIV',note:''},
-  {id:'m19',name:'Marcel Zafferano',rang:'',status:'AKTIV',note:''},
-  {id:'m20',name:'Cougar',rang:'',status:'AKTIV',note:''}
+  {id:'m_brutus',name:'Brutus -BB- Broke',rang:'[12 MNC] Hashiriya ersten Ranges',status:'AKTIV',note:''},
+  {id:'m_abohan',name:'Abohan Scaletta',rang:'[11 MNC] Hashiriya zweiten Ranges',status:'AKTIV',note:''},
+  {id:'m_emilio',name:'Emilio',rang:'[11 MNC] Hashiriya zweiten Ranges',status:'AKTIV',note:''},
+  {id:'m_johnny',name:'Johnny Grey von Weinberg',rang:'[11 MNC] Hashiriya zweiten Ranges',status:'AKTIV',note:''},
+  {id:'m_sven',name:'Sven Wiese Platz',rang:'[11 MNC] Hashiriya zweiten Ranges',status:'AKTIV',note:''},
+  {id:'m_miny',name:'Dr. Miny LouCher',rang:'[10 MNC] Hashiriya dritten Ranges',status:'AKTIV',note:''},
+  {id:'m_florian',name:'Florian Gremory',rang:'[10 MNC] Hashiriya dritten Ranges',status:'AKTIV',note:''},
+  {id:'m_nicoS',name:'Nico Smith',rang:'[10 MNC] Hashiriya dritten Ranges',status:'AKTIV',note:''},
+  {id:'m_cougar',name:'Cougar',rang:'[10 MNC] Hashiriya dritten Ranges',status:'AKTIV',note:''},
+  {id:'m_herbert',name:'Herbert Basinus',rang:'[9 MNC] Respected Saikō Midnight',status:'AKTIV',note:''},
+  {id:'m_kwabena',name:'Kwabena Bayonne aka Klaus R',rang:'[9 MNC] Respected Saikō Midnight',status:'AKTIV',note:''},
+  {id:'m_mehmet',name:'Mehmet Glööckler',rang:'[9 MNC] Respected Saikō Midnight',status:'AKTIV',note:''},
+  {id:'m_boris',name:'Boris Börbel',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_sakura',name:'sakura !!',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_nicoE',name:'Dipl.-Chem. Dr. Nico Eagle',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_fussel',name:'Fussel',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_justin',name:'Justin Broke',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_kevin',name:'Kevin Schmit',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_lucio',name:'Lucio Salamanca',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_maxwell',name:'Maxwell',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_mjcreed',name:'MJ Creed',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_nilo',name:'Nilo Kaval',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_pietro',name:'Pietro',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_paco',name:'PACO',rang:'[7 MNC] Respected Midnight Club Member',status:'AKTIV',note:''},
+  {id:'m_jdcorell',name:'JD Corell',rang:'[5 MNC] Supidā second class',status:'AKTIV',note:''},
+  {id:'m_issa',name:'issa',rang:'[4 MNC] Supidā third class',status:'AKTIV',note:''},
+  {id:'m_joey',name:'Joey Pike',rang:'[4 MNC] Supidā third class',status:'AKTIV',note:''},
+  {id:'m_cesar',name:'Cesar Perez',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_dimitri',name:'Dimitri Karazov',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_enrico',name:'Enrico',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_jack',name:'Jack Nostra',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_ivan',name:'Ivan Cutt',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_loki',name:'Loki Onkl',rang:'[3 MNC] Unten-sha first class',status:'AKTIV',note:''},
+  {id:'m_haro',name:'Haro Petrovic',rang:'[2 MNC] Unten-sha second class',status:'AKTIV',note:''},
+  {id:'m_marcel',name:'Marcel Zafferano',rang:'[2 MNC] Unten-sha second class',status:'AKTIV',note:''},
+  {id:'m_benbaba',name:'Ben Baba',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_bentorres',name:'Ben Torres',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_chris',name:'Chris Creed LauRue',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_levin',name:'Levin Baba',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_nick',name:'Nick',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_yuu',name:'Yuu',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''},
+  {id:'m_vito',name:'Vito Morelli',rang:'[1 MNC] Unten-sha third class',status:'AKTIV',note:''}
 ];
 
 /* ── COLOR UTILS ────────────────────────────────────────────────────── */
@@ -2810,10 +2851,21 @@ function applyCp(){
 
 /* ── MEMBERS ────────────────────────────────────────────────────────── */
 const RC = {
-  'Hashiriya 1段':'rh','Hashiriya 2段':'rh','Hashiriya 3段':'rh','Saikō-Kan':'rs',
-  'Takai Member':'rt','Kai Member':'rk','Supīdā First Class':'rsp','Supīdā Second Class':'rsp',
-  'Supīdā Wrench Class':'rsp','Unten-sha First Class':'ru','Unten-sha Second Class':'ru',
-  'Unten-sha Third Class':'ru','Crashtest Dummy':'rd'
+  '[12 MNC] Hashiriya ersten Ranges':'r12',
+  '[11 MNC] Hashiriya zweiten Ranges':'r11',
+  '[10 MNC] Hashiriya dritten Ranges':'r10',
+  '[9 MNC] Respected Saikō Midnight':'r9',
+  '[7 MNC] Respected Midnight Club Member':'r7',
+  '[5 MNC] Supidā second class':'r5',
+  '[4 MNC] Supidā third class':'r4',
+  '[3 MNC] Unten-sha first class':'r3',
+  '[2 MNC] Unten-sha second class':'r2',
+  '[1 MNC] Unten-sha third class':'r1',
+  // Legacy keys
+  'Hashiriya 1段':'r12','Hashiriya 2段':'r11','Hashiriya 3段':'r10','Saikō-Kan':'r9',
+  'Takai Member':'r7','Kai Member':'r7','Supīdā First Class':'r5','Supīdā Second Class':'r5',
+  'Supīdā Wrench Class':'r5','Unten-sha First Class':'r3','Unten-sha Second Class':'r2',
+  'Unten-sha Third Class':'r1','Crashtest Dummy':'r1'
 };
 
 /* ── BACKUP & AUDIT ──────────────────────────────────────────────────────── */
@@ -2883,6 +2935,46 @@ function downloadBackup(dateStr){
   toast(`Backup ${dateStr} heruntergeladen`);
 }
 
+function downloadBackupExcel(dateStr){
+  const backups = getBackups();
+  const b = backups.find(x=>x.date===dateStr);
+  if(!b){ toast('Backup nicht gefunden','e'); return; }
+
+  // Build CSV content (Excel-compatible)
+  const lines = [];
+  const sep = ';';
+
+  // Header
+  lines.push(`MNC HUB BACKUP — ${dateStr}`);
+  lines.push(`Erstellt am: ${new Date(b.ts).toLocaleString('de-DE')}`);
+  lines.push('');
+
+  // Members sheet
+  lines.push('=== MITGLIEDER ===');
+  lines.push(['#','Name','Rang','Status','Notiz'].join(sep));
+  (b.mems||[]).forEach((m,i)=>{
+    lines.push([i+1, m.name||'', m.rang||'', m.status||'', m.note||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(sep));
+  });
+  lines.push('');
+
+  // Fraktionen sheet
+  lines.push('=== FRAKTIONEN ===');
+  lines.push(['#','Name','Prim','Sek','Pearl','Schein','Unterboden','Reifenqualm','Hinweise'].join(sep));
+  (b.fraks||[]).forEach((f,i)=>{
+    lines.push([i+1,f.name||'',f.prim||'',f.sek||'',f.pearl||'',f.schein||'',f.unterboden||'',f.reifenqualm||'',f.hints||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(sep));
+  });
+
+  // BOM for Excel UTF-8
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mnc_backup_${dateStr}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`Excel-Backup ${dateStr} heruntergeladen`);
+}
+
 function restoreBackup(dateStr){
   if(!confirm(`Backup vom ${dateStr} wirklich wiederherstellen?\nAlle aktuellen Daten werden überschrieben!`)) return;
   const backups = getBackups();
@@ -2914,8 +3006,9 @@ function renderBackupPanel(){
         <div style="font-family:'Bebas Neue';font-size:22px;color:var(--gold2);letter-spacing:2px">${b.date}</div>
         <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--white);margin-top:2px">${b.fraks?.length||0} Fraktionen · ${b.mems?.length||0} Mitglieder · ${new Date(b.ts).toLocaleTimeString('de-DE')} Uhr</div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="fbtn" onclick="downloadBackup('${b.date}')" style="padding:8px 14px;font-size:13px">⬇ Download</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="fbtn" onclick="downloadBackup('${b.date}')" style="padding:8px 14px;font-size:13px">⬇ JSON</button>
+        <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📊 Excel</button>
         <button class="bsec" onclick="restoreBackup('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:rgba(224,80,64,.4);color:var(--red)">↺ Wiederherstellen</button>
       </div>
     </div>`).join('');
