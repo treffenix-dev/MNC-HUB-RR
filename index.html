@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23080808'/><text y='24' x='4' font-size='24'>🎭</text></svg>">
 <title>MNC HUB — Los Santos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -440,6 +441,37 @@ tbody tr:hover{background:var(--s2);}
 /* ── SYNC INDICATOR ──────────────────────────────────────────────────── */
 .sync-indicator{display:none;position:fixed;bottom:20px;left:20px;z-index:9000;background:var(--s3);border:1px solid var(--border2);padding:8px 16px;font-family:'Share Tech Mono';font-size:11px;color:var(--white);letter-spacing:1px;align-items:center;gap:8px;}
 .sync-indicator.show{display:flex;}
+
+/* ── SITE ACCESS OVERLAY ─────────────────────────────────────────────── */
+#siteGate{position:fixed;inset:0;z-index:99999;background:#080808;display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;}
+#siteGate::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(212,168,67,.06) 0%,transparent 70%);pointer-events:none;}
+#siteGate .sg-lines{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+#siteGate .sg-lines::before,#siteGate .sg-lines::after{content:'';position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.15),transparent);}
+#siteGate .sg-lines::before{top:25%;}
+#siteGate .sg-lines::after{bottom:25%;}
+#siteGate .sg-corner{position:absolute;width:60px;height:60px;opacity:.4;}
+#siteGate .sg-corner.tl{top:32px;left:32px;border-top:1px solid var(--gold);border-left:1px solid var(--gold);}
+#siteGate .sg-corner.tr{top:32px;right:32px;border-top:1px solid var(--gold);border-right:1px solid var(--gold);}
+#siteGate .sg-corner.bl{bottom:32px;left:32px;border-bottom:1px solid var(--gold);border-left:1px solid var(--gold);}
+#siteGate .sg-corner.br{bottom:32px;right:32px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold);}
+#siteGate .sg-inner{width:100%;max-width:440px;padding:48px 40px;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;z-index:1;}
+#siteGate .sg-title{font-family:'Bebas Neue';font-size:48px;letter-spacing:10px;line-height:1;background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;}
+#siteGate .sg-sub{font-family:'Share Tech Mono';font-size:13px;letter-spacing:4px;color:var(--white);margin-bottom:32px;text-transform:uppercase;text-align:center;}
+#siteGate .sg-divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--gold3),var(--gold),var(--gold3),transparent);margin-bottom:28px;}
+#siteGate .sg-label{font-family:'Share Tech Mono';font-size:13px;letter-spacing:3px;color:var(--white);margin-bottom:10px;text-transform:uppercase;align-self:flex-start;}
+#siteGate .sg-input-wrap{width:100%;position:relative;margin-bottom:14px;}
+#siteGate .sg-input{width:100%;padding:15px 20px;background:var(--s1);border:1px solid var(--border2);border-top:none;border-left:none;border-right:none;border-bottom:2px solid var(--border2);color:var(--white);font-family:'Share Tech Mono';font-size:20px;letter-spacing:6px;outline:none;text-align:center;transition:border-color .18s,background .18s;background:rgba(255,255,255,.03);}
+#siteGate .sg-input:focus{border-bottom-color:var(--gold);background:rgba(212,168,67,.04);}
+#siteGate .sg-input.err{border-bottom-color:var(--red);animation:sgshake .35s ease;}
+#siteGate .sg-btn{width:100%;padding:16px;background:transparent;border:1px solid var(--gold3);color:var(--gold2);font-family:'Rajdhani';font-size:14px;font-weight:800;cursor:pointer;letter-spacing:4px;text-transform:uppercase;transition:all .2s;position:relative;overflow:hidden;}
+#siteGate .sg-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--gold3),var(--gold));opacity:0;transition:opacity .2s;}
+#siteGate .sg-btn:hover::before{opacity:1;}
+#siteGate .sg-btn:hover{color:#0a0a0a;}
+#siteGate .sg-btn span{position:relative;z-index:1;}
+#siteGate .sg-err{font-family:'Share Tech Mono';font-size:12px;color:var(--red);letter-spacing:2px;margin-top:14px;height:14px;text-align:center;}
+#siteGate .sg-fade{animation:sgfadein .6s ease forwards;}
+@keyframes sgshake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes sgfadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 <script type="module">
 /* ══════════════════════════════════════════════════════════════════════
@@ -493,6 +525,53 @@ if(FB_CONFIGURED){
 </script>
 </head>
 <body>
+
+<!-- ── SITE ACCESS GATE ── -->
+<div id="siteGate">
+  <div class="sg-lines"></div>
+  <div class="sg-corner tl"></div>
+  <div class="sg-corner tr"></div>
+  <div class="sg-corner bl"></div>
+  <div class="sg-corner br"></div>
+  <div class="sg-inner sg-fade">
+    <div class="sg-title">MNC HUB</div>
+    <div class="sg-sub">MIDNIGHT NATION CREW &nbsp;·&nbsp; LOS SANTOS</div>
+    <div class="sg-divider"></div>
+    <div class="sg-label">Zugangscode</div>
+    <div class="sg-input-wrap">
+      <input id="sgInput" class="sg-input" type="password" placeholder="· · · · · · · ·" autocomplete="off" onkeydown="if(event.key==='Enter')sgCheck()">
+    </div>
+    <button class="sg-btn" onclick="sgCheck()"><span>▶ &nbsp; ZUGANG ANFORDERN</span></button>
+    <div class="sg-err" id="sgErr"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const DEFAULT_PW = 'midnight';
+  const SESSION_KEY = 'mnc_site_access';
+  const PW_STORE = 'mnc_gate_pw';
+  function getGatePw(){ return localStorage.getItem(PW_STORE) || DEFAULT_PW; }
+  function sgCheck(){
+    const inp = document.getElementById('sgInput');
+    const err = document.getElementById('sgErr');
+    if(inp.value === getGatePw()){
+      sessionStorage.setItem(SESSION_KEY,'1');
+      document.getElementById('siteGate').style.display='none';
+    } else {
+      inp.classList.add('err');
+      err.textContent='⚠ ZUGANG VERWEIGERT';
+      setTimeout(()=>{inp.classList.remove('err');err.textContent='';inp.value='';},1200);
+    }
+  }
+  window.sgCheck = sgCheck;
+  window.getGatePw = getGatePw;
+  window.PW_STORE = PW_STORE;
+  if(sessionStorage.getItem(SESSION_KEY)==='1'){
+    document.getElementById('siteGate').style.display='none';
+  }
+})();
+</script>
+
 <!-- Palm background deco -->
 <div class="palm-l" aria-hidden="true"></div>
 <div class="palm-r" aria-hidden="true"></div>
@@ -589,6 +668,22 @@ if(FB_CONFIGURED){
               </div>
             </div>
             <button class="fbtn" id="sa-maint-btn" onclick="toggleMaintenance()" style="padding:8px 16px;font-size:12px">AKTIVIEREN</button>
+          </div>
+        </div>
+
+        <!-- Zugangscode ändern -->
+        <div class="acard" style="border-color:rgba(212,168,67,.4);margin-top:10px">
+          <div style="padding:14px">
+            <div class="acard-name" style="margin-bottom:4px;color:var(--gold2)">🔐 Seiten-Zugangscode</div>
+            <div class="acard-meta" style="margin-bottom:12px">Passwort für den Gate-Screen ändern — gilt sofort für alle neuen Besucher</div>
+            <div class="adinl" style="margin-bottom:8px">
+              <input class="fi" id="sa-gate-pw-current" type="password" placeholder="Aktueller Code" style="flex:1" autocomplete="off">
+            </div>
+            <div class="adinl">
+              <input class="fi" id="sa-gate-pw-new" type="password" placeholder="Neuer Zugangscode" style="flex:1" autocomplete="new-password">
+              <button class="abtn" onclick="saChangeGatePw()" style="padding:10px 14px;font-size:12px">ÄNDERN</button>
+            </div>
+            <div id="sa-gate-pw-status" style="font-family:'Share Tech Mono';font-size:10px;margin-top:8px;height:14px;letter-spacing:1px"></div>
           </div>
         </div>
 
@@ -2320,7 +2415,7 @@ const PF = [
   {id:'p19',name:'La Mano rosa',prim:'Metallic Steel Grey',sek:'',pearl:'Light Gold',schein:'',unterboden:'',reifenqualm:'',hints:'',mnc:false},
   {id:'p20',name:'La Marea',prim:'#262B49',sek:'#262B49',pearl:'Frost White',schein:'',unterboden:'',reifenqualm:'',hints:'Felgen: Schwarz / Fenster: Schwarz',mnc:false},
   {id:'p21',name:'La Ombra Dorata',prim:'#051C15',sek:'#051C15',pearl:'Chamellion Green turqise flip',schein:'Golden Shower',unterboden:'#8D5300',reifenqualm:'',hints:'Felgenfarbe Carbon Schwarz, Scheibe Schwarz',mnc:false},
-  {id:'p22',name:'LA SANGRE AZUL',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric blue xenon',unterboden:'#0053FF',reifenqualm:'',hints:'Felgen Track Geschmiedet 5 "Atomic" Aufschrift',mnc:false},
+  {id:'p22',name:'LA SANGRE AZUL',prim:'Chameleon Anozid Copper',sek:'Chameleon Anozid Copper',pearl:'Metallic Bright Blue',schein:'Electric blue xenon',unterboden:'#0053FF',reifenqualm:'',hints:'Felgen Track Geschmiedet 5 Atomic Aufschrift',mnc:false},
   {id:'p23',name:'laverde',prim:'#A3935F',sek:'#A3935F',pearl:'schwarz',schein:'',unterboden:'',reifenqualm:'',hints:'',mnc:false},
   {id:'p24',name:'locos',prim:'matte grey',sek:'matte grey',pearl:'brushed gold',schein:'golden shower',unterboden:'#1D1100',reifenqualm:'',hints:'Felgen Brushed Gold',mnc:false},
   {id:'p25',name:'Malibu',prim:'Pure White',sek:'Matte Purple',pearl:'',schein:'Purple',unterboden:'#3700FF',reifenqualm:'',hints:'',mnc:false},
@@ -2344,20 +2439,26 @@ const PF = [
   {id:'p43',name:'Tygaz',prim:'Pure White',sek:'',pearl:'Metallic Silver',schein:'',unterboden:'White',reifenqualm:'',hints:'Felgen Weiß oder schwarz',mnc:false},
   {id:'p44',name:'Vagos',prim:'#FEFF00',sek:'Metallic Black',pearl:'',schein:'Gelb',unterboden:'#E1FF00',reifenqualm:'',hints:'',mnc:false},
   {id:'p45',name:'Venza syndicat',prim:'#00FFAB',sek:'#00FFAB',pearl:'Pure White',schein:'Weiß',unterboden:'Weiß',reifenqualm:'#00FFAC',hints:'Reifenqualm: #00FFAC  Int/Dash: Weiß  Felgen: weiß (Optional)',mnc:false},
-  {id:'p46',name:'VOSTOKA',prim:'Pure White',sek:'Pure White',pearl:'Pure White',schein:'Rot',unterboden:'Rot',reifenqualm:'',hints:'',mnc:false},
-  {id:'p47',name:'Yardies',prim:'#133813',sek:'',pearl:'Metallic Race Yellow',schein:'Rot',unterboden:'Rot',reifenqualm:'',hints:'',mnc:false}
+  {id:'p46',name:'VOSTOKA',prim:'636363',sek:'Pure White',pearl:'Pure White',schein:'Rot',unterboden:'Rot',reifenqualm:'',hints:'Livery:  Rote Linierung Nr.5',mnc:false},
+  {id:'p47',name:'Yardies',prim:'#133813',sek:'',pearl:'Metallic Race Yellow',schein:'Rot',unterboden:'Rot',reifenqualm:'',hints:'',mnc:false},
+  {id:'f1775361374424',name:'Rednecks',prim:'Forestgreen Matt',sek:'Forestgreen Matt',pearl:'---',schein:'Blue',unterboden:'#0c169c',reifenqualm:'',hints:'Felgen Util Dark Blue / Felge Track --> Gittermeister weiße Schrift',mnc:false},
+  {id:'f1775361591588',name:'La Santa Calavera',prim:'070202',sek:'070202',pearl:'Anadized Wine',schein:'Purple',unterboden:'#16006D',reifenqualm:'',hints:'Camaco Auto :Felgen Offroad Ridge Climber',mnc:false},
+  {id:'f1775361622157',name:'East Side Block',prim:'metallic schwarz',sek:'Blue',pearl:'Blue',schein:'Electric Blue',unterboden:'063DC7',reifenqualm:'',hints:'',mnc:false},
+  {id:'f1775361688342',name:'HDD Hijos Del Diabolos',prim:'#1D0000',sek:'#1D0000',pearl:'Matte Lime Green',schein:'Lime Green',unterboden:'#FFFFFF',reifenqualm:'',hints:'',mnc:false},
+  {id:'f1775361698778',name:'Blood-Pressure',prim:'#350D0D',sek:'#350D0D',pearl:'Torino Rot',schein:'',unterboden:'',reifenqualm:'',hints:'',mnc:false},
+  {id:'f1775361799021',name:'CDZ',prim:'#330000',sek:'#330000',pearl:'Metallic Red',schein:'#b50707',unterboden:'#b50707',reifenqualm:'',hints:'Felgen Wheels 51 bei Sport in Schwarz',mnc:false},
+  {id:'f1775413823802',name:'Blood Pressure',prim:'#350D0D',sek:'#350D0D',pearl:'Torino Rot',schein:'',unterboden:'',reifenqualm:'',hints:'(Nur beim VSTR): | Spoiler: GT-Spoiler | Grill: Ohne Emblem | Hood: Hochleistung | Front Bumper: Tuning Carbon Splitter | Side Skirt: Rennseitenverkleidung | Felgen: Wheels 50 | Scheibentönung: Schwarz | Livery: Schwarze Streifen',mnc:false},
+  {id:'f1775432983302',name:'Northern Wolves',prim:'Metallic Schwarz',sek:'Metallic Schwarz',pearl:'Worn Dark Blue',schein:'Frontscheinwerfer auf Xenon',unterboden:'',reifenqualm:'',hints:'Schwarzes Kennzeichen',mnc:false}
 ];
 
 const PM = [
-  {id:'m1',name:'Paco Akaza Himura',rang:'',status:'AKTIV',note:''},
+  {id:'m1',name:'Paco Akaza Himura',rang:'Supīdā Second Class',status:'AKTIV',note:''},
   {id:'m2',name:'Enrico Tizman',rang:'',status:'AKTIV',note:''},
   {id:'m3',name:'Nico Smith',rang:'',status:'AKTIV',note:''},
-  {id:'m4',name:'Chelli Ridley',rang:'',status:'AKTIV',note:''},
   {id:'m5',name:'Cesar Perez',rang:'',status:'AKTIV',note:''},
   {id:'m6',name:'Kevin Schmit',rang:'',status:'AKTIV',note:''},
   {id:'m7',name:'Jack Nostra',rang:'',status:'AKTIV',note:''},
   {id:'m8',name:'Nick Bronx',rang:'',status:'AKTIV',note:''},
-  {id:'m9',name:'David Koslow',rang:'',status:'AKTIV',note:''},
   {id:'m10',name:'Emilio Freespin',rang:'',status:'AKTIV',note:''},
   {id:'m11',name:'Florian Gremory',rang:'',status:'AKTIV',note:''},
   {id:'m12',name:'Loki Onkl',rang:'',status:'AKTIV',note:''},
@@ -2971,6 +3072,28 @@ function saForceOwnerPw(){
   document.getElementById('sa-owner-pw').value='';
   broadcastKick('Owner','Passwort wurde vom Superadmin geändert');
   toast('✓ Owner-Passwort überschrieben');
+}
+
+function saChangeGatePw(){
+  const s=getSession();if(!s._superowner){toast('Kein Zugang','e');return;}
+  const cur=(document.getElementById('sa-gate-pw-current').value||'').trim();
+  const nw=(document.getElementById('sa-gate-pw-new').value||'').trim();
+  const status=document.getElementById('sa-gate-pw-status');
+  const current=window.getGatePw();
+  if(cur!==current){
+    status.textContent='⚠ AKTUELLER CODE FALSCH';status.style.color='var(--red)';
+    setTimeout(()=>{status.textContent='';},2000);return;
+  }
+  if(nw.length<4){
+    status.textContent='⚠ MIND. 4 ZEICHEN';status.style.color='var(--red)';
+    setTimeout(()=>{status.textContent='';},2000);return;
+  }
+  localStorage.setItem(window.PW_STORE, nw);
+  document.getElementById('sa-gate-pw-current').value='';
+  document.getElementById('sa-gate-pw-new').value='';
+  status.textContent='✓ ZUGANGSCODE GEÄNDERT';status.style.color='var(--green)';
+  setTimeout(()=>{status.textContent='';},3000);
+  toast('✓ Seiten-Zugangscode aktualisiert');
 }
 
 function saGlobalKick(){
