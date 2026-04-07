@@ -3050,6 +3050,66 @@ async function downloadBackupExcel(dateStr){
   toast(`📊 Lackierungen ${dateStr} als Excel exportiert`);
 }
 
+function downloadBackupDocs(dateStr){
+  const backups = getBackups();
+  const b = backups.find(x=>x.date===dateStr);
+  if(!b){ toast('Backup nicht gefunden','e'); return; }
+  const sorted = (b.fraks||[]).filter(f=>!f.mnc).sort((a,c)=>(a.name||'').localeCompare(c.name||''));
+
+  const thS = `background:#D4A843;color:#080808;font-family:Arial,sans-serif;font-size:10pt;font-weight:bold;padding:7px 8px;border:1px solid #2A2A2A;text-align:left;white-space:nowrap;`;
+  const rows = sorted.map((f,i)=>{
+    const bg = i%2===0?'#111111':'#161616';
+    const td = (v,gold)=>`<td style="background:${bg};color:${gold?'#F0C96A':'#F4F1EA'};font-family:Arial,sans-serif;font-size:9.5pt;padding:6px 8px;border:1px solid #2A2A2A;${gold?'font-weight:bold;':''}vertical-align:top;">${v||'—'}</td>`;
+    const tdH = (v)=>`<td style="background:${bg};color:#F4F1EA;font-family:Arial,sans-serif;font-size:9pt;padding:6px 8px;border:1px solid #2A2A2A;vertical-align:top;min-width:200px;">${v||'—'}</td>`;
+    return `<tr>${td(f.name,true)}${td(f.prim)}${td(f.sek)}${td(f.pearl)}${td(f.unterboden)}${td(f.schein)}${td(f.reifenqualm||'')}${tdH(f.hints)}</tr>`;
+  }).join('');
+
+  const emptyRows = Array.from({length:10},(_,i)=>{
+    const bg=(sorted.length+i)%2===0?'#111111':'#161616';
+    return `<tr>${Array(8).fill(`<td style="background:${bg};border:1px solid #2A2A2A;padding:6px 8px;height:22px;"></td>`).join('')}</tr>`;
+  }).join('');
+
+  const docHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>MNC Lackierungen ${dateStr}</title>
+<style>
+  @page{size:A4 landscape;margin:1cm;}
+  body{background:#080808;margin:0;padding:16px;font-family:Arial,sans-serif;}
+  .hdr{text-align:center;padding:12px 0 10px;border-bottom:2px solid #D4A843;margin-bottom:12px;}
+  .jp{color:#D4A843;font-size:11pt;letter-spacing:5px;font-weight:bold;}
+  .title{color:#F0C96A;font-size:22pt;font-weight:bold;letter-spacing:4px;margin:4px 0;}
+  .sub{color:#787470;font-size:9pt;letter-spacing:2px;margin:2px 0;}
+  table{width:100%;border-collapse:collapse;table-layout:fixed;}
+  col.name{width:14%;}col.clr{width:10%;}col.hint{width:22%;}col.sm{width:8%;}
+  .ftr{text-align:center;margin-top:10px;color:#333;font-size:8pt;letter-spacing:2px;border-top:1px solid #2A2A2A;padding-top:8px;}
+</style></head>
+<body>
+<div class="hdr">
+  <div class="jp">ミッド ナイト クラブ</div>
+  <div class="title">MIDNIGHT CLUB — LOS SANTOS</div>
+  <div class="sub">RESPEKT &nbsp;·&nbsp; GESCHWINDIGKEIT &nbsp;·&nbsp; EHRE</div>
+  <div class="sub" style="margin-top:4px">OFFIZIELLE LACKIERUNGSLISTE &nbsp;·&nbsp; Stand: ${dateStr} &nbsp;·&nbsp; ${sorted.length} Fraktionen</div>
+</div>
+<table>
+  <colgroup><col class="name"><col class="clr"><col class="clr"><col class="clr"><col class="sm"><col class="sm"><col class="sm"><col class="hint"></colgroup>
+  <thead><tr>
+    <th style="${thS}">NAME</th><th style="${thS}">PRIMÄRFARBE</th><th style="${thS}">SEKUNDÄRFARBE</th>
+    <th style="${thS}">PERLEFFEKT</th><th style="${thS}">UNTERBODEN</th><th style="${thS}">SCHEINWERFER</th>
+    <th style="${thS}">REIFENQUALM</th><th style="${thS}">HINWEISE</th>
+  </tr></thead>
+  <tbody>${rows}${emptyRows}</tbody>
+</table>
+<div class="ftr">MNC HUB &nbsp;·&nbsp; LOS SANTOS &nbsp;·&nbsp; RETRO ROLEPLAY &nbsp;·&nbsp; ${dateStr}</div>
+</body></html>`;
+
+  const blob = new Blob([docHtml],{type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mnc_lackierungen_${dateStr}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('📄 Docs-Datei exportiert — in Google Drive hochladen & mit Docs öffnen');
+}
+
 function restoreBackup(dateStr){
   if(!confirm(`Backup vom ${dateStr} wirklich wiederherstellen?\nAlle aktuellen Daten werden überschrieben!`)) return;
   const backups = getBackups();
@@ -3084,6 +3144,7 @@ function renderBackupPanel(){
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="fbtn" onclick="downloadBackup('${b.date}')" style="padding:8px 14px;font-size:13px">⬇ JSON</button>
         <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📄 Docs / Google Drive</button>
+        <button class="fbtn" onclick="downloadBackupDocs('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:#4488cc;color:#88bbee">📝 HTML für Google Docs</button>
         <button class="bsec" onclick="restoreBackup('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:rgba(224,80,64,.4);color:var(--red)">↺ Wiederherstellen</button>
       </div>
     </div>`).join('');
