@@ -2937,40 +2937,117 @@ function downloadBackup(dateStr){
   toast(`Lackierungen ${dateStr} als JSON heruntergeladen`);
 }
 
-function downloadBackupExcel(dateStr){
+async function downloadBackupExcel(dateStr){
   const backups = getBackups();
   const b = backups.find(x=>x.date===dateStr);
   if(!b){ toast('Backup nicht gefunden','e'); return; }
 
-  const sep = ',';
-  const esc = v => `"${String(v||'').replace(/"/g,'""')}"`;
-  const lines = [];
+  // SheetJS laden falls noch nicht geladen
+  if(!window.XLSX){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload=res; s.onerror=rej;
+      document.head.appendChild(s);
+    });
+  }
 
-  // Nur Fraktionen / Lackierungen
-  lines.push([esc('Name'),esc('Primärfarbe'),esc('Sekundärfarbe'),esc('Perleffekt'),esc('Unterboden'),esc('Scheinwerfer'),esc('Reifenqualm'),esc('Hinweise')].join(sep));
+  const XL = window.XLSX;
+  const sorted = (b.fraks||[]).filter(f=>!f.mnc).sort((a,c)=>(a.name||'').localeCompare(c.name||''));
 
-  (b.fraks||[]).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).forEach(f=>{
-    if(f.mnc) return; // MNC (Wir) überspringen oder drin lassen je nach Wunsch
-    lines.push([
-      esc(f.name),
-      esc(f.prim),
-      esc(f.sek),
-      esc(f.pearl),
-      esc(f.unterboden),
-      esc(f.schein),
-      esc(f.reifenqualm),
-      esc(f.hints)
-    ].join(sep));
+  const wb = XL.utils.book_new();
+  const wsData = [];
+
+  // Titel-Zeilen
+  wsData.push(['ミッド ナイト クラブ','','','','','','','']);
+  wsData.push(['MIDNIGHT CLUB — LOS SANTOS','','','','','','','']);
+  wsData.push(['RESPEKT  ·  GESCHWINDIGKEIT  ·  EHRE','','','','','','','']);
+  wsData.push([`OFFIZIELLE LACKIERUNGSLISTE  ·  Stand: ${dateStr}  ·  ${sorted.length} Fraktionen`,'','','','','','','']);
+  // Header
+  wsData.push(['NAME','PRIMÄRFARBE','SEKUNDÄRFARBE','PERLEFFEKT','UNTERBODEN','SCHEINWERFER','REIFENQUALM','HINWEISE']);
+  // Daten
+  sorted.forEach(f=>{
+    wsData.push([f.name||'',f.prim||'',f.sek||'',f.pearl||'',f.unterboden||'',f.schein||'',f.reifenqualm||'',f.hints||'']);
+  });
+  // 10 leere Zeilen
+  for(let i=0;i<10;i++) wsData.push(['','','','','','','','']);
+
+  const ws = XL.utils.aoa_to_sheet(wsData);
+
+  // Spaltenbreiten
+  ws['!cols'] = [{wch:28},{wch:20},{wch:20},{wch:20},{wch:15},{wch:15},{wch:13},{wch:70}];
+
+  // Merge Titel-Zeilen A-H
+  ws['!merges'] = [
+    {s:{r:0,c:0},e:{r:0,c:7}},
+    {s:{r:1,c:0},e:{r:1,c:7}},
+    {s:{r:2,c:0},e:{r:2,c:7}},
+    {s:{r:3,c:0},e:{r:3,c:7}},
+  ];
+
+  // Styling
+  const BLACK='080808', GOLD='D4A843', GOLD2='F0C96A', DARK1='111111', DARK2='1A1A1A', WHITE='F4F1EA', GRAY='787470';
+  const borderStyle = {style:'thin',color:{rgb:'2A2A2A'}};
+  const borders = {top:borderStyle,bottom:borderStyle,left:borderStyle,right:borderStyle};
+
+  const applyStyle = (cellRef, style) => {
+    if(!ws[cellRef]) ws[cellRef] = {v:'',t:'s'};
+    ws[cellRef].s = style;
+  };
+
+  const cols = 'ABCDEFGH'.split('');
+
+  // Titel styling
+  const titleStyles = [
+    {font:{name:'Arial',bold:true,sz:11,color:{rgb:GOLD}},fill:{fgColor:{rgb:BLACK}},alignment:{horizontal:'center'}},
+    {font:{name:'Arial',bold:true,sz:18,color:{rgb:GOLD2}},fill:{fgColor:{rgb:BLACK}},alignment:{horizontal:'center'}},
+    {font:{name:'Arial',sz:10,color:{rgb:GRAY}},fill:{fgColor:{rgb:BLACK}},alignment:{horizontal:'center'}},
+    {font:{name:'Arial',sz:9,color:{rgb:GRAY}},fill:{fgColor:{rgb:BLACK}},alignment:{horizontal:'center'}},
+  ];
+  titleStyles.forEach((style,ri)=>{
+    cols.forEach(c=>applyStyle(`${c}${ri+1}`,style));
   });
 
-  const bom = '\uFEFF';
-  const blob = new Blob([bom + lines.join('\n')], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `mnc_lackierungen_${dateStr}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast(`Lackierungen ${dateStr} als CSV exportiert`);
+  // Header styling (row 5)
+  cols.forEach(c=>{
+    applyStyle(`${c}5`,{
+      font:{name:'Arial',bold:true,sz:10,color:{rgb:BLACK}},
+      fill:{fgColor:{rgb:GOLD}},
+      alignment:{horizontal:'left',vertical:'center'},
+      border:borders
+    });
+  });
+
+  // Data styling
+  sorted.forEach((f,i)=>{
+    const row = i+6;
+    const bg = i%2===0?DARK1:DARK2;
+    cols.forEach((c,ci)=>{
+      applyStyle(`${c}${row}`,{
+        font:{name:'Arial',sz:10,bold:ci===0,color:{rgb:ci===0?GOLD2:WHITE}},
+        fill:{fgColor:{rgb:bg}},
+        alignment:{horizontal:'left',vertical:'top',wrapText:ci===7},
+        border:borders
+      });
+    });
+  });
+
+  // Empty rows styling
+  for(let i=0;i<10;i++){
+    const row = sorted.length+6+i;
+    const bg = (sorted.length+i)%2===0?DARK1:DARK2;
+    cols.forEach(c=>{
+      applyStyle(`${c}${row}`,{
+        fill:{fgColor:{rgb:bg}},
+        border:borders,
+        alignment:{horizontal:'left',vertical:'top',wrapText:false}
+      });
+    });
+  }
+
+  XL.utils.book_append_sheet(wb, ws, 'Lackierungen');
+  XL.writeFile(wb, `mnc_lackierungen_${dateStr}.xlsx`, {bookType:'xlsx', type:'binary', cellStyles:true});
+  toast(`📊 Lackierungen ${dateStr} als Excel exportiert`);
 }
 
 function restoreBackup(dateStr){
@@ -3006,7 +3083,7 @@ function renderBackupPanel(){
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="fbtn" onclick="downloadBackup('${b.date}')" style="padding:8px 14px;font-size:13px">⬇ JSON</button>
-        <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📊 Google Sheets / Excel</button>
+        <button class="fbtn" onclick="downloadBackupExcel('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:var(--gold3);color:var(--gold2)">📄 Docs / Google Drive</button>
         <button class="bsec" onclick="restoreBackup('${b.date}')" style="padding:8px 14px;font-size:13px;border-color:rgba(224,80,64,.4);color:var(--red)">↺ Wiederherstellen</button>
       </div>
     </div>`).join('');
