@@ -115,13 +115,15 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-name,.paint-hex{display:flex;align-items:center;padding:0 12px;font-weight:900;text-transform:uppercase;}
 .paint-name{font-family:'Bebas Neue';font-size:18px;letter-spacing:2px;color:var(--white);}
 .paint-hex{font-family:'Share Tech Mono';font-size:13px;color:var(--gold2);border-left:1px solid var(--border);border-right:1px solid var(--border);text-shadow:0 0 10px rgba(240,201,106,.34);}
-.paint-hex-input{width:100%;border:1px solid rgba(212,168,67,.45);background:rgba(0,0,0,.45);color:var(--gold2);font-family:'Share Tech Mono';font-size:12px;font-weight:800;letter-spacing:.5px;padding:8px 9px;outline:none;text-transform:uppercase;}
-.paint-hex-input:focus{border-color:var(--gold2);box-shadow:0 0 16px rgba(240,201,106,.25);}
+.paint-name-input,.paint-hex-input{width:100%;border:1px solid rgba(212,168,67,.45);background:rgba(0,0,0,.45);color:var(--gold2);font-family:'Share Tech Mono';font-size:12px;font-weight:800;letter-spacing:.5px;padding:8px 9px;outline:none;text-transform:uppercase;}
+.paint-name-input{color:var(--white);font-family:'Rajdhani';font-size:15px;letter-spacing:1px;}
+.paint-name-input:focus,.paint-hex-input:focus{border-color:var(--gold2);box-shadow:0 0 16px rgba(240,201,106,.25);}
 .paint-swatch{position:relative;min-height:100%;box-shadow:inset 0 0 18px rgba(255,255,255,.09);}
 .paint-swatch::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold);box-shadow:0 0 14px rgba(240,201,106,.72);}
 .paint-catalog-note{padding-top:6px;color:var(--gold2);font-family:'Share Tech Mono';font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
-.paint-add{width:100%;margin-top:10px;padding:12px 14px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.55);color:var(--gold2);font-family:'Share Tech Mono';font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
-.paint-add:hover{background:rgba(212,168,67,.18);color:var(--white);border-color:var(--gold2);}
+.paint-add-row{border-color:rgba(212,168,67,.55);background:linear-gradient(90deg,rgba(212,168,67,.12),rgba(17,17,17,.92));}
+.paint-add-btn{width:100%;height:100%;min-height:36px;border:0;background:rgba(212,168,67,.12);color:var(--gold2);font-family:'Share Tech Mono';font-size:18px;font-weight:900;letter-spacing:2px;cursor:pointer;}
+.paint-add-btn:hover{background:rgba(212,168,67,.22);color:var(--white);}
 .paint-catalog-window.compact .paint-catalog-head{padding:14px}
 .paint-catalog-window.compact .paint-catalog-title{font-size:28px}
 .paint-catalog-window.compact .paint-catalog-kicker{font-size:10px;letter-spacing:3px}
@@ -134,7 +136,7 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-catalog-window.mini .paint-catalog-title{font-size:24px;letter-spacing:3px}
 .paint-catalog-window.mini .paint-catalog-kicker{display:none}
 .paint-catalog-window.mini .paint-name{font-size:17px}
-.paint-catalog-window.mini .paint-hex,.paint-catalog-window.mini .paint-hex-input{font-size:11px}
+.paint-catalog-window.mini .paint-hex,.paint-catalog-window.mini .paint-name-input,.paint-catalog-window.mini .paint-hex-input{font-size:11px}
 .paint-catalog-window.short .paint-catalog-head{padding:10px 14px}
 .paint-catalog-window.short .paint-catalog-title{font-size:26px}
 .paint-catalog-window.short .paint-catalog-kicker{display:none}
@@ -143,9 +145,8 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-catalog-window.short .paint-name{font-size:16px}
 .paint-catalog-window.short .paint-hex{font-size:12px}
 .paint-catalog-window.short .paint-swatch::before{width:4px}
-.paint-catalog-window.short .paint-add{padding:9px 12px}
-@container (max-width:430px){.paint-catalog-head{padding:14px}.paint-catalog-title{font-size:28px}.paint-catalog-kicker{font-size:10px;letter-spacing:3px}.paint-catalog-body{padding:12px}.paint-row{grid-template-columns:1fr;min-height:0}.paint-name,.paint-hex{min-height:38px}.paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.paint-swatch{min-height:42px}.paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}}
-@container (max-width:310px){.paint-catalog-title{font-size:24px;letter-spacing:3px}.paint-catalog-kicker{display:none}.paint-row{margin-bottom:10px}.paint-name{font-size:17px}.paint-hex,.paint-hex-input{font-size:11px}}
+@container (max-width:430px){.paint-catalog-head{padding:14px}.paint-catalog-title{font-size:28px}.paint-catalog-kicker{font-size:10px;letter-spacing:3px}.paint-catalog-body{padding:12px}.paint-row{grid-template-columns:1fr;min-height:0}.paint-name,.paint-hex{min-height:38px}.paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.paint-swatch{min-height:42px}.paint-add-btn{min-height:42px}.paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}}
+@container (max-width:310px){.paint-catalog-title{font-size:24px;letter-spacing:3px}.paint-catalog-kicker{display:none}.paint-row{margin-bottom:10px}.paint-name{font-size:17px}.paint-hex,.paint-name-input,.paint-hex-input{font-size:11px}}
 
 /* ── FRAK LIST ──────────────────────────────────────────────────────── */
 .fgrid{display:flex;flex-direction:column;gap:0;}
@@ -2291,16 +2292,24 @@ function renderPaintCatalog(){
   const body=document.getElementById('paintCatalogBody');
   if(!body)return;
   const superAdmin=!!getSession()._superowner;
-  const controls=superAdmin?'<button class="paint-add" type="button" onclick="addPaintColor()">+ Farbe hinzufuegen</button>':'';
+  const addRow=superAdmin?`
+    <div class="paint-row paint-add-row">
+      <div class="paint-name"><input class="paint-name-input" id="paintNewName" placeholder="Name" spellcheck="false" onkeydown="paintAddKey(event)"></div>
+      <div class="paint-hex"><input class="paint-hex-input" id="paintNewHex" placeholder="#2100FF" maxlength="7" spellcheck="false" oninput="paintNewDraft(this)" onkeydown="paintAddKey(event)"></div>
+      <div class="paint-swatch" id="paintNewSwatch"><button class="paint-add-btn" type="button" onclick="addPaintColor()" aria-label="Farbe hinzufuegen">+</button></div>
+    </div>`:'';
   body.innerHTML=getPaintColors().map((c,i)=>{
     const hex=cleanHex(c.hex)||'#000000';
     const swatch=c.swatch||hex;
     const shadow=c.glow?'box-shadow:inset 0 0 18px rgba(255,255,255,.09),0 0 24px rgba(116,0,255,.52)':'';
+    const nameCell=superAdmin
+      ? `<input class="paint-name-input" value="${esc(c.name)}" spellcheck="false" aria-label="Farbname" onchange="savePaintName(${i},this)">`
+      : esc(c.name);
     const hexCell=superAdmin
       ? `<input class="paint-hex-input" value="${esc(hex)}" maxlength="7" spellcheck="false" aria-label="${esc(c.name)} Hexcode" oninput="paintHexDraft(${i},this)" onchange="savePaintHex(${i},this)">`
       : esc(hex);
-    return `<div class="paint-row"><div class="paint-name">${esc(c.name)}</div><div class="paint-hex">${hexCell}</div><div class="paint-swatch" style="background:${esc(swatch)};${shadow}"></div></div>`;
-  }).join('')+'<div class="paint-catalog-note">Retro Roleplay</div>'+controls;
+    return `<div class="paint-row"><div class="paint-name">${nameCell}</div><div class="paint-hex">${hexCell}</div><div class="paint-swatch" style="background:${esc(swatch)};${shadow}"></div></div>`;
+  }).join('')+addRow+'<div class="paint-catalog-note">Retro Roleplay</div>';
 }
 function paintHexDraft(i,input){
   const hex=cleanHex(input.value);
@@ -2308,13 +2317,36 @@ function paintHexDraft(i,input){
   const sw=row?row.querySelector('.paint-swatch'):null;
   if(sw&&hex)sw.style.background=hex;
 }
+function paintNewDraft(input){
+  const hex=cleanHex(input.value);
+  const sw=document.getElementById('paintNewSwatch');
+  if(sw&&hex)sw.style.background=hex;
+}
+function paintAddKey(ev){
+  if(ev.key==='Enter'){
+    ev.preventDefault();
+    addPaintColor();
+  }
+}
+async function savePaintName(i,input){
+  if(!getSession()._superowner){renderPaintCatalog();return;}
+  const name=String(input.value||'').trim();
+  if(!name){toast('Name fehlt','w');renderPaintCatalog();return;}
+  const next=getPaintColors().map(c=>({...c}));
+  next[i].name=name;
+  paintColors=next;
+  localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
+  renderPaintCatalog();
+  if(_fbOnline)await fbWrite(FB_PATH.paintColors,paintColors);
+  toast('Name gespeichert');
+}
 async function savePaintHex(i,input){
   if(!getSession()._superowner){renderPaintCatalog();return;}
   const hex=cleanHex(input.value);
   if(!hex){toast('Hexcode ungueltig','w');renderPaintCatalog();return;}
   const next=getPaintColors().map(c=>({...c}));
   next[i].hex=hex;
-  if(next[i].name!=='Blacklight'&&next[i].name!=='Purple')next[i].swatch=hex;
+  if(!next[i].glow&&!String(next[i].swatch||'').includes('gradient'))next[i].swatch=hex;
   paintColors=next;
   localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
   renderPaintCatalog();
@@ -2328,9 +2360,11 @@ async function savePaintCatalog(){
 }
 async function addPaintColor(){
   if(!getSession()._superowner){toast('Kein Zugang','e');return;}
-  const name=(prompt('Name der Farbe?')||'').trim();
-  if(!name)return;
-  const hex=cleanHex(prompt('Hexcode? Beispiel: #2100FF')||'');
+  const nameEl=document.getElementById('paintNewName');
+  const hexEl=document.getElementById('paintNewHex');
+  const name=String(nameEl?.value||'').trim();
+  if(!name){toast('Name fehlt','w');nameEl?.focus();return;}
+  const hex=cleanHex(hexEl?.value||'');
   if(!hex){toast('Hexcode ungueltig','w');return;}
   const next=getPaintColors().map(c=>({...c}));
   next.push({name,hex,swatch:hex});
