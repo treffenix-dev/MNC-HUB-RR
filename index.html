@@ -97,6 +97,47 @@ body{background:var(--bg);color:var(--white);font-family:'Rajdhani',sans-serif;f
 .abtn{padding:13px 26px;background:linear-gradient(135deg,var(--gold3),var(--gold));border:none;color:#0a0a0a;font-family:'Rajdhani';font-size:15px;font-weight:800;cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all .18s;}
 .abtn:hover{filter:brightness(1.12);transform:translateY(-1px);}
 
+.paint-catalog-toggle{position:fixed;right:22px;top:50%;z-index:390;transform:translateY(-50%) translateX(130%);width:54px;height:54px;display:flex;align-items:center;justify-content:center;background:rgba(8,8,8,.96);border:1px solid rgba(212,168,67,.72);color:var(--gold2);font-size:25px;cursor:pointer;opacity:0;pointer-events:none;box-shadow:0 0 24px rgba(212,168,67,.22);transition:opacity .18s,transform .18s,color .18s,border-color .18s;}
+body.paint-catalog-ready .paint-catalog-toggle{opacity:1;pointer-events:auto;transform:translateY(-50%);}
+body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
+.paint-catalog-toggle:hover{color:var(--white);border-color:var(--gold2);box-shadow:0 0 32px rgba(240,201,106,.36);}
+.paint-catalog-window{position:fixed;right:28px;top:92px;z-index:389;width:520px;height:620px;min-width:260px;min-height:300px;max-width:calc(100vw - 44px);max-height:calc(100vh - 44px);resize:both;overflow:auto;container-type:inline-size;background:linear-gradient(135deg,rgba(212,168,67,.1),transparent 36%),radial-gradient(circle at 86% 8%,rgba(33,0,255,.3),transparent 30%),rgba(8,8,8,.98);border:1px solid rgba(212,168,67,.6);box-shadow:0 28px 72px rgba(0,0,0,.82),0 0 38px rgba(212,168,67,.16);display:none;}
+.paint-catalog-window.open{display:block;}
+.paint-catalog-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 18px 16px;background:rgba(8,8,8,.97);border-bottom:1px solid rgba(212,168,67,.36);cursor:grab;user-select:none;}
+.paint-catalog-head:active{cursor:grabbing;}
+.paint-catalog-kicker{font-family:'Share Tech Mono';font-size:11px;font-weight:700;letter-spacing:4px;color:var(--gold3);text-transform:uppercase;margin-bottom:7px;}
+.paint-catalog-title{font-family:'Bebas Neue';font-size:34px;font-weight:400;line-height:.9;color:var(--white);letter-spacing:4px;text-transform:uppercase;}
+.paint-catalog-title span{color:var(--gold2);}
+.paint-catalog-close{width:38px;height:38px;border:1px solid rgba(212,168,67,.48);background:rgba(212,168,67,.08);color:var(--gold2);font-size:24px;line-height:1;cursor:pointer;}
+.paint-catalog-close:hover{color:var(--white);border-color:var(--gold2);}
+.paint-catalog-body{padding:16px 18px 18px;}
+.paint-row{display:grid;grid-template-columns:minmax(122px,.9fr) minmax(112px,.7fr) minmax(96px,1.2fr);min-height:42px;border:1px solid var(--border);background:rgba(17,17,17,.9);margin-bottom:8px;overflow:hidden;}
+.paint-name,.paint-hex{display:flex;align-items:center;padding:0 12px;font-weight:900;text-transform:uppercase;}
+.paint-name{font-family:'Bebas Neue';font-size:19px;letter-spacing:2px;color:var(--white);}
+.paint-hex{font-family:'Share Tech Mono';font-size:13px;color:var(--gold2);border-left:1px solid var(--border);border-right:1px solid var(--border);text-shadow:0 0 10px rgba(240,201,106,.34);}
+.paint-hex-input{width:100%;border:1px solid rgba(212,168,67,.45);background:rgba(0,0,0,.45);color:var(--gold2);font-family:'Share Tech Mono';font-size:12px;font-weight:800;letter-spacing:.5px;padding:8px 9px;outline:none;text-transform:uppercase;}
+.paint-hex-input:focus{border-color:var(--gold2);box-shadow:0 0 16px rgba(240,201,106,.25);}
+.paint-swatch{position:relative;min-height:100%;box-shadow:inset 0 0 18px rgba(255,255,255,.09);}
+.paint-swatch::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold);box-shadow:0 0 14px rgba(240,201,106,.72);}
+.paint-catalog-note{padding-top:8px;color:var(--gold2);font-family:'Share Tech Mono';font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
+.paint-add{width:100%;margin-top:10px;padding:12px 14px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.55);color:var(--gold2);font-family:'Share Tech Mono';font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
+.paint-add:hover{background:rgba(212,168,67,.18);color:var(--white);border-color:var(--gold2);}
+.paint-catalog-window.compact .paint-catalog-head{padding:14px}
+.paint-catalog-window.compact .paint-catalog-title{font-size:28px}
+.paint-catalog-window.compact .paint-catalog-kicker{font-size:10px;letter-spacing:3px}
+.paint-catalog-window.compact .paint-catalog-body{padding:12px}
+.paint-catalog-window.compact .paint-row{grid-template-columns:1fr;min-height:0;margin-bottom:10px}
+.paint-catalog-window.compact .paint-name,.paint-catalog-window.compact .paint-hex{min-height:38px}
+.paint-catalog-window.compact .paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.paint-catalog-window.compact .paint-swatch{min-height:42px}
+.paint-catalog-window.compact .paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}
+.paint-catalog-window.mini .paint-catalog-title{font-size:24px;letter-spacing:3px}
+.paint-catalog-window.mini .paint-catalog-kicker{display:none}
+.paint-catalog-window.mini .paint-name{font-size:17px}
+.paint-catalog-window.mini .paint-hex,.paint-catalog-window.mini .paint-hex-input{font-size:11px}
+@container (max-width:430px){.paint-catalog-head{padding:14px}.paint-catalog-title{font-size:28px}.paint-catalog-kicker{font-size:10px;letter-spacing:3px}.paint-catalog-body{padding:12px}.paint-row{grid-template-columns:1fr;min-height:0}.paint-name,.paint-hex{min-height:38px}.paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.paint-swatch{min-height:42px}.paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}}
+@container (max-width:310px){.paint-catalog-title{font-size:24px;letter-spacing:3px}.paint-catalog-kicker{display:none}.paint-row{margin-bottom:10px}.paint-name{font-size:17px}.paint-hex,.paint-hex-input{font-size:11px}}
+
 /* ── FRAK LIST ──────────────────────────────────────────────────────── */
 .fgrid{display:flex;flex-direction:column;gap:0;}
 .fc{background:var(--s1);border:1px solid var(--border);border-bottom:none;cursor:pointer;transition:background .15s,border-color .15s;position:relative;overflow:hidden;display:flex;flex-direction:row;align-items:stretch;min-height:72px;}
@@ -422,6 +463,9 @@ tbody tr:hover{background:var(--s2);}
   .home-hero .big{font-size:56px;}
   .fgr{grid-template-columns:1fr;}
   .fful{grid-column:1;}
+  .paint-catalog-toggle{right:14px;top:auto;bottom:18px;transform:translateY(125%);width:52px;height:52px;font-size:24px;}
+  body.paint-catalog-ready .paint-catalog-toggle{transform:translateY(0);}
+  .paint-catalog-window{left:12px!important;right:auto;top:76px;width:calc(100vw - 24px);height:560px;min-width:0;max-width:calc(100vw - 24px);}
 }
 
 /* ── PALM BACKGROUND DECO ──────────────────────────────────────────── */
@@ -935,6 +979,18 @@ if(FB_CONFIGURED){
   <div class="fgrid" id="fgrid"></div>
 </div>
 
+<button class="paint-catalog-toggle" type="button" aria-controls="paintCatalog" aria-expanded="false" aria-label="Farbkatalog oeffnen">🎨</button>
+<aside class="paint-catalog-window" id="paintCatalog" aria-label="Farbkatalog Lackierungen">
+  <div class="paint-catalog-head">
+    <div>
+      <div class="paint-catalog-kicker">Midnight Lackierungen</div>
+      <div class="paint-catalog-title">Farb<span>katalog</span></div>
+    </div>
+    <button class="paint-catalog-close" type="button" aria-label="Farbkatalog schliessen">&times;</button>
+  </div>
+  <div class="paint-catalog-body" id="paintCatalogBody"></div>
+</aside>
+
 <!-- MITGLIEDER -->
 <div class="page" id="page-member">
   <button class="back-home" onclick="goHome()">Startseite</button>
@@ -1296,6 +1352,7 @@ const RL_KEY          = 'mnc_ratelimit';
 const SESS_KEY        = 'mnc_session';
 const FK              = 'mnc_f6';
 const MK              = 'mnc_m4';
+const PAINT_KEY       = 'mnc_paint_catalog_v1';
 const KICK_KEY        = 'mnc_kick_v1';
 const BACKUP_KEY      = 'mnc_daily_backups_v1';
 const BACKUP_LAST_KEY = 'mnc_backup_last_date';
@@ -1318,10 +1375,10 @@ const DEFAULT_PERMS = {
 };
 
 /* ── STATE ──────────────────────────────────────────────────────────────── */
-let curRole='viewer', fraks=[], mems=[], eFid=null, eMid=null, mf='all';
+let curRole='viewer', fraks=[], mems=[], paintColors=[], eFid=null, eMid=null, mf='all';
 let loginAttempts=0, sessionTimer=null, kickPollInterval=null;
 let _fbOnline=false, _localMutex=false;
-const FB_PATH={fraks:'mnc/fraks',mems:'mnc/mems',roles:'mnc/roles',log:'mnc/log',kick:'mnc/kick',gatepw:'mnc/gatepw'};
+const FB_PATH={fraks:'mnc/fraks',mems:'mnc/mems',roles:'mnc/roles',log:'mnc/log',kick:'mnc/kick',gatepw:'mnc/gatepw',paintColors:'mnc/paintColors'};
 
 /* ════════════════════════════════════════════════════════════════════════════
    SHA-256 — PURE JAVASCRIPT, SYNCHRON
@@ -1418,9 +1475,9 @@ function fbListen(path, cb){
 async function fbPullAll(){
   if(!_fbOnline)return;
   showSyncIndicator('Lade Daten…');
-  const[fbF,fbM,fbR,fbL]=await Promise.all([
+  const[fbF,fbM,fbR,fbL,fbC]=await Promise.all([
     fbRead(FB_PATH.fraks),fbRead(FB_PATH.mems),
-    fbRead(FB_PATH.roles),fbRead(FB_PATH.log),
+    fbRead(FB_PATH.roles),fbRead(FB_PATH.log),fbRead(FB_PATH.paintColors),
   ]);
   if(fbF&&Array.isArray(fbF)){
     fraks=fbF.map(f=>Object.assign({unterboden:'',reifenqualm:''},f));
@@ -1450,6 +1507,13 @@ async function fbPullAll(){
   if(fbL&&Array.isArray(fbL)){
     localStorage.setItem(LOG_KEY,JSON.stringify(fbL.slice(0,500)));
   }
+  if(fbC&&Array.isArray(fbC)){
+    paintColors=fbC;
+    localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
+    renderPaintCatalog();
+  }else if(!fbC){
+    await fbWrite(FB_PATH.paintColors,getPaintColors());
+  }
   rfrak();rmem();hs();updateHomeStats();
   showSyncIndicator('✓ Aktuell');
 }
@@ -1460,6 +1524,7 @@ async function fbPushAll(){
   await fbWrite(FB_PATH.fraks,fraks);
   await fbWrite(FB_PATH.mems,mems);
   await fbWrite(FB_PATH.roles,getRD());
+  await fbWrite(FB_PATH.paintColors,getPaintColors());
   _localMutex=false;
   showSyncIndicator('✓ Synchronisiert');
 }
@@ -1487,6 +1552,12 @@ function fbSetupListeners(){
     if(_localMutex)return;
     if(!data||!Array.isArray(data))return;
     localStorage.setItem(LOG_KEY,JSON.stringify(data.slice(0,500)));
+  });
+  fbListen(FB_PATH.paintColors, data=>{
+    if(!data||!Array.isArray(data))return;
+    paintColors=data;
+    localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
+    renderPaintCatalog();
   });
   fbListen(FB_PATH.kick, sig=>{
     if(!sig||curRole==='viewer')return;
@@ -1753,6 +1824,7 @@ function applyRole(role, user){
   if(addFrakBtn)addFrakBtn.style.display=hasPerm('canAddFrak')?'':'none';
   const addMemBtn=document.querySelector('.abtn.adm-only[onclick="openMM()"]');
   if(addMemBtn)addMemBtn.style.display=hasPerm('canAddMem')?'':'none';
+  renderPaintCatalog();
 }
 
 async function doLg(){
@@ -2164,7 +2236,144 @@ function renderFbPanel(){
 /* ════════════════════════════════════════════════════════════════════════════
    NAVIGATION & DATEN
    ════════════════════════════════════════════════════════════════════════════ */
-function goHome(e){if(e)e.preventDefault();document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.getElementById('page-home').classList.add('on');}
+function setPaintCatalogReady(on){
+  document.body.classList.toggle('paint-catalog-ready',!!on);
+  if(!on){
+    const win=document.getElementById('paintCatalog');
+    const btn=document.querySelector('.paint-catalog-toggle');
+    document.body.classList.remove('paint-catalog-open');
+    if(win)win.classList.remove('open');
+    if(btn)btn.setAttribute('aria-expanded','false');
+  }
+}
+const PAINT_DEFAULTS=[
+  {name:'Blue',hex:'#010CA1'},
+  {name:'Electric Blue',hex:'#063DC7'},
+  {name:'Mint Green',hex:'#00FF93'},
+  {name:'Lime Green',hex:'#66F30D'},
+  {name:'Yellow',hex:'#FFFB00'},
+  {name:'Golden Shower',hex:'#FF6E00'},
+  {name:'Orange',hex:'#FF2500'},
+  {name:'Red',hex:'#FF0000'},
+  {name:'Pony Pink',hex:'#FC213E'},
+  {name:'Hot Pink',hex:'#FF005B'},
+  {name:'Purple',hex:'#1E00FF',swatch:'#7B00FF'},
+  {name:'Blacklight',hex:'#2100FF',swatch:'linear-gradient(90deg,#05000d 0%,#16003f 24%,#2100FF 52%,#7400ff 100%)',glow:true},
+  {name:'Xenon',hex:'#307CFE'}
+];
+function cleanHex(v){
+  const s=String(v||'').trim().toUpperCase();
+  const m=s.match(/^#?[0-9A-F]{6}$/);
+  return m ? (s[0]==='#'?s:'#'+s) : '';
+}
+function getPaintColors(){
+  return Array.isArray(paintColors)&&paintColors.length?paintColors:JSON.parse(JSON.stringify(PAINT_DEFAULTS));
+}
+function loadPaintColors(){
+  try{
+    const cached=localStorage.getItem(PAINT_KEY);
+    paintColors=cached?JSON.parse(cached):JSON.parse(JSON.stringify(PAINT_DEFAULTS));
+  }catch{paintColors=JSON.parse(JSON.stringify(PAINT_DEFAULTS));}
+}
+function renderPaintCatalog(){
+  const body=document.getElementById('paintCatalogBody');
+  if(!body)return;
+  const superAdmin=!!getSession()._superowner;
+  const controls=superAdmin?'<button class="paint-add" type="button" onclick="addPaintColor()">+ Farbe hinzufuegen</button>':'';
+  body.innerHTML=getPaintColors().map((c,i)=>{
+    const hex=cleanHex(c.hex)||'#000000';
+    const swatch=c.swatch||hex;
+    const shadow=c.glow?'box-shadow:inset 0 0 18px rgba(255,255,255,.09),0 0 24px rgba(116,0,255,.52)':'';
+    const hexCell=superAdmin
+      ? `<input class="paint-hex-input" value="${esc(hex)}" maxlength="7" spellcheck="false" aria-label="${esc(c.name)} Hexcode" oninput="paintHexDraft(${i},this)" onchange="savePaintHex(${i},this)">`
+      : esc(hex);
+    return `<div class="paint-row"><div class="paint-name">${esc(c.name)}</div><div class="paint-hex">${hexCell}</div><div class="paint-swatch" style="background:${esc(swatch)};${shadow}"></div></div>`;
+  }).join('')+'<div class="paint-catalog-note">Retro Roleplay</div>'+controls;
+}
+function paintHexDraft(i,input){
+  const hex=cleanHex(input.value);
+  const row=input.closest('.paint-row');
+  const sw=row?row.querySelector('.paint-swatch'):null;
+  if(sw&&hex)sw.style.background=hex;
+}
+async function savePaintHex(i,input){
+  if(!getSession()._superowner){renderPaintCatalog();return;}
+  const hex=cleanHex(input.value);
+  if(!hex){toast('Hexcode ungueltig','w');renderPaintCatalog();return;}
+  const next=getPaintColors().map(c=>({...c}));
+  next[i].hex=hex;
+  if(next[i].name!=='Blacklight'&&next[i].name!=='Purple')next[i].swatch=hex;
+  paintColors=next;
+  localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
+  renderPaintCatalog();
+  if(_fbOnline)await fbWrite(FB_PATH.paintColors,paintColors);
+  toast('Farbe gespeichert');
+}
+async function savePaintCatalog(){
+  localStorage.setItem(PAINT_KEY,JSON.stringify(paintColors));
+  renderPaintCatalog();
+  if(_fbOnline)await fbWrite(FB_PATH.paintColors,paintColors);
+}
+async function addPaintColor(){
+  if(!getSession()._superowner){toast('Kein Zugang','e');return;}
+  const name=(prompt('Name der Farbe?')||'').trim();
+  if(!name)return;
+  const hex=cleanHex(prompt('Hexcode? Beispiel: #2100FF')||'');
+  if(!hex){toast('Hexcode ungueltig','w');return;}
+  const next=getPaintColors().map(c=>({...c}));
+  next.push({name,hex,swatch:hex});
+  paintColors=next;
+  await savePaintCatalog();
+  toast('Farbe hinzugefuegt');
+}
+function initPaintCatalog(){
+  const btn=document.querySelector('.paint-catalog-toggle');
+  const win=document.getElementById('paintCatalog');
+  const head=document.querySelector('.paint-catalog-head');
+  const close=document.querySelector('.paint-catalog-close');
+  if(!btn||!win)return;
+  loadPaintColors();
+  renderPaintCatalog();
+  const syncPaintSize=()=>{
+    win.classList.toggle('compact',win.offsetWidth<430);
+    win.classList.toggle('mini',win.offsetWidth<310);
+  };
+  syncPaintSize();
+  if('ResizeObserver' in window)new ResizeObserver(syncPaintSize).observe(win);
+  btn.addEventListener('click',()=>{
+    const open=win.classList.toggle('open');
+    document.body.classList.toggle('paint-catalog-open',open);
+    btn.setAttribute('aria-expanded',String(open));
+    syncPaintSize();
+  });
+  close?.addEventListener('click',()=>{
+    win.classList.remove('open');
+    document.body.classList.remove('paint-catalog-open');
+    btn.setAttribute('aria-expanded','false');
+  });
+  if(head){
+    let drag=null;
+    head.addEventListener('pointerdown',event=>{
+      if(event.target.closest('button'))return;
+      const rect=win.getBoundingClientRect();
+      drag={x:event.clientX-rect.left,y:event.clientY-rect.top};
+      head.setPointerCapture(event.pointerId);
+    });
+    head.addEventListener('pointermove',event=>{
+      if(!drag)return;
+      const maxLeft=window.innerWidth-win.offsetWidth-8;
+      const maxTop=window.innerHeight-win.offsetHeight-8;
+      const nextLeft=Math.min(Math.max(8,event.clientX-drag.x),Math.max(8,maxLeft));
+      const nextTop=Math.min(Math.max(8,event.clientY-drag.y),Math.max(8,maxTop));
+      win.style.left=nextLeft+'px';
+      win.style.top=nextTop+'px';
+      win.style.right='auto';
+    });
+    head.addEventListener('pointerup',()=>{drag=null;});
+    head.addEventListener('pointercancel',()=>{drag=null;});
+  }
+}
+function goHome(e){if(e)e.preventDefault();document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));document.getElementById('page-home').classList.add('on');setPaintCatalogReady(false);}
 function navTo(id){let btn=null;document.querySelectorAll('.nb').forEach(b=>{if((b.getAttribute('onclick')||'').includes("'"+id+"'"))btn=b;});showPage(id,btn);}
 function showPage(id, btn){
   document.querySelectorAll('.page,.homepage').forEach(p=>p.classList.remove('on'));
@@ -2172,6 +2381,7 @@ function showPage(id, btn){
   const pg=document.getElementById('page-'+id);
   if(pg)pg.classList.add('on');
   if(btn)btn.classList.add('on');
+  setPaintCatalogReady(id==='frak');
   if(id==='member')rmem();
   if(id==='ctrl')renderCtrl();
 }
@@ -2850,6 +3060,19 @@ function applyCp(){
 }
 
 /* ── MEMBERS ────────────────────────────────────────────────────────── */
+const MNC_RANKS = [
+  {level:12,label:'[12 MNC] Hashiriya ersten Ranges',discordRole:'Hashiriya ersten Ranges'},
+  {level:11,label:'[11 MNC] Hashiriya zweiten Ranges',discordRole:'Hashiriya zweiten Ranges'},
+  {level:10,label:'[10 MNC] Hashiriya dritten Ranges',discordRole:'Hashiriya dritten Ranges'},
+  {level:9,label:'[9 MNC] Respected Saikō Midnight',discordRole:'Respected Saikō Midnight'},
+  {level:7,label:'[7 MNC] Respected Midnight Club Member',discordRole:'Respected Midnight Club Member'},
+  {level:5,label:'[5 MNC] Supidā second class',discordRole:'Supidā second class'},
+  {level:4,label:'[4 MNC] Supidā third class',discordRole:'Supidā third class'},
+  {level:3,label:'[3 MNC] Unten-sha first class',discordRole:'Unten-sha first class'},
+  {level:2,label:'[2 MNC] Unten-sha second class',discordRole:'Unten-sha second class'},
+  {level:1,label:'[1 MNC] Unten-sha third class',discordRole:'Unten-sha third class'}
+];
+const DISCORD_ROLE_TO_MNC_RANK = Object.fromEntries(MNC_RANKS.map(r=>[r.discordRole,r.label]));
 const RC = {
   '[12 MNC] Hashiriya ersten Ranges':'r12',
   '[11 MNC] Hashiriya zweiten Ranges':'r11',
@@ -3463,6 +3686,7 @@ function saSoftLockAll(lock){
   toast(lock?'🔒 Alle Admins eingefroren':'🔓 Alle Admins entsperrt',lock?'w':'');
 }
 
+initPaintCatalog();
 init();
 </script>
 </body>
