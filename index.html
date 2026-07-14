@@ -288,8 +288,10 @@ tbody tr:hover{background:var(--s2);}
 .r10{border-color:#cc8800;color:#ffaa22;background:rgba(200,130,0,.1);}
 /* [9] Respected Saikō Midnight — Lila */
 .r9{border-color:#9966ff;color:#bb99ff;background:rgba(140,80,255,.08);}
+.r8{border-color:#7c5cff;color:#c2b3ff;background:rgba(124,92,255,.08);}
 /* [7] Respected Midnight Club Member — Blau-Lila */
 .r7{border-color:#7070ee;color:#a0a0ff;background:rgba(100,100,220,.08);}
+.r6{border-color:#2bbf9f;color:#68f0d0;background:rgba(43,191,159,.08);}
 /* [5] Supidā second class — Cyan */
 .r5{border-color:#22bbdd;color:#55ddff;background:rgba(30,170,200,.08);}
 /* [4] Supidā third class — Blaugrün */
@@ -300,6 +302,7 @@ tbody tr:hover{background:var(--s2);}
 .r2{border-color:#88cc44;color:#aae866;background:rgba(100,180,50,.08);}
 /* [1] Unten-sha third class — Grau-Grün */
 .r1{border-color:#668855;color:#99bb88;background:rgba(90,130,70,.08);}
+.r0{border-color:#666;color:#aaa;background:rgba(120,120,120,.08);}
 /* Fallback */
 .rn{border-color:var(--g3);color:var(--g3);}
 .sb2{display:inline-flex;align-items:center;gap:6px;font-family:'Share Tech Mono';font-size:11px;letter-spacing:1px;}
@@ -2565,7 +2568,7 @@ function rmem(){
   const q=(document.getElementById('minp').value||'').toLowerCase();
   let list=mems.filter(m=>(m.name||'').toLowerCase().includes(q)||(m.rang||'').toLowerCase().includes(q));
   // Sort by rank number descending (12 → 1)
-  const rankOrder={'[12 MNC] Hashiriya ersten Ranges':12,'[11 MNC] Hashiriya zweiten Ranges':11,'[10 MNC] Hashiriya dritten Ranges':10,'[9 MNC] Respected Saikō Midnight':9,'[7 MNC] Respected Midnight Club Member':7,'[5 MNC] Supidā second class':5,'[4 MNC] Supidā third class':4,'[3 MNC] Unten-sha first class':3,'[2 MNC] Unten-sha second class':2,'[1 MNC] Unten-sha third class':1};
+  const rankOrder={'[12 MNC] Hashiriya ersten Ranges':12,'[11 MNC] Hashiriya zweiten Ranges':11,'[10 MNC] Hashiriya dritten Ranges':10,'[9 MNC] Respected Saikō Midnight':9,'[8 MNC] Midnight Club Member':8,'[7 MNC] Respected Midnight Club Member':7,'[6 MNC] Midnight Prospect':6,'[5 MNC] Supidā second class':5,'[4 MNC] Supidā third class':4,'[3 MNC] Unten-sha first class':3,'[2 MNC] Unten-sha second class':2,'[1 MNC] Unten-sha third class':1,'[0 MNC] Crashte$t Dummy':0};
   list.sort((a,b)=>(rankOrder[b.rang]||0)-(rankOrder[a.rang]||0));
   if(mf!=='all')list=list.filter(m=>m.status===mf);
   document.getElementById('sa').textContent=mems.filter(m=>m.status==='AKTIV').length;
@@ -3075,12 +3078,15 @@ const MNC_RANKS = [
   {level:11,label:'[11 MNC] Hashiriya zweiten Ranges',discordRole:'Hashiriya zweiten Ranges'},
   {level:10,label:'[10 MNC] Hashiriya dritten Ranges',discordRole:'Hashiriya dritten Ranges'},
   {level:9,label:'[9 MNC] Respected Saikō Midnight',discordRole:'Respected Saikō Midnight'},
+  {level:8,label:'[8 MNC] Midnight Club Member',discordRole:'Midnight Club Member'},
   {level:7,label:'[7 MNC] Respected Midnight Club Member',discordRole:'Respected Midnight Club Member'},
+  {level:6,label:'[6 MNC] Midnight Prospect',discordRole:'Midnight Prospect'},
   {level:5,label:'[5 MNC] Supidā second class',discordRole:'Supidā second class'},
   {level:4,label:'[4 MNC] Supidā third class',discordRole:'Supidā third class'},
   {level:3,label:'[3 MNC] Unten-sha first class',discordRole:'Unten-sha first class'},
   {level:2,label:'[2 MNC] Unten-sha second class',discordRole:'Unten-sha second class'},
-  {level:1,label:'[1 MNC] Unten-sha third class',discordRole:'Unten-sha third class'}
+  {level:1,label:'[1 MNC] Unten-sha third class',discordRole:'Unten-sha third class'},
+  {level:0,label:'[0 MNC] Crashte$t Dummy',discordRole:'Crashte$t Dummy'}
 ];
 const DISCORD_ROLE_TO_MNC_RANK = Object.fromEntries(MNC_RANKS.map(r=>[r.discordRole,r.label]));
 const RC = {
@@ -3088,12 +3094,15 @@ const RC = {
   '[11 MNC] Hashiriya zweiten Ranges':'r11',
   '[10 MNC] Hashiriya dritten Ranges':'r10',
   '[9 MNC] Respected Saikō Midnight':'r9',
+  '[8 MNC] Midnight Club Member':'r8',
   '[7 MNC] Respected Midnight Club Member':'r7',
+  '[6 MNC] Midnight Prospect':'r6',
   '[5 MNC] Supidā second class':'r5',
   '[4 MNC] Supidā third class':'r4',
   '[3 MNC] Unten-sha first class':'r3',
   '[2 MNC] Unten-sha second class':'r2',
   '[1 MNC] Unten-sha third class':'r1',
+  '[0 MNC] Crashte$t Dummy':'r0',
   // Legacy keys
   'Hashiriya 1段':'r12','Hashiriya 2段':'r11','Hashiriya 3段':'r10','Saikō-Kan':'r9',
   'Takai Member':'r7','Kai Member':'r7','Supīdā First Class':'r5','Supīdā Second Class':'r5',
