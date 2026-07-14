@@ -112,6 +112,7 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-catalog-close:hover{color:var(--white);border-color:var(--gold2);}
 .paint-catalog-body{padding:12px 16px 14px;}
 .paint-row{display:grid;grid-template-columns:minmax(122px,.9fr) minmax(112px,.7fr) minmax(96px,1.2fr);min-height:36px;border:1px solid var(--border);background:rgba(17,17,17,.9);margin-bottom:6px;overflow:hidden;}
+.paint-admin-row{grid-template-columns:minmax(122px,.9fr) minmax(112px,.7fr) minmax(80px,1fr) 44px;}
 .paint-name,.paint-hex{display:flex;align-items:center;padding:0 12px;font-weight:900;text-transform:uppercase;}
 .paint-name{font-family:'Bebas Neue';font-size:18px;letter-spacing:2px;color:var(--white);}
 .paint-hex{font-family:'Share Tech Mono';font-size:13px;color:var(--gold2);border-left:1px solid var(--border);border-right:1px solid var(--border);text-shadow:0 0 10px rgba(240,201,106,.34);}
@@ -122,8 +123,11 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-swatch::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--gold);box-shadow:0 0 14px rgba(240,201,106,.72);}
 .paint-catalog-note{padding-top:6px;color:var(--gold2);font-family:'Share Tech Mono';font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;}
 .paint-add-row{border-color:rgba(212,168,67,.55);background:linear-gradient(90deg,rgba(212,168,67,.12),rgba(17,17,17,.92));}
-.paint-add-btn{width:100%;height:100%;min-height:36px;border:0;background:rgba(212,168,67,.12);color:var(--gold2);font-family:'Share Tech Mono';font-size:18px;font-weight:900;letter-spacing:2px;cursor:pointer;}
+.paint-action{display:flex;align-items:stretch;justify-content:stretch;border-left:1px solid var(--border);}
+.paint-add-btn,.paint-del-btn{width:100%;height:100%;min-height:36px;border:0;background:rgba(212,168,67,.12);color:var(--gold2);font-family:'Share Tech Mono';font-size:18px;font-weight:900;letter-spacing:2px;cursor:pointer;}
 .paint-add-btn:hover{background:rgba(212,168,67,.22);color:var(--white);}
+.paint-del-btn{background:rgba(224,80,64,.1);color:var(--red);}
+.paint-del-btn:hover{background:var(--red);color:#fff;}
 .paint-catalog-window.compact .paint-catalog-head{padding:14px}
 .paint-catalog-window.compact .paint-catalog-title{font-size:28px}
 .paint-catalog-window.compact .paint-catalog-kicker{font-size:10px;letter-spacing:3px}
@@ -131,7 +135,7 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-catalog-window.compact .paint-row{grid-template-columns:1fr;min-height:0;margin-bottom:10px}
 .paint-catalog-window.compact .paint-name,.paint-catalog-window.compact .paint-hex{min-height:38px}
 .paint-catalog-window.compact .paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-.paint-catalog-window.compact .paint-swatch{min-height:42px}
+.paint-catalog-window.compact .paint-swatch,.paint-catalog-window.compact .paint-action{min-height:42px}
 .paint-catalog-window.compact .paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}
 .paint-catalog-window.mini .paint-catalog-title{font-size:24px;letter-spacing:3px}
 .paint-catalog-window.mini .paint-catalog-kicker{display:none}
@@ -145,7 +149,7 @@ body.paint-catalog-open .paint-catalog-toggle{opacity:0;pointer-events:none;}
 .paint-catalog-window.short .paint-name{font-size:16px}
 .paint-catalog-window.short .paint-hex{font-size:12px}
 .paint-catalog-window.short .paint-swatch::before{width:4px}
-@container (max-width:430px){.paint-catalog-head{padding:14px}.paint-catalog-title{font-size:28px}.paint-catalog-kicker{font-size:10px;letter-spacing:3px}.paint-catalog-body{padding:12px}.paint-row{grid-template-columns:1fr;min-height:0}.paint-name,.paint-hex{min-height:38px}.paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.paint-swatch{min-height:42px}.paint-add-btn{min-height:42px}.paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}}
+@container (max-width:430px){.paint-catalog-head{padding:14px}.paint-catalog-title{font-size:28px}.paint-catalog-kicker{font-size:10px;letter-spacing:3px}.paint-catalog-body{padding:12px}.paint-row{grid-template-columns:1fr;min-height:0}.paint-name,.paint-hex{min-height:38px}.paint-hex{border-left:0;border-right:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}.paint-swatch,.paint-action{min-height:42px}.paint-action{border-left:0;border-top:1px solid var(--border)}.paint-add-btn,.paint-del-btn{min-height:42px}.paint-swatch::before{width:100%;height:4px;bottom:auto;right:0}}
 @container (max-width:310px){.paint-catalog-title{font-size:24px;letter-spacing:3px}.paint-catalog-kicker{display:none}.paint-row{margin-bottom:10px}.paint-name{font-size:17px}.paint-hex,.paint-name-input,.paint-hex-input{font-size:11px}}
 
 /* ── FRAK LIST ──────────────────────────────────────────────────────── */
@@ -2293,10 +2297,11 @@ function renderPaintCatalog(){
   if(!body)return;
   const superAdmin=!!getSession()._superowner;
   const addRow=superAdmin?`
-    <div class="paint-row paint-add-row">
+    <div class="paint-row paint-admin-row paint-add-row">
       <div class="paint-name"><input class="paint-name-input" id="paintNewName" placeholder="Name" spellcheck="false" onkeydown="paintAddKey(event)"></div>
       <div class="paint-hex"><input class="paint-hex-input" id="paintNewHex" placeholder="#2100FF" maxlength="7" spellcheck="false" oninput="paintNewDraft(this)" onkeydown="paintAddKey(event)"></div>
-      <div class="paint-swatch" id="paintNewSwatch"><button class="paint-add-btn" type="button" onclick="addPaintColor()" aria-label="Farbe hinzufuegen">+</button></div>
+      <div class="paint-swatch" id="paintNewSwatch"></div>
+      <div class="paint-action"><button class="paint-add-btn" type="button" onclick="addPaintColor()" aria-label="Farbe hinzufuegen">+</button></div>
     </div>`:'';
   body.innerHTML=getPaintColors().map((c,i)=>{
     const hex=cleanHex(c.hex)||'#000000';
@@ -2308,7 +2313,10 @@ function renderPaintCatalog(){
     const hexCell=superAdmin
       ? `<input class="paint-hex-input" value="${esc(hex)}" maxlength="7" spellcheck="false" aria-label="${esc(c.name)} Hexcode" oninput="paintHexDraft(${i},this)" onchange="savePaintHex(${i},this)">`
       : esc(hex);
-    return `<div class="paint-row"><div class="paint-name">${nameCell}</div><div class="paint-hex">${hexCell}</div><div class="paint-swatch" style="background:${esc(swatch)};${shadow}"></div></div>`;
+    const actionCell=superAdmin
+      ? `<div class="paint-action"><button class="paint-del-btn" type="button" onclick="deletePaintColor(${i})" aria-label="${esc(c.name)} loeschen">×</button></div>`
+      : '';
+    return `<div class="paint-row${superAdmin?' paint-admin-row':''}"><div class="paint-name">${nameCell}</div><div class="paint-hex">${hexCell}</div><div class="paint-swatch" style="background:${esc(swatch)};${shadow}"></div>${actionCell}</div>`;
   }).join('')+addRow+'<div class="paint-catalog-note">Retro Roleplay</div>';
 }
 function paintHexDraft(i,input){
@@ -2371,6 +2379,22 @@ async function addPaintColor(){
   paintColors=next;
   await savePaintCatalog();
   toast('Farbe hinzugefuegt');
+}
+function deletePaintColor(i){
+  if(!getSession()._superowner){toast('Kein Zugang','e');return;}
+  const list=getPaintColors();
+  const color=list[i];
+  if(!color)return;
+  document.getElementById('cfname').textContent=color.name||'diese Farbe';
+  document.getElementById('cfconfirm').onclick=async()=>{
+    const next=getPaintColors().map(c=>({...c}));
+    next.splice(i,1);
+    paintColors=next;
+    await savePaintCatalog();
+    closeCF();
+    toast('Farbe geloescht','w');
+  };
+  document.getElementById('cfov').classList.add('open');
 }
 function initPaintCatalog(){
   const btn=document.querySelector('.paint-catalog-toggle');
